@@ -1,0 +1,331 @@
+" >>>>>>>>>>>>>>>>>>>>>>>>>>>> Run default user setting >>>>>>>>>>>>>>>>>>>>>
+" Skip this !!!!!!!!!!
+" unlet! skip_defaults_vim
+" source $VIMRUNTIME/defaults.vim
+" set nocompatible
+" syntax on
+" <<<<<<<<<<<<<<<<<<<<<<<<<<<< Run default user setting <<<<<<<<<<<<<<<<<<<<<
+
+
+" >>>>>>>>>>>>>>>>>>>>>>>>>>>> Apperance Setting >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+filetype indent plugin on
+set number
+set ruler
+colorscheme jellybeans
+if !has("gui_running")
+	set t_Co=256
+endif
+" Ex cmd display
+set showcmd
+set wildmenu
+set wildmode=list,longest,full
+set wildchar=<Tab>
+set ttimeout
+set ttimeoutlen=100
+set display=truncate
+" Highlight
+if &t_Co > 2 || has("gui_running")
+	set hlsearch
+endif
+noremap n :set hls<CR>n
+noremap N :set hls<CR>N
+noremap / :set hls<CR>/
+noremap ? :set hls<CR>?
+noremap * :set hls<CR>*
+noremap # :set hls<CR>#
+set cursorline
+highlight cursorline cterm=none ctermbg=235
+" Fold
+set foldenable
+set foldmethod=indent
+set foldlevel=99
+set foldcolumn=3
+" Tabstop and indent
+set smarttab
+set tabstop=4
+set softtabstop=4
+set noexpandtab
+set shiftwidth=4
+set autoindent
+set smartindent
+" Line display
+set breakindent
+set showbreak=››››
+set wrap
+"set textwidth=78
+" Character display
+set list
+set listchars=tab:»⋅,trail:-,precedes:?,extends:?,eol:«
+" Scroll
+set scrolloff=5
+set noscrollbind
+" Status bar(Others will be left to plugins)
+set laststatus=2
+" >>>>>>>>>>>>>>>>>>>>>>>>>>>> Apperance Setting >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+" >>>>>>>>>>>>>>>>>>>>>>>>>>>> Usage Setting >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+" Key setting
+set backspace=indent,eol,start
+set nrformats-=octal
+if has('mouse')
+	set mouse=a
+endif
+" Pattern matching
+set ignorecase
+set smartcase
+set incsearch
+set matchpairs={:},(:),[:],（:）,":",“:”
+" Fileformat and encoding
+set fileformat=unix
+set fileformats=unix,dos,mac
+set encoding=utf-8
+set fileencodings=utf-8,usc-bom,gbk10820,gbk2312,utf-16
+set fileencoding=utf-8
+set termencoding=utf-8
+" >>>>>>> Backup and Recovering >>>>>>>
+" Backup
+if has("vms")
+	set nobackup
+else
+	set backup
+	if has('persistent_undo')
+		set undofile
+		set undodir=~/.vim/undos
+	endif
+endif
+set backupext=.bak
+set backupdir=~/.vim/backups
+" Swapfile
+set swapfile
+set directory=~/.vim/swaps
+set updatetime=50000
+set updatecount=400
+" View
+set viewdir=~/.vim/views
+" Undo
+set history=200
+" <<<<<<< Backup and Recovering <<<<<<<
+
+
+" >>>>>>>>>>>>>>>>>>>>>>>>>>> Key Mapper >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+inoremap KK <Esc>
+nnoremap K <Nul>
+let mapleader=";"
+let maplocalleader=","
+xnoremap <leader>yt :<C-u>'<,'>w !xargs -0 tmux set-buffer<CR><CR><C-b>:selectp -t
+iabbrev xtime <C-r>=strftime("%Y-%m-%d %H:%M:%S")<CR>
+" <<<<<<<<<<<<<<<<<<<<<<<<<<< Key Mapper <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+" >>>>>>>>>>>>>>>>>>>>>>>>>>> Functional Mods >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+" >>>>>>>> Auto Make-Del View >>>>>>>
+" autocmd BufWinLeave ?* if !&readonly | mkview | endif
+" autocmd BufWinEnter ?* if !&readonly | silent loadview | endif
+" # Function to permanently delete views created by 'mkview'
+function! MyDeleteView()
+	let path = fnamemodify(bufname('%'),':p')
+	" vim's odd =~ escaping for /
+	let path = substitute(path, '=', '==', 'g')
+	if empty($HOME)
+	else
+		let path = substitute(path, '^'.$HOME, '\~', '')
+	endif
+	let path = substitute(path, '/', '=+', 'g') . '='
+	" view directory
+	let path = &viewdir.'/'.path
+	call delete(path)
+	echo "Deleted: ".path
+endfunction
+" # Command Delview (and it's abbreviation 'delview')
+command Delview call MyDeleteView()
+" Lower-case user commands: http://vim.wikia.com/wiki/Replace_a_builtin_command_using_cabbrev
+cabbrev delview <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Delview' : 'delview')<CR>
+" <<<<<<<< Auto Make-Del View <<<<<<<
+
+" >>>>>>> Clever Tab >>>>>>>
+function! CleverTab()
+	if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*\-\?\s*$'
+		return "\<Tab>"
+	else
+		return "\<C-n>"
+	endif
+endfunction
+inoremap <Tab> <C-r>=CleverTab()<CR>
+" <<<<<<< Clever Tab <<<<<<<
+
+
+" >>>>>>>>>>>>>>>>>>>>>>>>>>> Plugins >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+if has('syntax') && has('eval')
+	packadd! matchit
+endif
+" frazrepo/vim-rainbow
+let g:rainbow_active=1
+" itchyny/lightline.vim
+let g:lightline = {
+	\ 'colorscheme': 'molokai',
+	\ 'active': {
+	\	'left': [ [ 'mode', 'paste' ],
+	\			  [ 'readonly', 'filename', 'modified', 'charvaluehex' ] ]
+	\ },
+	\ 'component': {
+	\	'charvaluehex': '0x%B'
+	\ },
+	\ }
+" preservim/nerdtree
+augroup nerdtree_setting
+	au!
+	autocmd StdinReadPre * let s:std_in=1
+	" Start NERDTree when Vim is started without file arguments.
+	autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+	" Start NERDTree when Vim starts with a directory argument.
+	autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
+		\ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
+	" Exit Vim if NERDTree is the only window remaining in the only tab.
+	autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
+		\ quit | endif
+	" Close the tab if NERDTree is the only window remaining in it.
+	autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
+		\ quit | endif
+	" If another buffer tries to replace NERDTree, put it in the other window, and bring back NERDTree.
+	autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
+		\ let buf=bufnr() | buffer# | execute "normal! \<C-w>w" | execute 'buffer'.buf | endif
+	" Open the existing NERDTree on each new tab.
+	autocmd BufWinEnter * if getcmdwintype() == '' | silent NERDTreeMirror | endif
+	nnoremap <leader>n :NERDTreeFocus<CR>
+	" nnoremap <C-t> :NERDTree<CR>
+	nnoremap <leader>nn :NERDTreeToggle<CR>
+	nnoremap <leader>nf :NERDTreeFind<CR>
+	let g:NERDTreeWinSize=25
+augroup end
+" perservim/tagbar
+let g:tagbar_width=25
+let g:tagbar_sort=1
+let g:tagbar_autofocus=1
+nnoremap <leader>tt :TagbarToggle<CR>
+nnoremap <leader>tf :TagbarCurrentTag<CR>
+let g:tagbar_type_markdown = {
+	\'ctagstype'	: 'markdown',
+	\'kinds'		: [
+		\'h:Heading_All',
+		\'j:Heading_L2',
+		\'k:Heading_L3',
+		\'l:Heading_L4',
+	\],
+	\'sort':0,
+\}
+	"ctagstype: the lang-type passed to ctags
+	"kinds: parsing the token from ctags, match the first
+	"	char from the token, and group the content to 
+	"	the relavant tag(after the `:`)
+	"sort: default sorting method
+let g:tagbar_type_rust = {
+	\ 'ctagstype'	: 'rust',
+	\ 'kinds'		: [
+		\'T:types,type definitions',
+		\'f:functions,function definitions',
+		\'g:enum,enumeration names',
+		\'s:structure names',
+		\'m:modules,module names',
+		\'c:consts,static constants',
+		\'t:traits',
+		\'i:impls,trait implementations',
+	\]
+\}
+
+let g:tagbar_type_scala = {
+	\'ctagstype'	: 'scala',
+	\'sro'			: '.',
+	\'kinds'		: [
+		\'T:Types',
+		\'t:Traits',
+		\'o:Objects',
+		\'O:Case objects',
+		\'c:Classes',
+		\'C:Case classes',
+		\'m:Methods',
+		\'V:Constant',
+		\'v:Variables'
+	\],
+	\'sort': 0
+\}
+" tpope/vim-commentary
+augroup vim_commentary_setting
+	au!
+	autocmd FileType apache setlocal commentstring=#\ %s
+augroup end
+" jpalardy/vim-slime
+" For `slime_target="tmux"`
+let g:slime_default_config={"socket_name": "default", "target_pane": "{right-of}"}
+" For `slime_target="vimterminal"`
+let g:slime_target="vimterminal"
+let g:slime_preserve_curpos=1
+" let g:slime_dont_ask_default=1
+" `:help term_start()` for more infomation
+let g:slime_no_mappings=1
+xmap <leader>ss <Plug>SlimeRegionSend
+nmap <leader>ss <Plug>SlimeParagraphSend
+nmap <leader>sc <Plug>SlimeSendCell
+" Yggdroot/LeaderF
+let g:Lf_WindowPosition="popup"
+let g:Lf_PreviewInPopup=1
+let g:Lf_PopupPalette = {
+	\'light': {
+	\	'Lf_hl_match': {
+	\		'gui': 'NONE',
+	\		'font': 'NONE',
+	\		'guifg': 'NONE',
+	\		'guibg': '#303136',
+	\		'cterm': 'NONE',
+	\		'ctermfg': 'NONE',
+	\		'ctermbg': '236'
+	\	},
+	\	'Lf_hl_cursorline': {
+	\		'gui': 'NONE',
+	\		'font': 'NONE',
+	\		'guifg': 'NONE',
+	\		'guibg': '#303136',
+	\		'cterm': 'NONE',
+	\		'ctermfg': 'NONE',
+	\		'ctermbg': '236'
+	\	},
+	\},
+	\'dark': {
+	\	'Lf_hl_match': {
+	\		'gui': 'NONE',
+	\		'font': 'NONE',
+	\		'guifg': 'NONE',
+	\		'guibg': '#303136',
+	\		'cterm': 'NONE',
+	\		'ctermfg': 'NONE',
+	\		'ctermbg': '236'
+	\	},
+	\	'Lf_hl_cursorline': {
+	\		'gui': 'NONE',
+	\		'font': 'NONE',
+	\		'guifg': 'NONE',
+	\		'guibg': '#303136',
+	\		'cterm': 'NONE',
+	\		'ctermfg': 'NONE',
+	\		'ctermbg': '236'
+	\	},
+	\}
+	\}
+let g:Lf_ShortcutF='<leader>ff'
+noremap <leader>fb :<C-u><C-r>=printf("Leaderf buffer %s", "")<CR><CR>
+noremap <leader>fm :<C-u><C-r>=printf("Leaderf mru %s", "")<CR><CR>
+noremap <leader>ft :<C-u><C-r>=printf("Leaderf bufTag %s", "")<CR><CR>
+noremap <leader>fl :<C-u><C-r>=printf("Leaderf line %s", "")<CR><CR>
+noremap <leader>fq :<C-u><C-r>=printf("Leaderf quickfix %s", "")<CR><CR>
+" noremap <leader>fw :<C-u><C-r>=printf("Leaderf! rg --current-buffer -e %s", expand("<cword>"))<CR>
+" noremap <leader>faw :<C-u><C-r>=printf("Leaderf! rg -e %s", expand("<cword>"))<CR>
+" xnoremap gf :<C-u><C-r>=printf("Leaderf! rg -F -e %s", leaderf#Rg#visual())<CR>
+" noremap go :<C-u>Leaderf! rg --recall<CR>
+" let g:Lf_GtagsAutoGenerate=0
+" let g:Lf_Gtagslabel="native-pygments"
+" noremap <leader>fr :<C-u><C-r>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
+" noremap <leader>fd :<C-u><C-r>=printf("Leaderf! gtags -d %s --auto-jump", expand("<cword>"))<CR><CR>
+" noremap <leader>fo :<C-u><C-r>=printf("Leaderf! gtags --recall", expand("<cword>"))<CR><CR>
+" noremap <leader>fn :<C-u><C-r>=printf("Leaderf gtags --next", expand("<cword>"))<CR><CR>
+" noremap <leader>fp :<C-u><C-r>=printf("Leaderf gtags --previous", expand("<cword>"))<CR><CR>
+" <<<<<<<<<<<<<<<<<<<<<<<<<<< Plugins <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
