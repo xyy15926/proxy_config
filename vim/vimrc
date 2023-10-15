@@ -11,7 +11,8 @@
 filetype indent plugin on
 set number
 set ruler
-colorscheme jellybeans
+set background=dark
+colorscheme gruvbox
 if !has("gui_running")
 	set t_Co=256
 endif
@@ -20,26 +21,34 @@ set showcmd
 set wildmenu
 set wildmode=list,longest,full
 set wildchar=<Tab>
-set ttimeout
-set ttimeoutlen=100
-set display=truncate
+" Time out for keycode sequences and key mappings
+set timeout ttimeout
+" `timeout` is set with 200ms for `vim-which-key`
+set timeoutlen=300
+set display=truncate,lastline,uhex
 " Highlight
 if &t_Co > 2 || has("gui_running")
 	set hlsearch
 endif
-noremap n :set hls<CR>n
-noremap N :set hls<CR>N
-noremap / :set hls<CR>/
-noremap ? :set hls<CR>?
-noremap * :set hls<CR>*
-noremap # :set hls<CR>#
+" set nohlsearch
+" noremap n :set hls<CR>n
+" noremap N :set hls<CR>N
+" noremap / :set hls<CR>/
+" noremap ? :set hls<CR>?
+" noremap * :set hls<CR>*
+" noremap # :set hls<CR>#
 set cursorline
-highlight cursorline cterm=none ctermbg=235
+set cursorcolumn
+highlight cursorline cterm=none ctermbg=238
+highlight cursorcolumn cterm=none ctermbg=238
+let &t_SI = "\x1b[6 q\x1b]12;green\x7"
+let &t_SR = "\x1b[4 q\x1b]12;green\x7"
+let &t_EI = "\x1b[2 q\x1b]12;grey\x7"
 " Fold
 set foldenable
 set foldmethod=indent
 set foldlevel=99
-set foldcolumn=3
+set foldcolumn=0
 " Tabstop and indent
 set smarttab
 set tabstop=4
@@ -55,12 +64,14 @@ set wrap
 "set textwidth=78
 " Character display
 set list
-set listchars=tab:»⋅,trail:-,precedes:?,extends:?,eol:«
+set listchars=tab:«-»,precedes:?,extends:?,eol:«,multispace:⋅⋅⋅⋅,trail:‹
+"set listchars=tab:»›,trail:-,precedes:?,extends:?,eol:«,lead:›,multispace:⋅⋅
 " Scroll
 set scrolloff=5
 set noscrollbind
 " Status bar(Others will be left to plugins)
 set laststatus=2
+set completeopt=menu,preview,popup
 " >>>>>>>>>>>>>>>>>>>>>>>>>>>> Apperance Setting >>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -70,6 +81,7 @@ set backspace=indent,eol,start
 set nrformats-=octal
 if has('mouse')
 	set mouse=a
+	set ttymouse=sgr			" enable mouse-resizing window
 endif
 " Pattern matching
 set ignorecase
@@ -96,6 +108,7 @@ else
 endif
 set backupext=.bak
 set backupdir=~/.vim/backups
+set backupskip=tmp/*,reference/*
 " Swapfile
 set swapfile
 set directory=~/.vim/swaps
@@ -103,6 +116,7 @@ set updatetime=50000
 set updatecount=400
 " View
 set viewdir=~/.vim/views
+set viewoptions=folds,options,cursor,curdir
 " Undo
 set history=200
 " <<<<<<< Backup and Recovering <<<<<<<
@@ -110,11 +124,20 @@ set history=200
 
 " >>>>>>>>>>>>>>>>>>>>>>>>>>> Key Mapper >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 inoremap KK <Esc>
-nnoremap K <Nul>
+nnoremap K <NOP>
 let mapleader=";"
 let maplocalleader=","
-xnoremap <leader>yt :<C-u>'<,'>w !xargs -0 tmux set-buffer<CR><CR><C-b>:selectp -t
+xnoremap <leader>uy :<C-u>'<,'>w !xargs -0 tmux set-buffer<CR><CR><C-b>:selectp -t
 iabbrev xtime <C-r>=strftime("%Y-%m-%d %H:%M:%S")<CR>
+noremap <M-H> <C-w>h
+noremap <M-L> <C-w>l
+noremap <M-J> <C-w>j
+noremap <M-K> <C-w>k
+inoremap <M-H> <Esc><C-w>h
+inoremap <M-L> <Esc><C-w>l
+inoremap <M-J> <Esc><C-w>j
+inoremap <M-K> <Esc><C-w>k
+tnoremap <Esc> <C-\><C-n>
 " <<<<<<<<<<<<<<<<<<<<<<<<<<< Key Mapper <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -143,41 +166,86 @@ command Delview call MyDeleteView()
 cabbrev delview <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Delview' : 'delview')<CR>
 " <<<<<<<< Auto Make-Del View <<<<<<<
 
-" >>>>>>> Clever Tab >>>>>>>
-function! CleverTab()
-	if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*\-\?\s*$'
-		return "\<Tab>"
-	else
-		return "\<C-n>"
-	endif
-endfunction
-inoremap <Tab> <C-r>=CleverTab()<CR>
-" <<<<<<< Clever Tab <<<<<<<
-
-
 " >>>>>>>>>>>>>>>>>>>>>>>>>>> Plugins >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+let s:root_flags = ['.root', '.svn', '.git', '.hg', '.project', 'Makefile']
 if has('syntax') && has('eval')
 	packadd! matchit
 endif
-" frazrepo/vim-rainbow
-let g:rainbow_active=1
-" itchyny/lightline.vim
-let g:lightline = {
-	\ 'colorscheme': 'molokai',
-	\ 'active': {
-	\	'left': [ [ 'mode', 'paste' ],
-	\			  [ 'readonly', 'filename', 'modified', 'charvaluehex' ] ]
-	\ },
-	\ 'component': {
-	\	'charvaluehex': '0x%B'
-	\ },
-	\ }
-" preservim/nerdtree
+
+call plug#begin()
+Plug 'frazrepo/vim-rainbow'
+Plug 'itchyny/lightline.vim'
+" Plug 'vim-airline/vim-airline'
+Plug 'airblade/vim-rooter'
+Plug 'preservim/nerdtree'
+" Getentags requirements:
+" - gtags
+"	-	let $GTAGSLABEL = 'native-pygments'
+"	-	let $GTAGSCONF = '/path/to/'
+" - pygments
+" Note: ctags(Unniversal-ctags or Exuberant-ctags) is oudated.
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'skywind3000/gutentags_plus'
+Plug 'preservim/tagbar'
+Plug 'tpope/vim-commentary'
+" Warning: some changes for cooperating with `skywind3000/vim-terminal-help`.
+Plug 'jpalardy/vim-slime', { 'for': [ 'python' ], 'frozen': 1 }
+" 
+Plug 'skywind3000/vim-terminal-help', { 'frozen' : 1 }
+Plug 'skywind3000/asyncrun.vim', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
+Plug 'Yggdroot/LeaderF'
+" ALE requirements:
+" - python-lint: flake8, isort
+" - python-fix: black, autoflake
+Plug 'dense-analysis/ale', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
+" YCM requirements:
+" - rust-lint:
+Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py --core-test' }
+" Plug 'mhinz/vim-startify'
+Plug 'dhruvasagar/vim-zoom'
+" Some changes are added for vertical position.
+Plug 'dhruvasagar/vim-table-mode', { 'for': [ 'markdown', 'python' ] }
+Plug 'rust-lang/rust.vim', { 'for': [ 'rust' ] }
+Plug 'liuchengxu/vim-which-key'
+call plug#end()
+
+" ------------------------- frazrepo/vim-rainbow ----------------------------
+augroup vimrainbow_setting
+	au!
+	let g:rainbow_active=1
+augroup end
+
+" ------------------------- itchyny/lightline.vim ---------------------------
+augroup lightline_setting
+	au!
+	let g:lightline = {
+		\ 'colorscheme': 'molokai',
+		\ 'active': {
+		\	'left': [ [ 'mode', 'paste' ],
+		\			  [ 'readonly', 'filename', 'modified', 'charvaluehex' ] ]
+		\ },
+		\ 'component': {
+		\	'charvaluehex': '0x%B'
+		\ },
+		\ }
+augroup end
+
+" --------------------------- airblade/vim-rooter ---------------------------
+augroup vimrooter_setting
+	au!
+	let g:rooter_targets = '/,*'
+	let g:rooter_buftypes = ['']
+	let g:rooter_patterns = s:root_flags
+	let g:rooter_change_directory_for_non_project_files = 'current'
+augroup end
+
+" --------------------------- preservim/nerdtree ----------------------------
 augroup nerdtree_setting
 	au!
+	let g:NERDTreeIgnore = [ '__pycache__', '\.pyc$' ]
 	autocmd StdinReadPre * let s:std_in=1
 	" Start NERDTree when Vim is started without file arguments.
-	autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+	" autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
 	" Start NERDTree when Vim starts with a directory argument.
 	autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
 		\ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
@@ -188,144 +256,730 @@ augroup nerdtree_setting
 	autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
 		\ quit | endif
 	" If another buffer tries to replace NERDTree, put it in the other window, and bring back NERDTree.
-	autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
-		\ let buf=bufnr() | buffer# | execute "normal! \<C-w>w" | execute 'buffer'.buf | endif
+	" autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
+	" 	\ let buf=bufnr() | buffer# | execute "normal! \<C-w>w" | execute 'buffer'.buf | endif
 	" Open the existing NERDTree on each new tab.
-	autocmd BufWinEnter * if getcmdwintype() == '' | silent NERDTreeMirror | endif
-	nnoremap <leader>n :NERDTreeFocus<CR>
-	" nnoremap <C-t> :NERDTree<CR>
-	nnoremap <leader>nn :NERDTreeToggle<CR>
-	nnoremap <leader>nf :NERDTreeFind<CR>
+	" autocmd BufWinEnter * if getcmdwintype() == '' | silent NERDTreeMirror | endif
 	let g:NERDTreeWinSize=25
+	let g:NERDTreeChDirMode=2
+	" nnoremap <C-t> :NERDTree<CR>
+	" nnoremap <leader>n :NERDTreeFocus<CR>
+	" nnoremap <leader>nn :NERDTreeToggle<CR>
+	" nnoremap <leader>nf :NERDTreeFind<CR>
 augroup end
-" perservim/tagbar
-let g:tagbar_width=25
-let g:tagbar_sort=1
-let g:tagbar_autofocus=1
-nnoremap <leader>tt :TagbarToggle<CR>
-nnoremap <leader>tf :TagbarCurrentTag<CR>
-let g:tagbar_type_markdown = {
-	\'ctagstype'	: 'markdown',
-	\'kinds'		: [
-		\'h:Heading_All',
-		\'j:Heading_L2',
-		\'k:Heading_L3',
-		\'l:Heading_L4',
-	\],
-	\'sort':0,
-\}
-	"ctagstype: the lang-type passed to ctags
-	"kinds: parsing the token from ctags, match the first
-	"	char from the token, and group the content to 
-	"	the relavant tag(after the `:`)
-	"sort: default sorting method
-let g:tagbar_type_rust = {
-	\ 'ctagstype'	: 'rust',
-	\ 'kinds'		: [
-		\'T:types,type definitions',
-		\'f:functions,function definitions',
-		\'g:enum,enumeration names',
-		\'s:structure names',
-		\'m:modules,module names',
-		\'c:consts,static constants',
-		\'t:traits',
-		\'i:impls,trait implementations',
-	\]
-\}
 
-let g:tagbar_type_scala = {
-	\'ctagstype'	: 'scala',
-	\'sro'			: '.',
-	\'kinds'		: [
-		\'T:Types',
-		\'t:Traits',
-		\'o:Objects',
-		\'O:Case objects',
-		\'c:Classes',
-		\'C:Case classes',
-		\'m:Methods',
-		\'V:Constant',
-		\'v:Variables'
-	\],
-	\'sort': 0
-\}
-" tpope/vim-commentary
+" --------------------------- perservim/tagbar ------------------------------
+augroup tagbar_setting
+	let g:tagbar_width=25
+	let g:tagbar_sort=1
+	let g:tagbar_autofocus=1
+	" nnoremap <leader>nt :TagbarToggle<CR>
+	" nnoremap <leader>tf :TagbarCurrentTag<CR>
+	let g:tagbar_type_markdown = {
+		\'ctagstype'	: 'markdown',
+		\'kinds'		: [
+			\'c:Heading_L1',
+			\'s:Heading_L2',
+			\'S:Heading_L2',
+			\'t:Heading_L3',
+			\'T:Heading_L3',
+		\],
+		\'sort':0,
+	\}
+		"ctagstype: the lang-type passed to ctags
+		"kinds: parsing the token from ctags, match the first
+		"	char from the token, and group the content to 
+		"	the relavant tag(after the `:`)
+		"sort: default sorting method
+	let g:tagbar_type_rust = {
+		\ 'ctagstype'	: 'rust',
+		\ 'kinds'		: [
+			\'T:types,type definitions',
+			\'f:functions,function definitions',
+			\'g:enum,enumeration names',
+			\'s:structure names',
+			\'m:modules,module names',
+			\'c:consts,static constants',
+			\'t:traits',
+			\'i:impls,trait implementations',
+		\]
+	\}
+
+	let g:tagbar_type_scala = {
+		\'ctagstype'	: 'scala',
+		\'sro'			: '.',
+		\'kinds'		: [
+			\'T:Types',
+			\'t:Traits',
+			\'o:Objects',
+			\'O:Case objects',
+			\'c:Classes',
+			\'C:Case classes',
+			\'m:Methods',
+			\'V:Constant',
+			\'v:Variables'
+		\],
+		\'sort': 0
+	\}
+augroup end
+
+" --------------------------------- tpope/vim-commentary --------------------
 augroup vim_commentary_setting
 	au!
 	autocmd FileType apache setlocal commentstring=#\ %s
 augroup end
-" jpalardy/vim-slime
-" For `slime_target="tmux"`
-let g:slime_default_config={"socket_name": "default", "target_pane": "{right-of}"}
-" For `slime_target="vimterminal"`
-let g:slime_target="vimterminal"
-let g:slime_preserve_curpos=1
-" let g:slime_dont_ask_default=1
-" `:help term_start()` for more infomation
-let g:slime_no_mappings=1
-xmap <leader>ss <Plug>SlimeRegionSend
-nmap <leader>ss <Plug>SlimeParagraphSend
-nmap <leader>sc <Plug>SlimeSendCell
-" Yggdroot/LeaderF
-let g:Lf_WindowPosition="popup"
-let g:Lf_PreviewInPopup=1
-let g:Lf_PopupPalette = {
-	\'light': {
-	\	'Lf_hl_match': {
-	\		'gui': 'NONE',
-	\		'font': 'NONE',
-	\		'guifg': 'NONE',
-	\		'guibg': '#303136',
-	\		'cterm': 'NONE',
-	\		'ctermfg': 'NONE',
-	\		'ctermbg': '236'
-	\	},
-	\	'Lf_hl_cursorline': {
-	\		'gui': 'NONE',
-	\		'font': 'NONE',
-	\		'guifg': 'NONE',
-	\		'guibg': '#303136',
-	\		'cterm': 'NONE',
-	\		'ctermfg': 'NONE',
-	\		'ctermbg': '236'
-	\	},
-	\},
-	\'dark': {
-	\	'Lf_hl_match': {
-	\		'gui': 'NONE',
-	\		'font': 'NONE',
-	\		'guifg': 'NONE',
-	\		'guibg': '#303136',
-	\		'cterm': 'NONE',
-	\		'ctermfg': 'NONE',
-	\		'ctermbg': '236'
-	\	},
-	\	'Lf_hl_cursorline': {
-	\		'gui': 'NONE',
-	\		'font': 'NONE',
-	\		'guifg': 'NONE',
-	\		'guibg': '#303136',
-	\		'cterm': 'NONE',
-	\		'ctermfg': 'NONE',
-	\		'ctermbg': '236'
-	\	},
+
+" ---------------------------- jpalardy/vim-slime ---------------------------
+augroup vimslime_setting
+	au!
+	" For `slime_target="tmux"`
+	" let g:slime_default_config={'socket_name': 'default', 'target_pane': '{right-of}'}
+	" For `slime_target="vimterminal"`, `:help term_start()` for more infomation
+	let g:slime_target='vimterminal'
+	let g:slime_preserve_curpos=0
+	let g:slime_vimterminal_config={
+				\ 'term_name': 'vterm',
+				\ 'term_cols': 70,
+				\ 'vertical': 2,
+				\ 'norestore': 1,
+				\ }
+	" let g:slime_dont_ask_default=1
+	let g:slime_no_mappings=1
+	" xnoremap <leader>es <Plug>SlimeRegionSend
+	" xnoremap <leader>ec <Plug>SlimeRegionSend
+	" nnoremap <leader>es <Plug>SlimeLineSend
+	" nnoremap <leader>ec <Plug>SlimeSendCell
+augroup end
+
+" ----------------------- GTags && ludovicchabant/vim-gutentags -------------
+" Cooperate ctags, cscope or gtags(gtags-scope) with vim.
+" 1. ctags: generate tag files and append tag files to `tags` option
+" 2. cscope: generate cscope db and link db file with `:cs add` the db file
+" 3. gtags:: generate tags files(db), set `tags` option and link db file
+ 
+" gtags need `pygments`+`ctags` to generate tags for no-native-support languages
+" with `/usr/share/[global/]gtags/scripts/pygments_parser.py` as the bridge.
+" But `pygments_parser.py` locates `ctags` in a self-defeating way. So, some
+" symbollic link, `ctags-exuberant` for example, may need be created manully.
+"
+" Note: gtags generate three file
+" 1. GTAGS: definition db, which may empty and link to ctags-file?
+" 2. GRTAGS: reference db
+" 3. GPATH: path name db
+"
+" Warning:
+" `pygments_parser.py` use `latin1` for `sys.stdout` in main thread, which
+" can't accept no-ascii in filepath, tags and etc. `utf8` could be used as the
+" ECS for `stdout` to surpress errors, while the tag-info generated by
+" `ctags`(call by `pygments_parser.py`) will be dropped, which seemes like
+" resulting by pipe or handler pipe for `pygments` output to gtags, as
+" no-ascii char in filepath of gtags native-support filetype works
+" fine. (`native` or `native-pygments` as `--gtagsglobal`)
+" Also, tags, function for example, are encoding can be found but searched.
+" So, set `stdout` with `utf8` may be the best solution though file with
+" no-ascii char in filepath will be ignored.
+"
+" Reference:
+" 1. settings: https://zhuanlan.zhihu.com/p/36279445
+" 2. manual: https://www.gnu.org/software/global/manual/global.html#Command-line
+" 3. empty gtags: https://stackoverflow.com/questions/50572656/gtags-produces-empty-gtags-file-with-pygments
+" 4. latin1: https://blog.51cto.com/u_1312487/5801734 (Pity, this article only
+"	points out the issue, but the solutions put up suppress the error by
+"	just forbidden pygments' function.)
+
+" Environment variables are set here for gtags.
+let $GTAGSLABEL = 'native-pygments'
+let $GTAGSCONF = expand('$HOME/.globalrc')
+
+" let s:vim_tags = expand('~/.cache/gtags')
+" if !isdirectory(s:vim_tags)
+" 	silent! call mkdir(s:vim_tags, 'p')
+" endif
+" set tags=./.tags;,.tags
+augroup vimgutentags_setting
+	au!
+	" Set 0 if using `gutentags_plus` to switch gtags-tags-db among different
+	" projects without interfering each other.
+	" Or gtags-cscope db file will be linked with `cs add` automaticly.
+	let g:gutentags_trace = 0
+	let g:gutentags_auto_add_gtags_cscope = 0
+	let g:gutentags_execlude_filetypes = []
+	let g:gutentags_background_update = 1
+	let g:gutentags_define_advanced_commands = 1
+	" `missing`: generate tag file if not exists
+	let g:gutentags_generate_on_missing = 1
+	let g:gutentags_generate_on_new = 1
+	let g:gutentags_generate_on_write = 1
+	let g:gutentags_generate_on_empty_buffer = 0
+
+	let g:gutentags_project_root = s:root_flags
+	let g:gutentags_add_default_project_roots = 1
+	" Touch `.notags` in root-dir may be better, for most projects.
+	let g:gutentags_execlude_project_root = ['/usr/local', '/opt/homebrew', '/home/linuxbrew/.linuxbrew']
+
+	" `Leaderf` can't set gtags cache dir precisely, so modify `gutentags`
+	" cache dir.
+	let g:Lf_CacheDirectory = expand('~'.'/.cache')
+	let g:gutentags_cache_dir = expand(g:Lf_CacheDirectory.'/.LfCache/gtags')
+	" add modules to generate tags
+	let g:gutentags_modules = []
+	if executable('ctags')
+		let g:gutentags_ctags_extra_args = []
+		let g:gutentags_ctags_tagfile = '.tags'
+		let g:gutentags_modules += ['ctags']
+		if system('ctags --version')[0:8] == "Universal"
+			let g:gutentags_ctags_extra_args += ['--output-format=e-ctags']
+		endif
+		let g:gutentags_ctags_extra_args += ['--fields=+niazS', '--extras=+q']
+		let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
+		let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+	endif
+	if executable('gtags-cscope') && executable('gtags')
+		" Add and link `gtags-cscope` (in gtags) to `cscope`
+		let g:gutentags_modules += ['gtags_cscope']
+	endif
+	" `pycscope` won't work and no more hint could be found in github.
+	" if executable('pycscope')
+	" 	let g:gutentags_modules += ['pycscope']
+	" endif
+augroup end
+
+"  --------------------------- skywind/gutentags_plus -----------------------
+" `gutentags_plus` settings
+augroup gutentags_plus_setting
+	au!
+	" Disable gtags db link a.l.a. this plug is activated.
+	let g:gutentags_plus_switch = 1
+	let g:gutentags_plus_nomap = 1
+augroup end
+
+" ---------------------------- Yggdroot/LeaderF -----------------------------
+augroup leaderf_setting
+	au!
+	let g:Lf_RootMarkers=s:root_flags
+	let g:Lf_HideHelp = 0
+	let g:Lf_UseCache = 0
+	let g:Lf_UseVersionControlTool = 0
+	let g:Lf_IgnoreCurrentBufferName = 1
+	let g:Lf_WindowPosition='popup'
+	let g:Lf_PreviewInPopup=0
+	let g:Lf_PreviewResult={ 'Function': 0, 'BufTag': 0, 'Colorscheme': 1 }
+	let g:Lf_PopupPalette = {
+		\'light': {
+		\	'Lf_hl_match': {
+		\		'gui': 'NONE',
+		\		'font': 'NONE',
+		\		'guifg': 'NONE',
+		\		'guibg': '#303136',
+		\		'cterm': 'NONE',
+		\		'ctermfg': 'NONE',
+		\		'ctermbg': '236'
+		\	},
+		\	'Lf_hl_cursorline': {
+		\		'gui': 'NONE',
+		\		'font': 'NONE',
+		\		'guifg': 'NONE',
+		\		'guibg': '#303136',
+		\		'cterm': 'NONE',
+		\		'ctermfg': 'NONE',
+		\		'ctermbg': '236'
+		\	},
+		\},
+		\'dark': {
+		\	'Lf_hl_match': {
+		\		'gui': 'NONE',
+		\		'font': 'NONE',
+		\		'guifg': 'NONE',
+		\		'guibg': '#303136',
+		\		'cterm': 'NONE',
+		\		'ctermfg': 'NONE',
+		\		'ctermbg': '236'
+		\	},
+		\	'Lf_hl_cursorline': {
+		\		'gui': 'NONE',
+		\		'font': 'NONE',
+		\		'guifg': 'NONE',
+		\		'guibg': '#303136',
+		\		'cterm': 'NONE',
+		\		'ctermfg': 'NONE',
+		\		'ctermbg': '236'
+		\	},
+		\}
+		\}
+	" Unset default shortcut
+	let g:Lf_ShortcutF=""
+	let g:Lf_ShortcutB=""
+
+	" nnoremap go :<C-u>Leaderf! --recall<CR>
+	" nnoremap <leader>fb :<C-u><C-r>=printf("Leaderf buffer %s", "")<CR><CR>
+	" nnoremap <leader>fc :<C-u><C-r>=printf("Leaderf function %s", "")<CR><CR>
+	" nnoremap <leader>fm :<C-u><C-r>=printf("Leaderf mru %s", "")<CR><CR>
+	" nnoremap <leader>ft :<C-u><C-r>=printf("Leaderf bufTag %s", "")<CR><CR>
+	" nnoremap <leader>fl :<C-u><C-r>=printf("Leaderf line %s", "")<CR><CR>
+	" nnoremap <leader>fq :<C-u><C-r>=printf("Leaderf quickfix %s", "")<CR><CR>
+	" `rg`/`ripgrep` should be installed to support `Leaderf rg` command
+	nnoremap <leader>fx :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR>
+	nnoremap <leader>fg :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
+	xnoremap <leader>fg :<C-u><C-r>=printf("Leaderf! rg -F -e %s", leaderf#Rg#visual())<CR>
+
+	" Cooperate with `vim-gutentags`
+	let g:Lf_GtagsGutentags = 1
+	let g:Lf_CacheDirectory = expand('~'.'/.cache')
+	let g:Lf_GtagsAutoGenerate = 0
+	let g:Lf_GtagsAutoUpdate = 0
+	let g:Lf_Gtagsconf = $TAGSCONF
+	let g:Lf_Gtagslabel = $GTAGSLABEL
+
+	nnoremap <leader>fd :<C-u><C-r>=printf("Leaderf! gtags -d %s --auto-jump", expand("<cword>"))<CR><CR>
+	nnoremap <leader>fr :<C-u><C-r>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
+	" nnoremap <leader>fs :<C-u><C-r>=printf("Leaderf! gtags -s %s --auto-jump", expand("<cword>"))<CR><CR>
+	" nnoremap <leader>fg :<C-u><C-r>=printf("Leaderf! gtags -g %s --auto-jump", expand("<cword>"))<CR><CR>
+	" nnoremap <leader>fo :<C-u><C-r>=printf("Leaderf! gtags --recall", expand("<cword>"))<CR><CR>
+	" nnoremap <leader>fn :<C-u><C-r>=printf("Leaderf gtags --next", expand("<cword>"))<CR><CR>
+	" nnoremap <leader>fp :<C-u><C-r>=printf("Leaderf gtags --previous", expand("<cword>"))<CR><CR>
+augroup end
+
+" ------------------------------ skywind3000/asyncrun -----------------------
+augroup asyncrun_setting
+	au!
+	let g:asyncrun_open = 8
+	let g:asyncrun_bell = 0
+	let g:asyncrun_roomarks = s:root_flags
+augroup end
+
+" ----------------------------- dense-analysis/ale --------------------------
+augroup ale_setting
+	au!
+	" Only linters specified explicitly will be run.
+	let g:ale_linters_explicit = 1
+	let g:ale_linters = {
+		\ 'c': [ 'clang' ],
+		\ 'cpp': [ 'clang' ],
+		\ 'python': [ 'flake8' ],
+		\ 'rust': [ 'analyzer' ]
 	\}
+	" Default `*` will be recovered entirely by explicit filetype.
+	let g:ale_fixers = {
+		\ '*': [ 'remove_trailing_lines', 'trim_whitespace' ],
+		\ 'c': [ 'clang' ],
+		\ 'cpp': [ 'clang' ],
+		\ 'python': [ 'isort', 'black', 'autoflake' ],
+		\ 'rust': [ 'rustfmt' ]
 	\}
-let g:Lf_ShortcutF='<leader>ff'
-noremap <leader>fb :<C-u><C-r>=printf("Leaderf buffer %s", "")<CR><CR>
-noremap <leader>fm :<C-u><C-r>=printf("Leaderf mru %s", "")<CR><CR>
-noremap <leader>ft :<C-u><C-r>=printf("Leaderf bufTag %s", "")<CR><CR>
-noremap <leader>fl :<C-u><C-r>=printf("Leaderf line %s", "")<CR><CR>
-noremap <leader>fq :<C-u><C-r>=printf("Leaderf quickfix %s", "")<CR><CR>
-" noremap <leader>fw :<C-u><C-r>=printf("Leaderf! rg --current-buffer -e %s", expand("<cword>"))<CR>
-" noremap <leader>faw :<C-u><C-r>=printf("Leaderf! rg -e %s", expand("<cword>"))<CR>
-" xnoremap gf :<C-u><C-r>=printf("Leaderf! rg -F -e %s", leaderf#Rg#visual())<CR>
-" noremap go :<C-u>Leaderf! rg --recall<CR>
-" let g:Lf_GtagsAutoGenerate=0
-" let g:Lf_Gtagslabel="native-pygments"
-" noremap <leader>fr :<C-u><C-r>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
-" noremap <leader>fd :<C-u><C-r>=printf("Leaderf! gtags -d %s --auto-jump", expand("<cword>"))<CR><CR>
-" noremap <leader>fo :<C-u><C-r>=printf("Leaderf! gtags --recall", expand("<cword>"))<CR><CR>
-" noremap <leader>fn :<C-u><C-r>=printf("Leaderf gtags --next", expand("<cword>"))<CR><CR>
-" noremap <leader>fp :<C-u><C-r>=printf("Leaderf gtags --previous", expand("<cword>"))<CR><CR>
+	let g:airline#extensions#ale#enabled = 1
+	" nnoremap <localleader>cn :ALENext<CR>
+	" nnoremap <localleader>cp :ALEPrevious<CR>
+
+	let g:ale_lint_on_text_changed = 'normal'
+	let g:ale_lint_on_insert_leave = 1
+	let g:ale_lint_on_enter = 0
+	let g:ale_lint_on_save = 1
+	let g:ale_lint_delay = 500
+	let g:ale_echo_cursor = 1
+	let g:ale_echo_msg_format = '[%linter%] [%code]: %%s'
+	let g:ale_echo_delay = 20
+	let g:ale_set_signs = 1
+	let g:ale_sign_error = '>'
+	let g:ale_sign_warning = '-'
+	let g:ale_change_sign_column_color = 0
+	let g:ale_set_highlights = 1
+	hi ALEError cterm=underline,reverse gui=undercurl guisp=#fb4934
+	let g:ale_sign_highlight_linenrs = 1
+	let g:ale_virtualtext_cursor = 1
+	let g:ale_set_loclist = 0
+	let g:ale_set_quickfix = 0
+	let g:ale_open_list = 0
+	let g:ale_keep_list_window_open = 0
+
+	let g:ale_fix_on_save = 0
+
+	let g:ale_set_balloons = has('gui_running') ? 'hover' : 0
+
+	let g:ale_completion_enabled = 1
+	" set omnifunc=ale#completion#OmniFunc
+	let g:ale_completion_delay = 500
+	let g:ale_completion_autoimport = 1
+
+	let g:ale_c_clang_options = '-Wall -O2 -std=c99'
+	let g:ale_cpp_clang_options = '-Wall -O2 -std=c++14'
+	let g:ale_c_cppcheck_options = ''
+	let g:ale_cpp_cppcheck_options = ''
+
+	let g:ale_python_flake8_options = '--max-line-length=79 --ignore=E231,E203,W503'
+	let g:ale_python_autoflake_options = '--remove-all-unused-imports --expand-star-imports'
+	let g:ale_python_black_options = '--line-length=79'
+augroup end
+
+" ------------------------------ ycm-core/YouCompleteMe ---------------------
+augroup youcompleteme_setting
+	au!
+	let g:ycm_filetype_whitelist = { '*': 1 }
+	" let g:ycm_filetype_blacklist = {}
+
+	let g:ycm_semantic_triggers =  {
+				\ 'c': ['->', '.'],
+				\ 'objc': ['->', '.', 're!\[[_a-zA-Z]+\w*\s', 're!^\s*[^\W\d]\w*\s',
+				\          're!\[.*\]\s'],
+				\ 'ocaml': ['.', '#'],
+				\ 'cpp,cuda,objcpp': ['->', '.', '::'],
+				\ 'perl': ['->'],
+				\ 'php': ['->', '::'],
+				\ 'cs,d,elixir,go,groovy,java,javascript,julia,perl6,python,scala,typescript,vb': ['.'],
+				\ 'ruby,rust': ['.', '::'],
+				\ 'lua': ['.', ':'],
+				\ 'erlang': [':'],
+				\ }
+	let g:ycm_auto_trigger = 1
+	let g:ycm_disable_for_files_larger_than_kb = 100
+	let g:ycm_min_num_of_chars_for_completion = 2
+	let g:ycm_min_num_identifier_candidate_chars = 0
+	let g:ycm_max_num_candidates = 20
+	let g:ycm_max_num_candidates_to_detail = 3
+	let g:ycm_cache_omnifunc = 1
+	let g:ycm_use_ultisnips_completer = 1
+	let g:ycm_disable_signature_help = 0
+	let g:ycm_complete_in_comments = 1
+	let g:ycm_complete_in_strings = 1
+	let g:ycm_collect_identifiers_from_tag_files = 0
+
+	let g:ycm_enable_semantic_highlighting = 1
+	let g:ycm_enable_inlay_hints = 1
+	let g:ycm_clear_inlay_hints_in_insert_mode = 1
+
+	let g:ycm_enable_diagnostic_highlighting = 1
+	let g:ycm_key_detailed_diagnostics = ""
+	let g:ycm_show_detailed_diag_in_popup = 1
+	let g:ycm_echo_current_diagnostic = 'virtual-text'
+	let g:ycm_update_diagnostics_in_insert_mode = 0
+	let g:ycm_error_symbol = '>>'
+	let g:ycm_warning_symbol = '--'
+	let g:ycm_open_loclist_on_ycm_diags = 1
+	let g:ycm_always_populate_location_list = 1
+
+	let g:ycm_add_preview_to_completeopt = 0
+	let g:ycm_autoclose_preview_window_after_completion = 1
+	let g:ycm_autoclose_preview_window_after_insertion = 1
+	let g:ycm_auto_hover = 'CursorHold'
+	command -count ShowDocWithSize
+				\ let g:ph=&previewheight
+				\ <bar> set previewheight=<count>
+				\ <bar> <mods> YcmCompleter GetDoc
+				\ <bar> let &previewheight=g:ph
+
+	let g:ycm_goto_buffer_command = 'same-buffer'
+
+	" YouCompleteMe Python environment setting with vimrc
+	let g:ycm_python_interpreter_path = ''
+	let g:ycm_python_sys_path = []
+	" Determine effective configs in `g:ycm_global_extra_conf`
+	let g:ycm_extra_conf_vim_data = [
+				\ 'g:ycm_python_interpreter_path',
+				\ 'g:ycm_python_sys_path'
+				\ ]
+	" Storing default compilation flags
+	let g:ycm_global_ycm_extra_conf = '~/ycm_global_extra_conf.py'
+
+	inoremap <C-l> <Plug>(YCMToggleSignatureHelp)
+	nnoremap <C-l> <Plug>(YCMToggleInlayHints)
+augroup end
+
+" ----------------------------- mhinz/vim-startify --------------------------
+augroup vimstartify_setting
+	au!
+	let g:startify_bookmarks = [
+				\ '~/code/proxy',
+				\ '~/code/utils',
+				\ '~/references/',
+				\ '~/.vim/vimrc'
+				\ ]
+	" returns all modified files of the current git repo
+	" `2>/dev/null` makes the command fail quietly, so that when we are not
+	" in a git repo, the list will be empty
+	function! s:gitModified()
+		let files = systemlist('git ls-files -m 2>/dev/null')
+		return map(files, "{'line': v:val, 'path': v:val}")
+	endfunction
+	" same as above, but show untracked files, honouring .gitignore
+	function! s:gitUntracked()
+		let files = systemlist('git ls-files -o --exclude-standard 2>/dev/null')
+		return map(files, "{'line': v:val, 'path': v:val}")
+	endfunction
+	let g:startify_lists = [
+				\ { 'type': 'files',	 'header': ['	MRU']			 },
+				\ { 'type': 'dir',		 'header': ['	MRU '. getcwd()] },
+				\ { 'type': 'sessions',  'header': ['	Sessions']		 },
+				\ { 'type': 'bookmarks', 'header': ['	Bookmarks']		 },
+				\ { 'type': function('s:gitModified'),	'header': ['   git modified']},
+				\ { 'type': function('s:gitUntracked'), 'header': ['   git untracked']},
+				\ { 'type': 'commands',  'header': ['	Commands']		 },
+				\ ]
+	" current working directory auto-change will be handled by air-blade/vim-rooter
+	let g:startify_change_to_vcs_root = 1
+	let g:startify_change_to_dir = 0
+augroup end
+
+" --------------------------- skywind/vim-terminal-help ---------------------
+augroup vimterminalhelp_setting
+	au!
+	let g:terminal_default_mapping = 1
+	let g:terminal_vertical = 1
+	let g:terminal_width = 70
+	let g:terminal_close = 1
+augroup end
+
+" --------------------------- dhruvasagar/vim-table-mode --------------------
+augroup vimtablemode_setting
+	au!
+	let g:table_mode_auto_align = 1
+	let g:table_mode_corner = '|'
+	let g:table_mode_update_time = 1000
+	" let g:table_mode_corner_corner = '+'
+	" let g:table_mode_header_fillchar = '='
+
+	" let g:table_mode_prefix = ""
+	let g:table_mode_disable_mappings = 1
+	" let g:table_mode_tableize_map = ""
+	" let g:table_mode_relign_map = ""
+	" let g:table_mode_delete_row_map = ""
+	" let g:table_mode_delete_column_map = ""
+	" let g:table_mode_insert_column_map = ""
+	" nnoremap <leader>tm <Plug>TableModeToggle
+augroup end
+
+" --------------------------- liuchengxu/vim-which-key ----------------------
+augroup vimwhichkey_setting
+	au!
+	" autocmd! FileType which_key
+	" autocmd  FileType which_key set laststatus=0 noshowmode noruler | autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+	nnoremap <leader> :<C-U>WhichKey ';'<CR>
+	nnoremap <localleader> :<C-U>WhichKey ','<CR>
+	vnoremap <leader> :<C-U>WhichKeyVisual ';'<CR>
+	vnoremap <localleader> :<C-U>WhichKeyVisual ','<CR>
+	let g:which_key_ignore_outside_mappings = 0
+	let g:which_key_use_floating_win = 1
+	" Valid only when `which_key_use_floating_win` is unset, as no quickfix
+	" will be used.
+	let g:which_key_position = 'topleft'
+	let g:which_key_vertical = 0
+	let g:which_key_hspace = 0
+	let g:which_key_centered = 1
+	let g:which_key_sort_horizontal = 0
+	let g:which_key_map = {}
+	let g:which_key_map_visual = {}
+	let g:which_key_local_map = {}
+	let g:which_key_local_map_visual = {}
+	call which_key#register(';', "g:which_key_map", 'n')
+	call which_key#register(';', "g:which_key_map_visual", 'v')
+	call which_key#register(',', "g:which_key_local_map", 'n')
+	call which_key#register(',', "g:which_key_local_map_visual", 'v')
+	" Note: two-char map won't take effect if the map is single in dict.
+	let g:which_key_map = {
+		\ 'w': {
+			\ 'name' : '+windows' ,
+			\ 'w' : ['<C-W>w'		, 'other-window'],
+			\ 'd' : ['<C-W>c'		, 'delete-window'],
+			\ '-' : ['<C-W>s'		, 'split-window-below'],
+			\ '|' : ['<C-W>v'		, 'split-window-right'],
+			\ '2' : ['<C-W>v'		, 'layout-double-columns'],
+			\ 'h' : ['<C-W>h'		, 'window-left'],
+			\ 'j' : ['<C-W>j'		, 'window-below'],
+			\ 'l' : ['<C-W>l'		, 'window-right'],
+			\ 'k' : ['<C-W>k'		, 'window-up'],
+			\ 'H' : ['<C-W>5<'		, 'expand-window-left'],
+			\ 'J' : [':resize +5'	, 'expand-window-below'],
+			\ 'L' : ['<C-W>5>'		, 'expand-window-right'],
+			\ 'K' : [':resize -5'	, 'expand-window-up'],
+			\ '=' : ['<C-W>='		, 'balance-window'],
+			\ 's' : ['<C-W>s'		, 'split-window-below'],
+			\ 'v' : ['<C-W>v'		, 'split-window-below'],
+			\ '?' : ['Windows'		, 'fzf-window'],
+		\ },
+		\ 'b': {
+			\ 'name' : '+buffer' ,
+			\ '1' : ['b1'        , 'buffer 1'],
+			\ '2' : ['b2'        , 'buffer 2'],
+			\ 'd' : ['bd'        , 'delete-buffer'],
+			\ 'f' : ['bfirst'    , 'first-buffer'],
+			\ 'h' : ['Startify'  , 'home-buffer'],
+			\ 'l' : ['blast'     , 'last-buffer'],
+			\ 'n' : ['bnext'     , 'next-buffer'],
+			\ 'p' : ['bprevious' , 'previous-buffer'],
+			\ '?' : ['Buffers'   , 'fzf-buffer'],
+		\ },
+		\ 'n': {
+			\ 'name': '+tree-content',
+			\ 'n': [ ':NERDTreeToggle'			, 'toggle-nerdtree' ],
+			\ 'l': [ ':NERDTreeFind'			, 'find-in-nerdtree' ],
+			\ 't': [ ':TagbarToggle'			, 'toggle-tagbar' ],
+			\ 'f': [ ':Leaderf file'			, 'leaderf-find-file' ],
+		\ },
+		\ 's': {
+			\ 'name': '+source-fix',
+			\ 'l': [ '<Plug>SlimeLineSend'		, 'send-line' ],
+			\ 'c': [ '<Plug>SlimeSendCell'		, 'send-cell' ],
+			\ 'd': [ ':YcmDiags'				, 'ycm-diagnose' ],
+			\ 'r': [ ':YcmCompleter FixIt'		, 'ycm-fixit-refactor' ],
+			\ 's': [ ':ALELint'					, 'ALELint' ],
+			\ 'f': [ ':ALEFix'					, 'ALEFix'],
+		\ },
+		\ 'f': {
+			\ 'name': '+find',
+			\ 'j': [ ':Leaderf! --recall'		, 'leader-recall'],
+			\ 'f': [ ':Leaderf file'			, 'leader-recall'],
+			\ 'b': [ ':Leaderf buffer'			, 'leaderf-buffer' ],
+			\ 'c': [ ':Leaderf function'		, 'leaderf-function' ],
+			\ 'm': [ ':Leaderf mru'				, 'leaderf-mru' ],
+			\ 't': [ ':Leaderf bufTag'			, 'leaderf-buftag' ],
+			\ 'l': [ ':Leaderf line'			, 'leaderf-line' ],
+			\ 'q': [ ':Leaderf quickfix'		, 'leaderf-quickfix' ],
+			\ 'x': 'rg-cbuf',
+			\ 'g': 'rg-global',
+			\ 'fr': [ ':Leaderf! rg --recall'	, 'rg-recall'],
+			\ 'd': 'gtags-def',
+			\ 'r': 'gtags-ref',
+			\ 'p': [ ':Leaderf! gtags --previous'	, 'gtags-pre' ],
+			\ 'n': [ ':Leaderf! gtags --next'		, 'gtags-next' ],
+			\ 'fg': [ ':Leaderf! gtags --recall'	, 'gtags-recall' ],
+		\ },
+		\ 'g': {
+			\ 'name': '+goto-desc',
+			\ 'g': [ ':rightbelow vertical YcmCompleter GoTo', 'ycm-goto' ],
+			\ 'dw': [ ':rightbelow vertical 80ShowDocWithSize', 'ycm-win-doc' ],
+			\ 'dp': [ '<Plug>(YCMHover)', 'ycm-popup-doc' ],
+		\ },
+		\ 't': {
+			\ 'name': 'which_key_ignore',
+		\ },
+		\ 'm': {
+			\ 'name': '+movement',
+			\ 'n': [ ':call NextError()'		, 'next-error' ],
+			\ 'p': [ ':call PreviousError()'	, 'previous-error' ],
+			\ 'c': [ ':call CurrentError()'		, 'current-error' ],
+			\ 'e': [ '`.'						, 'last-edit' ],
+			\ 'm': [ '`m'						, 'to-markm' ],
+		\ },
+		\ 'u': {
+			\ 'name': '+tiny-functions',
+			\ 't': [ ':TableModeToggle', 'toggle-table-mode' ],
+			\ 's': [ ":source $HOME/.vim/vimrc", 'reload-vimrc' ],
+		\ },
+	\ }
+	let g:which_key_local_map = {
+		\ 'x': {
+			\ 'name': '+build-run',
+			\ 'b': 'proj-build',
+			\ 't': 'proj-test',
+			\ 'r': 'proj-run',
+		\ },
+		\ 's': {
+			\ 'name': '+send-source',
+			\ 'l': [ '<Plug>SlimeLineSend', 'send-line' ],
+			\ 'c': [ '<Plug>SlimeSendCell', 'send-cell' ],
+			\ 'm': [ '<Plug>SlimeSendCell', 'send-cell-and-move' ],
+		\ },
+		\ 'u': {
+			\ 'name': '+tiny-func',
+			\ 'l': 'list-sections',
+			\ 'c': 'insert-comment',
+		\ },
+		\ 'm': {
+			\ 'name': '+movement',
+			\ 'ns': 'next-section',
+			\ 'ps': 'previous-section',
+		\ },
+	\ }
+	let g:which_key_map_visual = {
+		\ 's': {
+			\ 'name': '+send-source',
+			\ 'l': [ '<Plug>SlimeRegionSend', 'send-selected-region' ],
+		\ },
+		\ 'u': {
+			\ 'name': '+tiny-function',
+			\ 't': [ ':Tableize', 'tableize' ],
+			\ 'y': 'copy2tmux',
+		\ },
+		\ 'f': {
+			\ 'name': '+find',
+			\ 'g': 'rg-global',
+		\ },
+		\ 't': {
+			\ 'name': 'which_key_ignore',
+		\ },
+		\ 'T': {
+			\ 'name': 'which_key_ignore',
+		\ },
+	\ }
+augroup end
 " <<<<<<<<<<<<<<<<<<<<<<<<<<< Plugins <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+" >>>>>>>>>>>>>>>>>>>>>>>>>>> Global Configs >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+command! -range Jsonf :execute '<line1>,<line2> !python -c "import json,sys,collections,re; sys.stdout.write(json.dumps(json.load(sys.stdin, object_pairs_hook=collections.OrderedDict), indent=2, ensure_ascii=False))"'
+command! -range Xmllint :execute '<line1>,<line2> !xmllint --format --encode utf8 -'
+
+" Toggle windows
+function! ToggleWindows()
+	for nr in range(1, winnr('$'))
+		" Close preview if exists
+		if getwinvar(nr, "&pvw") == 1
+			pclose
+			return 0
+		endif  
+
+		" Close quickfix
+		if getwinvar(nr, '&syntax') == 'qf'
+			cclose
+			lclose
+			return 0
+		endif
+	endfor
+
+	" Toggle vimterminal if vimterminal ever used by vim-terminal-help
+	if get(t:, '__terminal_bid__', -1) > 0
+		call TerminalToggle()
+		return 0
+
+	" Open quickfix for quickfix list or location list
+	elseif len(getqflist()) > 0
+		copen
+	elseif len(getloclist(winnr())) > 0
+		lopen
+	endif
+
+	" if empty(filter(getwininfo(), 'v:val.quickfix'))
+	" 	copen
+	" else
+	" 	cclose
+	" endif
+endfunction
+nnoremap <silent> <F12> :call ToggleWindows()<CR>
+
+function! NextError()
+	if len(getloclist(winnr())) > 0
+		lnext
+	elseif len(getqflist()) > 0
+		cnext
+	else
+		ALENext
+	endif
+endfunction
+function! PreviousError()
+	if len(getloclist(winnr())) > 0
+		lprevious
+	elseif len(getqflist()) > 0
+		cprevious
+	else
+		ALEPrevious
+	endif
+endfunction
+function! CurrentError()
+	if len(getloclist(winnr())) > 0
+		ll
+	elseif len(getqflist()) > 0
+		cc
+	else
+		ALEPrevious
+		ALENext
+	endif
+endfunction
+" <<<<<<<<<<<<<<<<<<<<<<<<<<< Global Configs <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

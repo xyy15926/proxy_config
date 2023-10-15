@@ -1,0 +1,20 @@
+# tmp, log and etc.
+tmp/
+temp/
+swaps/
+backups/
+tags/
+bin/
+gen/
+out/
+build/
+__pycache__/
+*.pyc
+*.exe
+*.log
+*.tag
+
+# DIY
+/plugged
+/autoload
+/views
