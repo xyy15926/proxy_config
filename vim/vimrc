@@ -12,6 +12,9 @@ filetype indent plugin on
 set number
 set ruler
 set background=dark
+if has('guitermcolors')
+	set termguicolors
+endif
 colorscheme gruvbox
 if !has("gui_running")
 	set t_Co=256
@@ -39,8 +42,8 @@ endif
 " noremap # :set hls<CR>#
 set cursorline
 set cursorcolumn
-highlight cursorline cterm=none ctermbg=238
-highlight cursorcolumn cterm=none ctermbg=238
+highlight cursorline cterm=none ctermbg=237
+highlight cursorcolumn cterm=none ctermbg=237
 let &t_SI = "\x1b[6 q\x1b]12;green\x7"
 let &t_SR = "\x1b[4 q\x1b]12;green\x7"
 let &t_EI = "\x1b[2 q\x1b]12;grey\x7"
@@ -64,7 +67,7 @@ set wrap
 "set textwidth=78
 " Character display
 set list
-set listchars=tab:«-»,precedes:?,extends:?,eol:«,multispace:⋅⋅⋅⋅,trail:‹
+set listchars=tab:»-,precedes:?,extends:?,eol:«,multispace:⋅⋅⋅⋅,trail:‹
 "set listchars=tab:»›,trail:-,precedes:?,extends:?,eol:«,lead:›,multispace:⋅⋅
 " Scroll
 set scrolloff=5
@@ -81,7 +84,8 @@ set backspace=indent,eol,start
 set nrformats-=octal
 if has('mouse')
 	set mouse=a
-	set ttymouse=sgr			" enable mouse-resizing window
+	" enable mouse-resizing window
+	set ttymouse=sgr
 endif
 " Pattern matching
 set ignorecase
@@ -92,7 +96,7 @@ set matchpairs={:},(:),[:],（:）,":",“:”
 set fileformat=unix
 set fileformats=unix,dos,mac
 set encoding=utf-8
-set fileencodings=utf-8,usc-bom,gbk10820,gbk2312,utf-16
+set fileencodings=usc-bom,utf-8,gbk,utf-16,latin1
 set fileencoding=utf-8
 set termencoding=utf-8
 " >>>>>>> Backup and Recovering >>>>>>>
@@ -201,12 +205,15 @@ Plug 'dense-analysis/ale', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
 " YCM requirements:
 " - rust-lint:
 Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py --core-test' }
-" Plug 'mhinz/vim-startify'
+Plug 'mhinz/vim-startify'
 Plug 'dhruvasagar/vim-zoom'
 " Some changes are added for vertical position.
 Plug 'dhruvasagar/vim-table-mode', { 'for': [ 'markdown', 'python' ] }
 Plug 'rust-lang/rust.vim', { 'for': [ 'rust' ] }
 Plug 'liuchengxu/vim-which-key'
+" Plug 'preservim/vim-markdown', { 'for': [ 'markdown' ] }
+Plug 'vim-pandoc/vim-pandoc', { 'for': [ 'markdown' ] }
+Plug 'vim-pandoc/vim-pandoc-syntax', { 'for': [ 'markdown' ] }
 call plug#end()
 
 " ------------------------- frazrepo/vim-rainbow ----------------------------
@@ -219,15 +226,22 @@ augroup end
 augroup lightline_setting
 	au!
 	let g:lightline = {
-		\ 'colorscheme': 'molokai',
-		\ 'active': {
-		\	'left': [ [ 'mode', 'paste' ],
-		\			  [ 'readonly', 'filename', 'modified', 'charvaluehex' ] ]
-		\ },
-		\ 'component': {
-		\	'charvaluehex': '0x%B'
-		\ },
-		\ }
+	\	'colorscheme': 'molokai',
+	\	'active': {
+	\		'left': [
+	\			[ 'mode', 'paste' ],
+	\			[ 'readonly', 'filename', 'modified', 'charvaluehex' ],
+	\		],
+	\		'right': [ 
+	\			[ 'lineinfo' ],
+	\			[ 'percent' ],
+	\			[ 'fileformat', 'fileencoding', 'filetype' ],
+	\		],
+	\	},
+	\	'component': {
+	\		'charvaluehex': '0x%B'
+	\	},
+	\}
 augroup end
 
 " --------------------------- airblade/vim-rooter ---------------------------
@@ -249,6 +263,7 @@ augroup nerdtree_setting
 	" Start NERDTree when Vim starts with a directory argument.
 	autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
 		\ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
+	" Start NERDTree when Vim starts with a directory argument.
 	" Exit Vim if NERDTree is the only window remaining in the only tab.
 	autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
 		\ quit | endif
@@ -563,7 +578,7 @@ augroup ale_setting
 		\ '*': [ 'remove_trailing_lines', 'trim_whitespace' ],
 		\ 'c': [ 'clang' ],
 		\ 'cpp': [ 'clang' ],
-		\ 'python': [ 'isort', 'black', 'autoflake' ],
+		\ 'python': [ 'isort', 'black' ],
 		\ 'rust': [ 'rustfmt' ]
 	\}
 	let g:airline#extensions#ale#enabled = 1
@@ -605,9 +620,9 @@ augroup ale_setting
 	let g:ale_c_cppcheck_options = ''
 	let g:ale_cpp_cppcheck_options = ''
 
-	let g:ale_python_flake8_options = '--max-line-length=79 --ignore=E231,E203,W503'
-	let g:ale_python_autoflake_options = '--remove-all-unused-imports --expand-star-imports'
-	let g:ale_python_black_options = '--line-length=79'
+	let g:ale_python_flake8_options = '--max-line-length=88 --ignore=E231,E203,W503'
+	let g:ale_python_autoflake_options = '--expand-star-imports --ignore-init-module-imports --remove-duplicate-keys'
+	let g:ale_python_black_options = '--line-length=80'
 augroup end
 
 " ------------------------------ ycm-core/YouCompleteMe ---------------------
@@ -725,14 +740,35 @@ augroup vimterminalhelp_setting
 	let g:terminal_vertical = 1
 	let g:terminal_width = 70
 	let g:terminal_close = 1
+	" This function will be injected to `SlimeConfig` to override the default
+	" behavior.
+	" Note: refer to `s:VimterminalConfig` and `s:SlimeDispatch` for more
+	" information.
+	function! SlimeOverrideConfig(...)
+		let bid = get(t:, "__terminal_bid__", -1)
+		let target = substitute(tolower(g:slime_target), '\(.\)', '\u\1', '') " Capitalize
+		if target == 'Vimterminal' && bid > 0
+			if !exists("b:slime_config")
+				let b:slime_config = {"bufnr": ""}
+			endif
+			let b:slime_config["bufnr"] = bid
+		else
+			" `slime.vim` has been modified to check return value.
+			" `-1` represents that this overriding function fails and the
+			"	default process should march on.
+			" And this return require `s:SlimeDispatch` to catch this `-1` and
+			"	return to original config-dispatching flow.
+			return -1
+		endif
+	endfunction
 augroup end
 
 " --------------------------- dhruvasagar/vim-table-mode --------------------
 augroup vimtablemode_setting
 	au!
 	let g:table_mode_auto_align = 1
-	let g:table_mode_corner = '|'
-	let g:table_mode_update_time = 1000
+	let g:table_mode_update_time = 100
+	" let g:table_mode_corner = '+'
 	" let g:table_mode_corner_corner = '+'
 	" let g:table_mode_header_fillchar = '='
 
@@ -744,6 +780,26 @@ augroup vimtablemode_setting
 	" let g:table_mode_delete_column_map = ""
 	" let g:table_mode_insert_column_map = ""
 	" nnoremap <leader>tm <Plug>TableModeToggle
+augroup end
+
+" --------------------------- preservim/vim-markdown ------------------------
+augroup vim_markdown_setting
+	au!
+	let g:vim_markdown_folding_disabled = 1
+	let g:vim_markdown_folding_level = 4
+	let g:vim_markdown_folding_style_pythonic = 1
+
+	let g:vim_markdown_emphasis_multiline = 0
+	let g:vim_markdown_math = 1
+	let g:vim_markdown_frontmatter = 1
+	let g:vim_markdown_toml_frontmatter = 1
+
+	let g:vim_markdown_new_list_item_indent = 0
+
+	let g:vim_markdown_conceal = 0
+	let g:tex_conceal = ""
+	let g:vim_markdown_conceal_blocks = 0
+	let g:vim_markdown_auto_insert_bullets = 0
 augroup end
 
 " --------------------------- liuchengxu/vim-which-key ----------------------
@@ -760,10 +816,11 @@ augroup vimwhichkey_setting
 	" Valid only when `which_key_use_floating_win` is unset, as no quickfix
 	" will be used.
 	let g:which_key_position = 'topleft'
-	let g:which_key_vertical = 0
+	let g:which_key_vertical = 1
 	let g:which_key_hspace = 0
 	let g:which_key_centered = 1
 	let g:which_key_sort_horizontal = 0
+	" let g:which_key_group_dicts = ''
 	let g:which_key_map = {}
 	let g:which_key_map_visual = {}
 	let g:which_key_local_map = {}
@@ -825,7 +882,7 @@ augroup vimwhichkey_setting
 		\ 'f': {
 			\ 'name': '+find',
 			\ 'j': [ ':Leaderf! --recall'		, 'leader-recall'],
-			\ 'f': [ ':Leaderf file'			, 'leader-recall'],
+			\ 'f': [ ':Leaderf file'			, 'leader-file'],
 			\ 'b': [ ':Leaderf buffer'			, 'leaderf-buffer' ],
 			\ 'c': [ ':Leaderf function'		, 'leaderf-function' ],
 			\ 'm': [ ':Leaderf mru'				, 'leaderf-mru' ],
@@ -834,12 +891,12 @@ augroup vimwhichkey_setting
 			\ 'q': [ ':Leaderf quickfix'		, 'leaderf-quickfix' ],
 			\ 'x': 'rg-cbuf',
 			\ 'g': 'rg-global',
-			\ 'fr': [ ':Leaderf! rg --recall'	, 'rg-recall'],
+			\ 'jr': [ ':Leaderf! rg --recall'	, 'rg-recall'],
 			\ 'd': 'gtags-def',
 			\ 'r': 'gtags-ref',
 			\ 'p': [ ':Leaderf! gtags --previous'	, 'gtags-pre' ],
 			\ 'n': [ ':Leaderf! gtags --next'		, 'gtags-next' ],
-			\ 'fg': [ ':Leaderf! gtags --recall'	, 'gtags-recall' ],
+			\ 'jg': [ ':Leaderf! gtags --recall'	, 'gtags-recall' ],
 		\ },
 		\ 'g': {
 			\ 'name': '+goto-desc',
@@ -862,6 +919,7 @@ augroup vimwhichkey_setting
 			\ 'name': '+tiny-functions',
 			\ 't': [ ':TableModeToggle', 'toggle-table-mode' ],
 			\ 's': [ ":source $HOME/.vim/vimrc", 'reload-vimrc' ],
+			\ 'q': [ ':call setqflist([])', "cleanQF" ],
 		\ },
 	\ }
 	let g:which_key_local_map = {
@@ -884,8 +942,8 @@ augroup vimwhichkey_setting
 		\ },
 		\ 'm': {
 			\ 'name': '+movement',
-			\ 'ns': 'next-section',
-			\ 'ps': 'previous-section',
+			\ 'n': 'next-section',
+			\ 'p': 'previous-section',
 		\ },
 	\ }
 	let g:which_key_map_visual = {
