@@ -41,7 +41,7 @@ function! TestPython()
 	let filename = paths[-1]
 	let modname = paths[-2]
 	if filename[0:4] ==# "test_"
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest' . abapath
+		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest ' . abspath
 	elseif filereadable(getcwd() . "/tests/test_" . filename)
 		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest tests/test_' . filename
 	elseif filereadable(getcwd() . "/tests/" . modname . "/test_" . filename)
