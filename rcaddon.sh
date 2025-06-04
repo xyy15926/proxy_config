@@ -1,0 +1,47 @@
+# Some aliases.
+alias rm="rm -i"
+alias ls="ls --group-directories-first --color"
+alias ll="ls --group-directories-first --color -l"
+alias la="ls --group-directories-first --color -l -a"
+alias ipythonn="ipython --no-autoindent"
+
+# Some simple global environment variables.
+if [ -f $HOME/.globalrc ]; then
+	export GTAGSCONF="$HOME/.globalrc"
+fi
+if [ -d "/opt/vim/bin" ]; then
+	export PATH="/opt/vim/bin:$PATH"
+fi
+
+# Init conda or forge for shell interaction.
+# 1. `mamba shell init` will generate the block in the shell rc.
+if [ -d "/opt/miniforge3" ]; then
+	export MAMBA_EXE='/opt/miniforge3/bin/mamba';
+	export MAMBA_ROOT_PREFIX='/opt/miniforge3';
+	__mamba_setup="$("$MAMBA_EXE" shell hook --shell bash --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+	if [ $? -eq 0 ]; then
+		eval "$__mamba_setup"
+	else
+		alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+	fi
+	unset __mamba_setup
+	if [[ $(mamba env list | grep aki7) != "" ]]; then
+	mamba deactivate && mamba activate aki7
+	fi
+# 2. `conda init` will generate the block in the shell rc.
+elif [ -d "/opt/miniconda3" ]; then
+	__conda_setup="$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+	if [ $? -eq 0 ]; then
+		eval "$__conda_setup"
+	else
+		if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
+			. "/opt/miniconda3/etc/profile.d/conda.sh"
+		else
+			export PATH="/opt/miniconda3/bin:$PATH"
+		fi
+	fi
+	unset __conda_setup
+	if [[ $(conda env list | grep aki7) != "" ]]; then
+	conda deactivate && conda activate aki7
+	fi
+fi

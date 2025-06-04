@@ -195,7 +195,7 @@ Plug 'tpope/vim-commentary'
 " Warning: some changes for cooperating with `skywind3000/vim-terminal-help`.
 Plug 'jpalardy/vim-slime', { 'for': [ 'python' ], 'frozen': 1 }
 " 
-Plug 'skywind3000/vim-terminal-help', { 'frozen' : 1 }
+Plug 'xyy15926/vim-terminal-help', { 'frozen' : 1 }
 Plug 'skywind3000/asyncrun.vim', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
 Plug 'Yggdroot/LeaderF'
 " ALE requirements:
@@ -736,7 +736,10 @@ augroup end
 " --------------------------- skywind/vim-terminal-help ---------------------
 augroup vimterminalhelp_setting
 	au!
+	let g:terminal_rootmarkers = s:root_flags
+	let g:terminal_key = "<m-=>"
 	let g:terminal_default_mapping = 1
+	let g:terminal_cwd = 2
 	let g:terminal_vertical = 1
 	let g:terminal_width = 70
 	let g:terminal_close = 1
@@ -745,20 +748,21 @@ augroup vimterminalhelp_setting
 	" Note: refer to `s:VimterminalConfig` and `s:SlimeDispatch` for more
 	" information.
 	function! SlimeOverrideConfig(...)
+		" let target = substitute(tolower(g:slime_target), '\(.\)', '\u\1', '') " Capitalize
+		let target = slime#config#resolve("target")
 		let bid = get(t:, "__terminal_bid__", -1)
-		let target = substitute(tolower(g:slime_target), '\(.\)', '\u\1', '') " Capitalize
-		if target == 'Vimterminal' && bid > 0
+		let alive = 0
+		if bid > 0 && bufname(bid) != ''
+			let alive = (bufwinnr(bid) > 0)? 1 : 0
+		endif
+		" Use terminal opened by vim-terminal-help by default.
+		if target == 'vimterminal' && bid > 0 && alive > 0
 			if !exists("b:slime_config")
 				let b:slime_config = {"bufnr": ""}
 			endif
 			let b:slime_config["bufnr"] = bid
 		else
-			" `slime.vim` has been modified to check return value.
-			" `-1` represents that this overriding function fails and the
-			"	default process should march on.
-			" And this return require `s:SlimeDispatch` to catch this `-1` and
-			"	return to original config-dispatching flow.
-			return -1
+		    return call("slime#targets#" . slime#config#resolve("target") . "#config", a:000)
 		endif
 	endfunction
 augroup end
