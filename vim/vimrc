@@ -99,6 +99,15 @@ set encoding=utf-8
 set fileencodings=usc-bom,utf-8,gbk,utf-16,latin1
 set fileencoding=utf-8
 set termencoding=utf-8
+set cscopeprg='gtags-cscope'
+" let s:vim_tags = expand('~/.cache/gtags')
+" if !isdirectory(s:vim_tags)
+" 	silent! call mkdir(s:vim_tags, 'p')
+" endif
+" set tags=./.tags;,.tags
+" <<<<<<<<<<<<<<<<<<<<<<<<<<<< Usage Setting <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
 " >>>>>>> Backup and Recovering >>>>>>>
 " Backup
 if has("vms")
@@ -145,33 +154,9 @@ tnoremap <Esc> <C-\><C-n>
 " <<<<<<<<<<<<<<<<<<<<<<<<<<< Key Mapper <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-" >>>>>>>>>>>>>>>>>>>>>>>>>>> Functional Mods >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-" >>>>>>>> Auto Make-Del View >>>>>>>
-" autocmd BufWinLeave ?* if !&readonly | mkview | endif
-" autocmd BufWinEnter ?* if !&readonly | silent loadview | endif
-" # Function to permanently delete views created by 'mkview'
-function! MyDeleteView()
-	let path = fnamemodify(bufname('%'),':p')
-	" vim's odd =~ escaping for /
-	let path = substitute(path, '=', '==', 'g')
-	if empty($HOME)
-	else
-		let path = substitute(path, '^'.$HOME, '\~', '')
-	endif
-	let path = substitute(path, '/', '=+', 'g') . '='
-	" view directory
-	let path = &viewdir.'/'.path
-	call delete(path)
-	echo "Deleted: ".path
-endfunction
-" # Command Delview (and it's abbreviation 'delview')
-command Delview call MyDeleteView()
-" Lower-case user commands: http://vim.wikia.com/wiki/Replace_a_builtin_command_using_cabbrev
-cabbrev delview <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Delview' : 'delview')<CR>
-" <<<<<<<< Auto Make-Del View <<<<<<<
-
 " >>>>>>>>>>>>>>>>>>>>>>>>>>> Plugins >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 let s:root_flags = ['.root', '.svn', '.git', '.hg', '.project', 'Makefile']
+let s:cache_dir = expand('$HOME/.vim/cache')
 if has('syntax') && has('eval')
 	packadd! matchit
 endif
@@ -182,35 +167,37 @@ Plug 'itchyny/lightline.vim'
 " Plug 'vim-airline/vim-airline'
 Plug 'airblade/vim-rooter'
 Plug 'preservim/nerdtree'
-" Getentags requirements:
-" - gtags
-"	-	let $GTAGSLABEL = 'native-pygments'
-"	-	let $GTAGSCONF = '/path/to/'
-" - pygments
-" Note: ctags(Unniversal-ctags or Exuberant-ctags) is oudated.
-Plug 'ludovicchabant/vim-gutentags'
-Plug 'skywind3000/gutentags_plus'
-Plug 'preservim/tagbar'
-Plug 'tpope/vim-commentary'
-" Warning: some changes for cooperating with `skywind3000/vim-terminal-help`.
-Plug 'jpalardy/vim-slime', { 'for': [ 'python' ], 'frozen': 1 }
-" 
-Plug 'xyy15926/vim-terminal-help', { 'frozen' : 1 }
-Plug 'skywind3000/asyncrun.vim', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
-Plug 'Yggdroot/LeaderF'
-" ALE requirements:
-" - python-lint: flake8, isort
-" - python-fix: black, autoflake
-Plug 'dense-analysis/ale', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
-" YCM requirements:
-" - rust-lint:
-Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py --core-test' }
 Plug 'mhinz/vim-startify'
 Plug 'dhruvasagar/vim-zoom'
-" Some changes are added for vertical position.
+
+Plug 'liuchengxu/vim-which-key'
+Plug 'preservim/tagbar'
+
+" Getentags requirements:
+" -	gtags：ctags(Unniversal-ctags or Exuberant-ctags) is outdated.
+"	-	let $GTAGSLABEL = 'native-pygments'
+"	-	let $GTAGSCONF = '/path/to/'
+" -	For python:
+"	- pygments
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'skywind3000/gutentags_plus'
+Plug 'Yggdroot/LeaderF'
+
+Plug 'jpalardy/vim-slime', { 'for': [ 'python', 'sh' ], 'frozen': 1 }
+Plug 'xyy15926/vim-terminal-help', { 'frozen' : 1 }
+Plug 'skywind3000/asyncrun.vim', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
+" ALE requirements:
+" -	For python:
+"	- python-lint: flake8, isort
+"	- python-fix: black, autoflake
+Plug 'dense-analysis/ale', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
+" YCM requirements:
+" -	For python:
+Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py --core-test' }
+
+Plug 'tpope/vim-commentary'
 Plug 'dhruvasagar/vim-table-mode', { 'for': [ 'markdown', 'python' ] }
 Plug 'rust-lang/rust.vim', { 'for': [ 'rust' ] }
-Plug 'liuchengxu/vim-which-key'
 " Plug 'preservim/vim-markdown', { 'for': [ 'markdown' ] }
 Plug 'vim-pandoc/vim-pandoc', { 'for': [ 'markdown' ] }
 Plug 'vim-pandoc/vim-pandoc-syntax', { 'for': [ 'markdown' ] }
@@ -226,22 +213,22 @@ augroup end
 augroup lightline_setting
 	au!
 	let g:lightline = {
-	\	'colorscheme': 'molokai',
-	\	'active': {
-	\		'left': [
-	\			[ 'mode', 'paste' ],
-	\			[ 'readonly', 'filename', 'modified', 'charvaluehex' ],
-	\		],
-	\		'right': [ 
-	\			[ 'lineinfo' ],
-	\			[ 'percent' ],
-	\			[ 'fileformat', 'fileencoding', 'filetype' ],
-	\		],
-	\	},
-	\	'component': {
-	\		'charvaluehex': '0x%B'
-	\	},
-	\}
+		\	'colorscheme': 'molokai',
+		\	'active': {
+		\		'left': [
+		\			[ 'mode', 'paste' ],
+		\			[ 'readonly', 'filename', 'modified', 'charvaluehex' ],
+		\		],
+		\		'right': [ 
+		\			[ 'lineinfo' ],
+		\			[ 'percent' ],
+		\			[ 'fileformat', 'fileencoding', 'filetype' ],
+		\		],
+		\	},
+		\	'component': {
+		\		'charvaluehex': '0x%B'
+		\	},
+		\	}
 augroup end
 
 " --------------------------- airblade/vim-rooter ---------------------------
@@ -291,51 +278,59 @@ augroup tagbar_setting
 	" nnoremap <leader>nt :TagbarToggle<CR>
 	" nnoremap <leader>tf :TagbarCurrentTag<CR>
 	let g:tagbar_type_markdown = {
-		\'ctagstype'	: 'markdown',
-		\'kinds'		: [
-			\'c:Heading_L1',
-			\'s:Heading_L2',
-			\'S:Heading_L2',
-			\'t:Heading_L3',
-			\'T:Heading_L3',
-		\],
-		\'sort':0,
-	\}
+		\	'ctagstype'	: 'markdown',
+		\	'kinds'		: [
+		\		'c:Heading_L1',
+		\		's:Heading_L2',
+		\		'S:Heading_L2',
+		\		't:Heading_L3',
+		\		'T:Heading_L3',
+		\	],
+		\	'sort':0,
+		\	}
 		"ctagstype: the lang-type passed to ctags
 		"kinds: parsing the token from ctags, match the first
 		"	char from the token, and group the content to 
 		"	the relavant tag(after the `:`)
 		"sort: default sorting method
 	let g:tagbar_type_rust = {
-		\ 'ctagstype'	: 'rust',
-		\ 'kinds'		: [
-			\'T:types,type definitions',
-			\'f:functions,function definitions',
-			\'g:enum,enumeration names',
-			\'s:structure names',
-			\'m:modules,module names',
-			\'c:consts,static constants',
-			\'t:traits',
-			\'i:impls,trait implementations',
-		\]
-	\}
+		\	'ctagstype'	: 'rust',
+		\	'kinds'		: [
+		\		'T:types,type definitions',
+		\		'f:functions,function definitions',
+		\		'g:enum,enumeration names',
+		\		's:structure names',
+		\		'm:modules,module names',
+		\		'c:consts,static constants',
+		\		't:traits',
+		\		'i:impls,trait implementations',
+		\	]
+		\	}
 
 	let g:tagbar_type_scala = {
-		\'ctagstype'	: 'scala',
-		\'sro'			: '.',
-		\'kinds'		: [
-			\'T:Types',
-			\'t:Traits',
-			\'o:Objects',
-			\'O:Case objects',
-			\'c:Classes',
-			\'C:Case classes',
-			\'m:Methods',
-			\'V:Constant',
-			\'v:Variables'
-		\],
-		\'sort': 0
-	\}
+		\	'ctagstype'	: 'scala',
+		\	'sro'		: '.',
+		\	'kinds'		: [
+		\		'T:Types',
+		\		't:Traits',
+		\		'o:Objects',
+		\		'O:Case objects',
+		\		'c:Classes',
+		\		'C:Case classes',
+		\		'm:Methods',
+		\		'V:Constant',
+		\		'v:Variables'
+		\	],
+		\	'sort': 0
+		\	}
+augroup end
+
+" ------------------------------ skywind3000/asyncrun -----------------------
+augroup asyncrun_setting
+	au!
+	let g:asyncrun_open = 8
+	let g:asyncrun_bell = 0
+	let g:asyncrun_roomarks = s:root_flags
 augroup end
 
 " --------------------------------- tpope/vim-commentary --------------------
@@ -353,11 +348,11 @@ augroup vimslime_setting
 	let g:slime_target='vimterminal'
 	let g:slime_preserve_curpos=0
 	let g:slime_vimterminal_config={
-				\ 'term_name': 'vterm',
-				\ 'term_cols': 70,
-				\ 'vertical': 2,
-				\ 'norestore': 1,
-				\ }
+		\	'term_name': 'vterm',
+		\	'term_cols': 70,
+		\	'vertical': 2,
+		\	'norestore': 1,
+		\	}
 	" let g:slime_dont_ask_default=1
 	let g:slime_no_mappings=1
 	" xnoremap <leader>es <Plug>SlimeRegionSend
@@ -367,28 +362,41 @@ augroup vimslime_setting
 augroup end
 
 " ----------------------- GTags && ludovicchabant/vim-gutentags -------------
-" Cooperate ctags, cscope or gtags(gtags-scope) with vim.
-" 1. ctags: generate tag files and append tag files to `tags` option
-" 2. cscope: generate cscope db and link db file with `:cs add` the db file
-" 3. gtags:: generate tags files(db), set `tags` option and link db file
- 
-" gtags need `pygments`+`ctags` to generate tags for no-native-support languages
-" with `/usr/share/[global/]gtags/scripts/pygments_parser.py` as the bridge.
-" But `pygments_parser.py` locates `ctags` in a self-defeating way. So, some
-" symbollic link, `ctags-exuberant` for example, may need be created manully.
+" ----------------------- GTags ------------------------
+" 1. ctags: Generate tag files and append tag files to `tags` option.
+"   1.1 Support only definition but reference.
+"   1.2 Use text file to store the tags.
+" 2. cscope: Generate cscope db and link db file with `:cs add` the db file
+"   2.1 Support both definition and reference but for C/C++ only.
+" 3. gtags: Generate tags files(db), set `tags` option and link db file
+"   3.1 Locate both definitions and references.
+"   3.2 Support C, C++, Java, PHP4, Yacc, Assembly by builtin-parser.
+"   3.3 Support over 25+ languages by **Pygments + Universal Ctags** plug-in
+"     parser.
+"   3.4 Use local DB for storage so to find locations and specified symbol
+"     quickly
+"   3.5 Support incremental update.
+"
+" Note:
+" 1. GTags's verison should be higher than 6.6.0.
+" 2. GTags need `pygments`+`ctags` to generate tags for no-native-support
+"  languages with `/usr/share/[global/]gtags/scripts/pygments_parser.py` as
+"  the bridge. But `pygments_parser.py` locates `ctags` in a self-defeating
+"  way. So, some symbollic link, `ctags-exuberant` for example, may need be
+"  created manully.
 "
 " Note: gtags generate three file
-" 1. GTAGS: definition db, which may empty and link to ctags-file?
+" 1. GTAGS: definition db
 " 2. GRTAGS: reference db
 " 3. GPATH: path name db
 "
 " Warning:
 " `pygments_parser.py` use `latin1` for `sys.stdout` in main thread, which
-" can't accept no-ascii in filepath, tags and etc. `utf8` could be used as the
-" ECS for `stdout` to surpress errors, while the tag-info generated by
-" `ctags`(call by `pygments_parser.py`) will be dropped, which seemes like
-" resulting by pipe or handler pipe for `pygments` output to gtags, as
-" no-ascii char in filepath of gtags native-support filetype works
+" can't accept no-ascii in filepath, tags and etc.
+" `Utf8` could be used as the ECS for `stdout` to surpress errors, while the
+" tag-info generated by `ctags`(call by `pygments_parser.py`) will be dropped,
+" which seems to be resulting from pipe or handler pipe for `pygments` output
+" to gtags, as no-ascii char in filepath of gtags native-support filetype works
 " fine. (`native` or `native-pygments` as `--gtagsglobal`)
 " Also, tags, function for example, are encoding can be found but searched.
 " So, set `stdout` with `utf8` may be the best solution though file with
@@ -402,15 +410,13 @@ augroup end
 "	points out the issue, but the solutions put up suppress the error by
 "	just forbidden pygments' function.)
 
-" Environment variables are set here for gtags.
-let $GTAGSLABEL = 'native-pygments'
-let $GTAGSCONF = expand('$HOME/.globalrc')
+" ----------------------- ludovicchabant/vim-gutentags --------------------
+" Cooperate ctags, cscope or global(Gtags) with vim.
+" Environment variables are set here for Gtags.
+" !!! Attention: Moved up.
+" let $GTAGSLABEL = 'native-pygments'
+" let $GTAGSCONF = expand('$HOME/.globalrc')
 
-" let s:vim_tags = expand('~/.cache/gtags')
-" if !isdirectory(s:vim_tags)
-" 	silent! call mkdir(s:vim_tags, 'p')
-" endif
-" set tags=./.tags;,.tags
 augroup vimgutentags_setting
 	au!
 	" Set 0 if using `gutentags_plus` to switch gtags-tags-db among different
@@ -432,10 +438,11 @@ augroup vimgutentags_setting
 	" Touch `.notags` in root-dir may be better, for most projects.
 	let g:gutentags_execlude_project_root = ['/usr/local', '/opt/homebrew', '/home/linuxbrew/.linuxbrew']
 
-	" `Leaderf` can't set gtags cache dir precisely, so modify `gutentags`
-	" cache dir.
-	let g:Lf_CacheDirectory = expand('~'.'/.cache')
-	let g:gutentags_cache_dir = expand(g:Lf_CacheDirectory.'/.LfCache/gtags')
+	" As `Leaderf` can't set gtags cache dir precisely, `gutentags` cache dir
+	" is set so to share `gtags-DB` between `Leaderf` and `vim-gutentags`.
+	" !!! ATTENTION: `Leaderf` may change the location for `gtags-DB`, check the
+	" document or the ERROR for more information.
+	let g:gutentags_cache_dir = expand(s:cache_dir.'/LeaderF/gtags')
 	" add modules to generate tags
 	let g:gutentags_modules = []
 	if executable('ctags')
@@ -469,58 +476,98 @@ augroup gutentags_plus_setting
 augroup end
 
 " ---------------------------- Yggdroot/LeaderF -----------------------------
+" Ref:
+" -	LeaderF Config: https://retzzz.github.io/dc9af5aa/
+" - LeaderF gtags: https://zhuanlan.zhihu.com/p/64842373
+
+" Environment variables are set here for Gtags.
+" Attention: Moved up.
+let $GTAGSLABEL = 'native-pygments'
+let $GTAGSCONF = expand('$HOME/.globalrc')
+
 augroup leaderf_setting
 	au!
-	let g:Lf_RootMarkers=s:root_flags
+	let g:Lf_WorkingDirectoryMode = "AF"
+	let g:Lf_RootMarkers = s:root_flags
+	let g:Lf_UseVersionControlTool = 1
+	let g:Lf_DefaultExternalTool = "rg"
+	let g:Lf_WildIgnore = {
+		\	'file': [ '*.bak', '*.tmp' ],
+		\	'dir': [ '*tmp', '*bak' ],
+		\	}
+
+	let g:Lf_UseCache = 1
+	let g:Lf_CacheDirectory = s:cache_dir
+
+	" Cooperate with `Gtags` and `vim-gutentags`
+	let g:Lf_GtagsSource = 0
+	let g:Lf_GtagsGutentags = 1
+	let g:Lf_GtagsAutoGenerate = 0
+	let g:Lf_GtagsAutoUpdate = 0
+	let g:Lf_Gtagsconf = $GTAGSCONF
+	let g:Lf_Gtagslabel = $GTAGSLABEL
+
 	let g:Lf_HideHelp = 0
-	let g:Lf_UseCache = 0
-	let g:Lf_UseVersionControlTool = 0
 	let g:Lf_IgnoreCurrentBufferName = 1
-	let g:Lf_WindowPosition='popup'
-	let g:Lf_PreviewInPopup=0
-	let g:Lf_PreviewResult={ 'Function': 0, 'BufTag': 0, 'Colorscheme': 1 }
+
+	let g:Lf_ShowHidden = 1
+	let g:Lf_WindowPosition = 'popup'
+	let g:Lf_WindowHeight = 10
+	let g:Lf_PreviewInPopup = 0
+	let g:Lf_PreviewResult = {
+		\	'File': 0,
+		\	'Buffer': 1,
+		\	'Mru': 0,
+		\	'Tag': 0,
+		\	'BufTag': 1,
+		\	'Function': 0,
+		\	'Line': 1,
+		\	'Colorscheme': 0,
+		\	'Rg': 0,
+		\	'Gtags': 0,
+		\	}
 	let g:Lf_PopupPalette = {
-		\'light': {
-		\	'Lf_hl_match': {
-		\		'gui': 'NONE',
-		\		'font': 'NONE',
-		\		'guifg': 'NONE',
-		\		'guibg': '#303136',
-		\		'cterm': 'NONE',
-		\		'ctermfg': 'NONE',
-		\		'ctermbg': '236'
+		\	'light': {
+		\		'Lf_hl_match': {
+		\			'gui': 'NONE',
+		\			'font': 'NONE',
+		\			'guifg': 'NONE',
+		\			'guibg': '#303136',
+		\			'cterm': 'NONE',
+		\			'ctermfg': 'NONE',
+		\			'ctermbg': '236'
+		\		},
+		\		'Lf_hl_cursorline': {
+		\			'gui': 'NONE',
+		\			'font': 'NONE',
+		\			'guifg': 'NONE',
+		\			'guibg': '#303136',
+		\			'cterm': 'NONE',
+		\			'ctermfg': 'NONE',
+		\			'ctermbg': '236'
+		\		},
 		\	},
-		\	'Lf_hl_cursorline': {
-		\		'gui': 'NONE',
-		\		'font': 'NONE',
-		\		'guifg': 'NONE',
-		\		'guibg': '#303136',
-		\		'cterm': 'NONE',
-		\		'ctermfg': 'NONE',
-		\		'ctermbg': '236'
-		\	},
-		\},
-		\'dark': {
-		\	'Lf_hl_match': {
-		\		'gui': 'NONE',
-		\		'font': 'NONE',
-		\		'guifg': 'NONE',
-		\		'guibg': '#303136',
-		\		'cterm': 'NONE',
-		\		'ctermfg': 'NONE',
-		\		'ctermbg': '236'
-		\	},
-		\	'Lf_hl_cursorline': {
-		\		'gui': 'NONE',
-		\		'font': 'NONE',
-		\		'guifg': 'NONE',
-		\		'guibg': '#303136',
-		\		'cterm': 'NONE',
-		\		'ctermfg': 'NONE',
-		\		'ctermbg': '236'
-		\	},
-		\}
-		\}
+		\	'dark': {
+		\		'Lf_hl_match': {
+		\			'gui': 'NONE',
+		\			'font': 'NONE',
+		\			'guifg': 'NONE',
+		\			'guibg': '#303136',
+		\			'cterm': 'NONE',
+		\			'ctermfg': 'NONE',
+		\			'ctermbg': '236'
+		\		},
+		\		'Lf_hl_cursorline': {
+		\			'gui': 'NONE',
+		\			'font': 'NONE',
+		\			'guifg': 'NONE',
+		\			'guibg': '#303136',
+		\			'cterm': 'NONE',
+		\			'ctermfg': 'NONE',
+		\			'ctermbg': '236'
+		\		},
+		\	}
+		\	}
 	" Unset default shortcut
 	let g:Lf_ShortcutF=""
 	let g:Lf_ShortcutB=""
@@ -537,14 +584,6 @@ augroup leaderf_setting
 	nnoremap <leader>fg :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
 	xnoremap <leader>fg :<C-u><C-r>=printf("Leaderf! rg -F -e %s", leaderf#Rg#visual())<CR>
 
-	" Cooperate with `vim-gutentags`
-	let g:Lf_GtagsGutentags = 1
-	let g:Lf_CacheDirectory = expand('~'.'/.cache')
-	let g:Lf_GtagsAutoGenerate = 0
-	let g:Lf_GtagsAutoUpdate = 0
-	let g:Lf_Gtagsconf = $TAGSCONF
-	let g:Lf_Gtagslabel = $GTAGSLABEL
-
 	nnoremap <leader>fd :<C-u><C-r>=printf("Leaderf! gtags -d %s --auto-jump", expand("<cword>"))<CR><CR>
 	nnoremap <leader>fr :<C-u><C-r>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
 	" nnoremap <leader>fs :<C-u><C-r>=printf("Leaderf! gtags -s %s --auto-jump", expand("<cword>"))<CR><CR>
@@ -554,33 +593,25 @@ augroup leaderf_setting
 	" nnoremap <leader>fp :<C-u><C-r>=printf("Leaderf gtags --previous", expand("<cword>"))<CR><CR>
 augroup end
 
-" ------------------------------ skywind3000/asyncrun -----------------------
-augroup asyncrun_setting
-	au!
-	let g:asyncrun_open = 8
-	let g:asyncrun_bell = 0
-	let g:asyncrun_roomarks = s:root_flags
-augroup end
-
 " ----------------------------- dense-analysis/ale --------------------------
 augroup ale_setting
 	au!
 	" Only linters specified explicitly will be run.
 	let g:ale_linters_explicit = 1
 	let g:ale_linters = {
-		\ 'c': [ 'clang' ],
-		\ 'cpp': [ 'clang' ],
-		\ 'python': [ 'flake8' ],
-		\ 'rust': [ 'analyzer' ]
-	\}
+		\	'c': [ 'clang' ],
+		\	'cpp': [ 'clang' ],
+		\	'python': [ 'flake8' ],
+		\	'rust': [ 'analyzer' ]
+		\	}
 	" Default `*` will be recovered entirely by explicit filetype.
 	let g:ale_fixers = {
-		\ '*': [ 'remove_trailing_lines', 'trim_whitespace' ],
-		\ 'c': [ 'clang' ],
-		\ 'cpp': [ 'clang' ],
-		\ 'python': [ 'isort', 'black' ],
-		\ 'rust': [ 'rustfmt' ]
-	\}
+		\	'*': [ 'remove_trailing_lines', 'trim_whitespace' ],
+		\	'c': [ 'clang' ],
+		\	'cpp': [ 'clang' ],
+		\	'python': [ 'isort', 'black' ],
+		\	'rust': [ 'rustfmt' ]
+		\	}
 	let g:airline#extensions#ale#enabled = 1
 	" nnoremap <localleader>cn :ALENext<CR>
 	" nnoremap <localleader>cp :ALEPrevious<CR>
@@ -632,18 +663,17 @@ augroup youcompleteme_setting
 	" let g:ycm_filetype_blacklist = {}
 
 	let g:ycm_semantic_triggers =  {
-				\ 'c': ['->', '.'],
-				\ 'objc': ['->', '.', 're!\[[_a-zA-Z]+\w*\s', 're!^\s*[^\W\d]\w*\s',
-				\          're!\[.*\]\s'],
-				\ 'ocaml': ['.', '#'],
-				\ 'cpp,cuda,objcpp': ['->', '.', '::'],
-				\ 'perl': ['->'],
-				\ 'php': ['->', '::'],
-				\ 'cs,d,elixir,go,groovy,java,javascript,julia,perl6,python,scala,typescript,vb': ['.'],
-				\ 'ruby,rust': ['.', '::'],
-				\ 'lua': ['.', ':'],
-				\ 'erlang': [':'],
-				\ }
+		\	'c'		: [ '->', '.' ],
+		\	'objc'	: [ '->', '.', 're!\[[_a-zA-Z]+\w*\s', 're!^\s*[^\W\d]\w*\s', 're!\[.*\]\s'],
+		\	'ocaml'	: ['.', '#'],
+		\	'cpp,cuda,objcpp'	: ['->', '.', '::'],
+		\	'perl'	: ['->'],
+		\	'php'	: ['->', '::'],
+		\	'cs,d,elixir,go,groovy,java,javascript,julia,perl6,python,scala,typescript,vb': ['.'],
+		\	'ruby,rust': ['.', '::'],
+		\	'lua'	: ['.', ':'],
+		\	'erlang': [':'],
+		\	}
 	let g:ycm_auto_trigger = 1
 	let g:ycm_disable_for_files_larger_than_kb = 100
 	let g:ycm_min_num_of_chars_for_completion = 2
@@ -676,10 +706,10 @@ augroup youcompleteme_setting
 	let g:ycm_autoclose_preview_window_after_insertion = 1
 	let g:ycm_auto_hover = 'CursorHold'
 	command -count ShowDocWithSize
-				\ let g:ph=&previewheight
-				\ <bar> set previewheight=<count>
-				\ <bar> <mods> YcmCompleter GetDoc
-				\ <bar> let &previewheight=g:ph
+		\	let g:ph=&previewheight
+		\	<bar> set previewheight=<count>
+		\	<bar> <mods> YcmCompleter GetDoc
+		\	<bar> let &previewheight=g:ph
 
 	let g:ycm_goto_buffer_command = 'same-buffer'
 
@@ -688,9 +718,9 @@ augroup youcompleteme_setting
 	let g:ycm_python_sys_path = []
 	" Determine effective configs in `g:ycm_global_extra_conf`
 	let g:ycm_extra_conf_vim_data = [
-				\ 'g:ycm_python_interpreter_path',
-				\ 'g:ycm_python_sys_path'
-				\ ]
+		\	'g:ycm_python_interpreter_path',
+		\	'g:ycm_python_sys_path'
+		\	]
 	" Storing default compilation flags
 	let g:ycm_global_ycm_extra_conf = '~/ycm_global_extra_conf.py'
 
@@ -702,11 +732,11 @@ augroup end
 augroup vimstartify_setting
 	au!
 	let g:startify_bookmarks = [
-				\ '~/code/proxy',
-				\ '~/code/utils',
-				\ '~/references/',
-				\ '~/.vim/vimrc'
-				\ ]
+		\	'~/code/proxy',
+		\	'~/code/utils',
+		\	'~/references/',
+		\	'~/.vim/vimrc'
+		\	]
 	" returns all modified files of the current git repo
 	" `2>/dev/null` makes the command fail quietly, so that when we are not
 	" in a git repo, the list will be empty
@@ -720,14 +750,14 @@ augroup vimstartify_setting
 		return map(files, "{'line': v:val, 'path': v:val}")
 	endfunction
 	let g:startify_lists = [
-				\ { 'type': 'files',	 'header': ['	MRU']			 },
-				\ { 'type': 'dir',		 'header': ['	MRU '. getcwd()] },
-				\ { 'type': 'sessions',  'header': ['	Sessions']		 },
-				\ { 'type': 'bookmarks', 'header': ['	Bookmarks']		 },
-				\ { 'type': function('s:gitModified'),	'header': ['   git modified']},
-				\ { 'type': function('s:gitUntracked'), 'header': ['   git untracked']},
-				\ { 'type': 'commands',  'header': ['	Commands']		 },
-				\ ]
+		\	{ 'type': 'files',						'header': ['MRU'] },
+		\	{ 'type': 'dir',						'header': ['MRU '. getcwd()] },
+		\	{ 'type': 'sessions',					'header': ['Sessions'] },
+		\	{ 'type': 'bookmarks',					'header': ['Bookmarks'] },
+		\	{ 'type': function('s:gitModified'),	'header': ['git modified'] },
+		\	{ 'type': function('s:gitUntracked'),	'header': ['git untracked'] },
+		\	{ 'type': 'commands',					'header': ['Commands'] },
+		\	]
 	" current working directory auto-change will be handled by air-blade/vim-rooter
 	let g:startify_change_to_vcs_root = 1
 	let g:startify_change_to_dir = 0
@@ -835,142 +865,143 @@ augroup vimwhichkey_setting
 	call which_key#register(',', "g:which_key_local_map_visual", 'v')
 	" Note: two-char map won't take effect if the map is single in dict.
 	let g:which_key_map = {
-		\ 'w': {
-			\ 'name' : '+windows' ,
-			\ 'w' : ['<C-W>w'		, 'other-window'],
-			\ 'd' : ['<C-W>c'		, 'delete-window'],
-			\ '-' : ['<C-W>s'		, 'split-window-below'],
-			\ '|' : ['<C-W>v'		, 'split-window-right'],
-			\ '2' : ['<C-W>v'		, 'layout-double-columns'],
-			\ 'h' : ['<C-W>h'		, 'window-left'],
-			\ 'j' : ['<C-W>j'		, 'window-below'],
-			\ 'l' : ['<C-W>l'		, 'window-right'],
-			\ 'k' : ['<C-W>k'		, 'window-up'],
-			\ 'H' : ['<C-W>5<'		, 'expand-window-left'],
-			\ 'J' : [':resize +5'	, 'expand-window-below'],
-			\ 'L' : ['<C-W>5>'		, 'expand-window-right'],
-			\ 'K' : [':resize -5'	, 'expand-window-up'],
-			\ '=' : ['<C-W>='		, 'balance-window'],
-			\ 's' : ['<C-W>s'		, 'split-window-below'],
-			\ 'v' : ['<C-W>v'		, 'split-window-below'],
-			\ '?' : ['Windows'		, 'fzf-window'],
-		\ },
-		\ 'b': {
-			\ 'name' : '+buffer' ,
-			\ '1' : ['b1'        , 'buffer 1'],
-			\ '2' : ['b2'        , 'buffer 2'],
-			\ 'd' : ['bd'        , 'delete-buffer'],
-			\ 'f' : ['bfirst'    , 'first-buffer'],
-			\ 'h' : ['Startify'  , 'home-buffer'],
-			\ 'l' : ['blast'     , 'last-buffer'],
-			\ 'n' : ['bnext'     , 'next-buffer'],
-			\ 'p' : ['bprevious' , 'previous-buffer'],
-			\ '?' : ['Buffers'   , 'fzf-buffer'],
-		\ },
-		\ 'n': {
-			\ 'name': '+tree-content',
-			\ 'n': [ ':NERDTreeToggle'			, 'toggle-nerdtree' ],
-			\ 'l': [ ':NERDTreeFind'			, 'find-in-nerdtree' ],
-			\ 't': [ ':TagbarToggle'			, 'toggle-tagbar' ],
-			\ 'f': [ ':Leaderf file'			, 'leaderf-find-file' ],
-		\ },
-		\ 's': {
-			\ 'name': '+source-fix',
-			\ 'l': [ '<Plug>SlimeLineSend'		, 'send-line' ],
-			\ 'c': [ '<Plug>SlimeSendCell'		, 'send-cell' ],
-			\ 'd': [ ':YcmDiags'				, 'ycm-diagnose' ],
-			\ 'r': [ ':YcmCompleter FixIt'		, 'ycm-fixit-refactor' ],
-			\ 's': [ ':ALELint'					, 'ALELint' ],
-			\ 'f': [ ':ALEFix'					, 'ALEFix'],
-		\ },
-		\ 'f': {
-			\ 'name': '+find',
-			\ 'j': [ ':Leaderf! --recall'		, 'leader-recall'],
-			\ 'f': [ ':Leaderf file'			, 'leader-file'],
-			\ 'b': [ ':Leaderf buffer'			, 'leaderf-buffer' ],
-			\ 'c': [ ':Leaderf function'		, 'leaderf-function' ],
-			\ 'm': [ ':Leaderf mru'				, 'leaderf-mru' ],
-			\ 't': [ ':Leaderf bufTag'			, 'leaderf-buftag' ],
-			\ 'l': [ ':Leaderf line'			, 'leaderf-line' ],
-			\ 'q': [ ':Leaderf quickfix'		, 'leaderf-quickfix' ],
-			\ 'x': 'rg-cbuf',
-			\ 'g': 'rg-global',
-			\ 'jr': [ ':Leaderf! rg --recall'	, 'rg-recall'],
-			\ 'd': 'gtags-def',
-			\ 'r': 'gtags-ref',
-			\ 'p': [ ':Leaderf! gtags --previous'	, 'gtags-pre' ],
-			\ 'n': [ ':Leaderf! gtags --next'		, 'gtags-next' ],
-			\ 'jg': [ ':Leaderf! gtags --recall'	, 'gtags-recall' ],
-		\ },
-		\ 'g': {
-			\ 'name': '+goto-desc',
-			\ 'g': [ ':rightbelow vertical YcmCompleter GoTo', 'ycm-goto' ],
-			\ 'dw': [ ':rightbelow vertical 80ShowDocWithSize', 'ycm-win-doc' ],
-			\ 'dp': [ '<Plug>(YCMHover)', 'ycm-popup-doc' ],
-		\ },
-		\ 't': {
-			\ 'name': 'which_key_ignore',
-		\ },
-		\ 'm': {
-			\ 'name': '+movement',
-			\ 'n': [ ':call NextError()'		, 'next-error' ],
-			\ 'p': [ ':call PreviousError()'	, 'previous-error' ],
-			\ 'c': [ ':call CurrentError()'		, 'current-error' ],
-			\ 'e': [ '`.'						, 'last-edit' ],
-			\ 'm': [ '`m'						, 'to-markm' ],
-		\ },
-		\ 'u': {
-			\ 'name': '+tiny-functions',
-			\ 't': [ ':TableModeToggle', 'toggle-table-mode' ],
-			\ 's': [ ":source $HOME/.vim/vimrc", 'reload-vimrc' ],
-			\ 'q': [ ':call setqflist([])', "cleanQF" ],
-		\ },
-	\ }
+		\	'w': {
+		\		'name' : '+windows' ,
+		\		'w' : ['<C-W>w'		, 'other-window'],
+		\		'd' : ['<C-W>c'		, 'delete-window'],
+		\		'-' : ['<C-W>s'		, 'split-window-below'],
+		\		'|' : ['<C-W>v'		, 'split-window-right'],
+		\		'2' : ['<C-W>v'		, 'layout-double-columns'],
+		\		'h' : ['<C-W>h'		, 'window-left'],
+		\		'j' : ['<C-W>j'		, 'window-below'],
+		\		'l' : ['<C-W>l'		, 'window-right'],
+		\		'k' : ['<C-W>k'		, 'window-up'],
+		\		'H' : ['<C-W>5<'		, 'expand-window-left'],
+		\		'J' : [':resize +5'	, 'expand-window-below'],
+		\		'L' : ['<C-W>5>'		, 'expand-window-right'],
+		\		'K' : [':resize -5'	, 'expand-window-up'],
+		\		'=' : ['<C-W>='		, 'balance-window'],
+		\		's' : ['<C-W>s'		, 'split-window-below'],
+		\		'v' : ['<C-W>v'		, 'split-window-below'],
+		\		'?' : ['Windows'		, 'fzf-window'],
+		\		'm' : ['<C-W>m'		, 'zoom-inout-window'],
+		\	},
+		\	'b': {
+		\		'name' : '+buffer' ,
+		\		'1' : ['b1'        , 'buffer 1'],
+		\		'2' : ['b2'        , 'buffer 2'],
+		\		'd' : ['bd'        , 'delete-buffer'],
+		\		'f' : ['bfirst'    , 'first-buffer'],
+		\		'h' : ['Startify'  , 'home-buffer'],
+		\		'l' : ['blast'     , 'last-buffer'],
+		\		'n' : ['bnext'     , 'next-buffer'],
+		\		'p' : ['bprevious' , 'previous-buffer'],
+		\		'?' : ['Buffers'   , 'fzf-buffer'],
+		\	},
+		\	'n': {
+		\		'name': '+tree-content',
+		\		'n': [ ':NERDTreeToggle'			, 'toggle-nerdtree' ],
+		\		'l': [ ':NERDTreeFind'				, 'find-in-nerdtree' ],
+		\		't': [ ':TagbarToggle'				, 'toggle-tagbar' ],
+		\		'f': [ ':Leaderf file'				, 'leaderf-find-file' ],
+		\	},
+		\	's': {
+		\		'name': '+source-fix',
+		\		'l': [ '<Plug>SlimeLineSend'		, 'send-line' ],
+		\		'c': [ '<Plug>SlimeSendCell'		, 'send-cell' ],
+		\		'd': [ ':YcmDiags'					, 'ycm-diagnose' ],
+		\		'r': [ ':YcmCompleter FixIt'		, 'ycm-fixit-refactor' ],
+		\		's': [ ':ALELint'					, 'ALELint' ],
+		\		'f': [ ':ALEFix'					, 'ALEFix'],
+		\	},
+		\	'f': {
+		\		'name': '+find',
+		\		'j': [ ':Leaderf! --recall'			, 'leader-recall'],
+		\		'f': [ ':Leaderf file'				, 'leader-file'],
+		\		'b': [ ':Leaderf buffer'			, 'leaderf-buffer' ],
+		\		'c': [ ':Leaderf function'			, 'leaderf-function' ],
+		\		'm': [ ':Leaderf mru'				, 'leaderf-mru' ],
+		\		't': [ ':Leaderf bufTag'			, 'leaderf-buftag' ],
+		\		'l': [ ':Leaderf line'				, 'leaderf-line' ],
+		\		'q': [ ':Leaderf quickfix'			, 'leaderf-quickfix' ],
+		\		'x': 'rg-cbuf',
+		\		'g': 'rg-global',
+		\		'jr': [ ':Leaderf! rg --recall'		, 'rg-recall'],
+		\		'd': 'gtags-def',
+		\		'r': 'gtags-ref',
+		\		'p': [ ':Leaderf! gtags --previous'	, 'gtags-pre' ],
+		\		'n': [ ':Leaderf! gtags --next'		, 'gtags-next' ],
+		\		'jg': [ ':Leaderf! gtags --recall'	, 'gtags-recall' ],
+		\	},
+		\	'g': {
+		\		'name': '+goto-desc',
+		\		'g': [ ':rightbelow vertical YcmCompleter GoTo'		, 'ycm-goto' ],
+		\		'dw': [ ':rightbelow vertical 80ShowDocWithSize'	, 'ycm-win-doc' ],
+		\		'dp': [ '<Plug>(YCMHover)'							, 'ycm-popup-doc' ],
+		\	},
+		\	't': {
+		\		'name': 'which_key_ignore',
+		\	},
+		\	'm': {
+		\		'name': '+movement',
+		\		'n': [ ':call NextError()'			, 'next-error' ],
+		\		'p': [ ':call PreviousError()'		, 'previous-error' ],
+		\		'c': [ ':call CurrentError()'		, 'current-error' ],
+		\		'e': [ '`.'							, 'last-edit' ],
+		\		'm': [ '`m'							, 'to-markm' ],
+		\	},
+		\	'u': {
+		\		'name': '+tiny-functions',
+		\		't': [ ':TableModeToggle'			, 'toggle-table-mode' ],
+		\		's': [ ":source $HOME/.vim/vimrc"	, 'reload-vimrc' ],
+		\		'q': [ ':call setqflist([])'		, "cleanQF" ],
+		\	},
+		\	}
 	let g:which_key_local_map = {
-		\ 'x': {
-			\ 'name': '+build-run',
-			\ 'b': 'proj-build',
-			\ 't': 'proj-test',
-			\ 'r': 'proj-run',
-		\ },
-		\ 's': {
-			\ 'name': '+send-source',
-			\ 'l': [ '<Plug>SlimeLineSend', 'send-line' ],
-			\ 'c': [ '<Plug>SlimeSendCell', 'send-cell' ],
-			\ 'm': [ '<Plug>SlimeSendCell', 'send-cell-and-move' ],
-		\ },
-		\ 'u': {
-			\ 'name': '+tiny-func',
-			\ 'l': 'list-sections',
-			\ 'c': 'insert-comment',
-		\ },
-		\ 'm': {
-			\ 'name': '+movement',
-			\ 'n': 'next-section',
-			\ 'p': 'previous-section',
-		\ },
-	\ }
+		\	'x': {
+		\		'name': '+build-run',
+		\		'b': 'proj-build',
+		\		't': 'proj-test',
+		\		'r': 'proj-run',
+		\	},
+		\	's': {
+		\		'name': '+send-source',
+		\		'l': [ '<Plug>SlimeLineSend'		, 'send-line' ],
+		\		'c': [ '<Plug>SlimeSendCell'		, 'send-cell' ],
+		\		'm': [ '<Plug>SlimeSendCell'		, 'send-cell-and-move' ],
+		\	},
+		\	'u': {
+		\		'name': '+tiny-func',
+		\		'l': 'list-sections',
+		\		'c': 'insert-comment',
+		\	},
+		\	'm': {
+		\		'name': '+movement',
+		\		'n': 'next-section',
+		\		'p': 'previous-section',
+		\	},
+		\	}
 	let g:which_key_map_visual = {
-		\ 's': {
-			\ 'name': '+send-source',
-			\ 'l': [ '<Plug>SlimeRegionSend', 'send-selected-region' ],
-		\ },
-		\ 'u': {
-			\ 'name': '+tiny-function',
-			\ 't': [ ':Tableize', 'tableize' ],
-			\ 'y': 'copy2tmux',
-		\ },
-		\ 'f': {
-			\ 'name': '+find',
-			\ 'g': 'rg-global',
-		\ },
-		\ 't': {
-			\ 'name': 'which_key_ignore',
-		\ },
-		\ 'T': {
-			\ 'name': 'which_key_ignore',
-		\ },
-	\ }
+		\	's': {
+		\		'name': '+send-source',
+		\		'l': [ '<Plug>SlimeRegionSend', 'send-selected-region' ],
+		\	},
+		\	'u': {
+		\		'name': '+tiny-function',
+		\		't': [ ':Tableize', 'tableize' ],
+		\		'y': 'copy2tmux',
+		\	},
+		\	'f': {
+		\		'name': '+find',
+		\		'g': 'rg-global',
+		\	},
+		\	't': {
+		\		'name': 'which_key_ignore',
+		\	},
+		\	'T': {
+		\		'name': 'which_key_ignore',
+		\	},
+		\	}
 augroup end
 " <<<<<<<<<<<<<<<<<<<<<<<<<<< Plugins <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1044,4 +1075,28 @@ function! CurrentError()
 		ALENext
 	endif
 endfunction
+
+" >>>>>>>> Auto Make-Del View >>>>>>>
+" autocmd BufWinLeave ?* if !&readonly | mkview | endif
+" autocmd BufWinEnter ?* if !&readonly | silent loadview | endif
+" # Function to permanently delete views created by 'mkview'
+function! MyDeleteView()
+	let path = fnamemodify(bufname('%'),':p')
+	" vim's odd =~ escaping for /
+	let path = substitute(path, '=', '==', 'g')
+	if empty($HOME)
+	else
+		let path = substitute(path, '^'.$HOME, '\~', '')
+	endif
+	let path = substitute(path, '/', '=+', 'g') . '='
+	" view directory
+	let path = &viewdir.'/'.path
+	call delete(path)
+	echo "Deleted: ".path
+endfunction
+" # Command Delview (and it's abbreviation 'delview')
+command Delview call MyDeleteView()
+" Lower-case user commands: http://vim.wikia.com/wiki/Replace_a_builtin_command_using_cabbrev
+cabbrev delview <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Delview' : 'delview')<CR>
+" <<<<<<<< Auto Make-Del View <<<<<<<
 " <<<<<<<<<<<<<<<<<<<<<<<<<<< Global Configs <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

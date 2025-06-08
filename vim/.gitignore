@@ -4,6 +4,7 @@ temp/
 swaps/
 backups/
 tags/
+cache/
 bin/
 gen/
 out/

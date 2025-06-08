@@ -1,3 +1,12 @@
+#!/usr/bin/env shell
+# ---------------------------------------------------------
+#   Name: rcaddon.sh
+#   Author: xyy15926
+#   Created: 2025-06-04 11:48:41
+#   Updated: 2025-06-04 11:48:41
+#   Description:
+# ---------------------------------------------------------
+
 # Some aliases.
 alias rm="rm -i"
 alias ls="ls --group-directories-first --color"
@@ -7,6 +16,7 @@ alias ipythonn="ipython --no-autoindent"
 
 # Some simple global environment variables.
 if [ -f $HOME/.globalrc ]; then
+	export GTAGSLABEL="native-pygments"
 	export GTAGSCONF="$HOME/.globalrc"
 fi
 if [ -d "/opt/vim/bin" ]; then
@@ -26,7 +36,7 @@ if [ -d "/opt/miniforge3" ]; then
 	fi
 	unset __mamba_setup
 	if [[ $(mamba env list | grep aki7) != "" ]]; then
-	mamba deactivate && mamba activate aki7
+		mamba deactivate && mamba activate aki7
 	fi
 # 2. `conda init` will generate the block in the shell rc.
 elif [ -d "/opt/miniconda3" ]; then
@@ -42,6 +52,6 @@ elif [ -d "/opt/miniconda3" ]; then
 	fi
 	unset __conda_setup
 	if [[ $(conda env list | grep aki7) != "" ]]; then
-	conda deactivate && conda activate aki7
+		conda deactivate && conda activate aki7
 	fi
 fi
