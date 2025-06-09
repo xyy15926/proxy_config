@@ -13,20 +13,6 @@ PROXY_ROOT="$HOME/code/proxy_config"
 # Vi-edit-mode.
 set -o vi
 
-# Menu-Complete: cycle through the possibles.
-# Ref:
-# -	https://unix.stackexchange.com/questions/24419/terminal-autocomplete-cycle-through-suggestions
-# - https://stackoverflow.com/questions/12044574/getting-complete-and-menu-complete-to-work-together
-set show-all-if-ambiguous on
-set show-all-if-unmodified on
-set menu-complete-display-prefix on
-# Cycle forward: TAB.
-bind TAB:menu-complete
-# Cycle backward: Shift-TAB.
-# bind '"\e[Z":menu-complete-backward'
-# # List possibles
-bind '"\e[Z":complete'
-
 # Some aliases.
 alias rm="rm -i"
 alias ls="ls --group-directories-first --color"
@@ -82,6 +68,7 @@ fi
 # - Repo: https://github.com/rupa/z
 if [ -f "$PROXY_ROOT/shell/z.sh" ]; then
 	source "$PROXY_ROOT/shell/z.sh"
+	alias zc="z -c"
 fi
 
 unset $PROXY_ROOT
