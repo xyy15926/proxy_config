@@ -3,14 +3,15 @@
 #   Name: setup.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 08:35:54
-#   Updated: 2025-06-08 21:22:55
+#   Updated: 2025-06-09 11:07:41
 #   Description:
 # ---------------------------------------------------------
 set +e
+set -x
 ROOT=$(dirname $(readlink -f "$0"))
 echo "Config file in $ROOT will be used to init current user environment."
 
-# Dependencies.
+# >>>>>>>>>>>>>>>>>>>> Python releases >>>>>>>>>>>>>>>>>>>>>>>>>
 if ! [ -d "/opt/miniforge3" ]; then
 	if ! [ -d "$ROOT/tmp" ]; then
 		mkdir "$ROOT/tmp"
@@ -19,23 +20,18 @@ if ! [ -d "/opt/miniforge3" ]; then
 	curl -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
 	cd "$ROOT"
 fi
-if ! hash global 2>/dev/null; then
-	sudo apt update
-	sudo apt install global
-	# pip install pygments
-	# sudo ln -s "$ROOT/gtags/pygments_parser.py" "/usr/share/global/gtags/script/pygments_parser.py"
-	# mamba install flake8 isort black
-fi
-if ! hash rg 2>/dev/null; then
-	sudo apt update
-	sudo apt install ripgrep
+if hash mamba 2>/dev/null && hash pip 2>/dev/null; then
+	python -m pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple --upgrade pip
+	pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 fi
 
-# Some symbolic link for configs.
-if [ -f "$ROOT/rcaddon.sh" ]; then
+# >>>>>>>>>>>>>>>>>>>>> Shell RC addon >>>>>>>>>>>>>>>>>>>>>>>>>>
+if [ -f "$ROOT/shell/rcaddon.sh" ]; then
 	DEFAULT_SHELL=$(basename $SHELL)
-	ln -s $ROOT/rcaddon.sh $HOME/.${DEFAULT_SHELL}_aliases
+	ln -s $ROOT/shell/rcaddon.sh $HOME/.${DEFAULT_SHELL}_aliases
 fi
+
+# >>>>>>>>>>>>>>>>>>>>> Vim dev environment >>>>>>>>>>>>>>>>>>>>>
 if [ -d "$ROOT/vim" ] && ! [ -e "$HOME/.vim" ] && hash vim 2>/dev/null; then
 # if [ -d "$ROOT/vim" ] && hash vim 2>/dev/null; then
 	ln -s $ROOT/vim $HOME/.vim
@@ -50,6 +46,31 @@ fi
 if [ -f "$ROOT/tmux/tmux.conf" ] && hash tmux 2>/dev/null; then
 	ln -s $ROOT/tmux/tmux.conf $HOME/.tmux.conf
 fi
-if [ -f "$ROOT/gitconfig" ] && hash git 2>/dev/null; then
-	ln -s $ROOT/gitconfig $HOME/.gitconfig
+if [ -f "$ROOT/git/gitconfig" ] && hash git 2>/dev/null; then
+	ln -s $ROOT/git/gitconfig $HOME/.gitconfig
+fi
+if ! hash global 2>/dev/null; then
+	sudo apt update
+	sudo apt install global
+	sudo ln -s "$ROOT/gtags/pygments_parser.py" "/usr/share/global/gtags/script/pygments_parser.py"
+	if hash mamba 2>/dev/null && hash pip 2>/dev/null; then
+		pip install pygments
+	fi
+fi
+if hash mamba 2>/dev/null; then
+	mamba install flake8 isort black
+fi
+if ! hash rg 2>/dev/null; then
+	sudo apt update
+	sudo apt install ripgrep
+fi
+# Ref:
+# -	https://github.com/ycm-core/YouCompleteMe?tab=readme-ov-file#linux-64-bit
+if [ -f "$ROOT/vim/plugged/YouCompleteMe/install.py" ]; then
+	sudo apt update
+	sudo apt install build-essential cmake python3-dev
+	cd "$ROOT/vim/plugged/YouCompleteMe"
+	# Compiling with only basic sematic support.
+	/usr/bin/python3 install.py 
+	cd $ROOT
 fi
