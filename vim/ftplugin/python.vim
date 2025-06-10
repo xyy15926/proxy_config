@@ -12,8 +12,8 @@ endif
 let b:py_ftplugin = 1
 
 " Move to next or previous section
-nnoremap <buffer> <localleader>mn :<C-u>/^#\ %%\+<CR>
-nnoremap <buffer> <localleader>mp :<C-u>?^#\ %%\+<CR>
+" nnoremap <buffer> <localleader>mn :<C-u>/^#\ %%\+<CR>
+" nnoremap <buffer> <localleader>mp :<C-u>?^#\ %%\+<CR>
 iabbrev <buffer> #%- 
 			\# %% ------------------------------------------------------------------------<CR>
 			\#						* * * *  * * * *<CR>
@@ -29,9 +29,9 @@ let g:slime_vimterminal_config={
 	\ "norestore": 1
 	\ }
 let g:slime_vimterminal_cmd='ipython --no-autoindent'
-let b:slime_cell_delimiter='#\ %%'
-nnoremap <buffer> <localleader>sm <Plug>SlimeSendCell:<C-U>/^#\ %%\+<CR>
-let g:which_key_map.s.m = "send-cell-next"
+let b:slime_cell_delimiter='^#\ %%'
+" nnoremap <buffer> <localleader>sm <Plug>SlimeSendCell:<C-U>/^#\ %%\+<CR>
+" let g:which_key_map.s.m = "send-cell-and-move"
 " <<<<<<< For plugin jpalardy/vim-slime <<<<<<<
 
 " >>>>>>> For plugin skywind3000/asyncrun >>>>>>>
@@ -39,13 +39,21 @@ function! TestPython()
 	let abspath = expand("%:p")
 	let paths = split(abspath, "/")
 	let filename = paths[-1]
-	let modname = paths[-2]
 	if filename[0:4] ==# "test_"
 		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest ' . abspath
 	elseif filereadable(getcwd() . "/tests/test_" . filename)
 		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest tests/test_' . filename
-	elseif filereadable(getcwd() . "/tests/" . modname . "/test_" . filename)
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest tests/' . modname . '/test_' . filename
+	else
+		let cur_pos = 2
+		while cur_pos <= len(paths)
+			" Skip the first and second parent dirname that should always be
+			" `/home/<USER>`.
+			let modname = join(paths[-cur_pos: -2], "/")
+			if filereadable(getcwd() . "/tests/" . modname . "/test_" . filename)
+				execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest tests/' . modname . '/test_' . filename
+			endif
+			let cur_pos += 1
+		endwhile
 	endif
 endfunction
 nnoremap <buffer> <localleader>xr :AsyncRun python "$(VIM_FILEDIR)/$(VIM_FILENAME)" <CR>

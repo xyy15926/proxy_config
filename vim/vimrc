@@ -184,6 +184,7 @@ Plug 'skywind3000/gutentags_plus'
 Plug 'Yggdroot/LeaderF'
 
 Plug 'jpalardy/vim-slime', { 'for': [ 'python', 'sh' ], 'frozen': 1 }
+Plug 'Klafyvel/vim-slime-cells', { 'for': [ 'python', 'sh' ], 'frozen': 1 }
 Plug 'xyy15926/vim-terminal-help', { 'frozen' : 1 }
 Plug 'skywind3000/asyncrun.vim', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
 " ALE requirements:
@@ -193,7 +194,7 @@ Plug 'skywind3000/asyncrun.vim', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
 Plug 'dense-analysis/ale', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
 " YCM requirements:
 " -	For python:
-Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py --core-test' }
+Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py' }
 
 Plug 'tpope/vim-commentary'
 Plug 'dhruvasagar/vim-table-mode', { 'for': [ 'markdown', 'python' ] }
@@ -346,6 +347,7 @@ augroup vimslime_setting
 	" let g:slime_default_config={'socket_name': 'default', 'target_pane': '{right-of}'}
 	" For `slime_target="vimterminal"`, `:help term_start()` for more infomation
 	let g:slime_target='vimterminal'
+	let g:slime_cell_delimiter='^#\\s*%%'
 	let g:slime_preserve_curpos=0
 	let g:slime_vimterminal_config={
 		\	'term_name': 'vterm',
@@ -968,7 +970,7 @@ augroup vimwhichkey_setting
 		\		'name': '+send-source',
 		\		'l': [ '<Plug>SlimeLineSend'		, 'send-line' ],
 		\		'c': [ '<Plug>SlimeSendCell'		, 'send-cell' ],
-		\		'm': [ '<Plug>SlimeSendCell'		, 'send-cell-and-move' ],
+		\		'm': [ '<Plug>SlimeCellsSendAndGoToNext'		, 'send-cell-and-move' ],
 		\	},
 		\	'u': {
 		\		'name': '+tiny-func',
@@ -977,8 +979,8 @@ augroup vimwhichkey_setting
 		\	},
 		\	'm': {
 		\		'name': '+movement',
-		\		'n': 'next-section',
-		\		'p': 'previous-section',
+		\		'n': [ '<Plug>SlimeCellsNext'		, 'next-cell' ],
+		\		'p': [ '<Plug>SlimeCellsPrev'		, 'prev-cell' ],
 		\	},
 		\	}
 	let g:which_key_map_visual = {
