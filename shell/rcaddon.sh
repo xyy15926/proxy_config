@@ -3,32 +3,34 @@
 #   Name: rcaddon.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 11:48:41
-#   Updated: 2025-06-09 10:14:05
+#   Updated: 2025-06-11 10:09:33
 #   Description:
 # ---------------------------------------------------------
 
 # Set ROOT path.
 PROXY_ROOT="$HOME/code/proxy_config"
-
 # Vi-edit-mode.
 set -o vi
 
-# Some aliases.
+# >>>>>>>>>>>>>>>>>>>>>>>>> Some aliases >>>>>>>>>>>>>>>>>>>>>>>>>>>>
 alias rm="rm -i"
 alias ls="ls --group-directories-first --color"
 alias ll="ls --group-directories-first --color -l"
 alias la="ls --group-directories-first --color -l -a"
 alias ipythonn="ipython --no-autoindent"
 
-# Some simple global environment variables.
+# >>>>>>>>>>>>>>>>>>>>>>>>> Gtags >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 if [ -f $HOME/.globalrc ] && hash gtags 2>/dev/null; then
 	export GTAGSLABEL="native-pygments"
 	export GTAGSCONF="$HOME/.globalrc"
 fi
+
+# >>>>>>>>>>>>>>>>>>>>>>>>> Vim >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 if [ -d "/opt/vim/bin" ]; then
 	export PATH="/opt/vim/bin:$PATH"
 fi
 
+# >>>>>>>>>>>>>>>>>>>>>>>>> Forge or Conda >>>>>>>>>>>>>>>>>>>>>>>>>>
 # Init conda or forge for shell interaction.
 # 1. `mamba shell init` will generate the block in the shell rc.
 if [ -d "/opt/miniforge3" ]; then
@@ -62,7 +64,7 @@ elif [ -d "/opt/miniconda3" ]; then
 	fi
 fi
 
-# Source z.sh
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>> z.sh >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Ref:
 # -	Usage: https://zhuanlan.zhihu.com/p/50548459
 # - Repo: https://github.com/rupa/z
@@ -70,5 +72,12 @@ if [ -f "$PROXY_ROOT/shell/z.sh" ]; then
 	source "$PROXY_ROOT/shell/z.sh"
 	alias zc="z -c"
 fi
-
 unset $PROXY_ROOT
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> Proxy In WSL2 >>>>>>>>>>>>>>>>>>>>>>>>>
+# Ref:
+# - https://dslztx.github.io/blog/2017/05/19/ssh%E5%91%BD%E4%BB%A4%E4%B9%8BProxyCommand%E9%80%89%E9%A1%B9/
+# Just export a environment variable for SSH config.
+export CLASH_PROXY="$(ip neighbor | cut -d \  -f 1):7890"
+# Set global proxy `ALL_PROXY` only when necessary.
+# export ALL_PROXY="http://$CLASH_PROXY"

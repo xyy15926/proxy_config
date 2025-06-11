@@ -3,13 +3,20 @@
 #   Name: setup.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 08:35:54
-#   Updated: 2025-06-10 14:36:26
+#   Updated: 2025-06-11 10:15:12
 #   Description:
 # ---------------------------------------------------------
 set +e
 set -x
 ROOT=$(dirname $(readlink -f "$0"))
 echo "Config file in $ROOT will be used to init current user environment."
+
+# >>>>>>>>>>>>>>>>>>>>> Shell RC addon >>>>>>>>>>>>>>>>>>>>>>>>>>
+ln -s "$ROOT/shell/rcaddon.sh" "$HOME/.$(basename $SHELL)_aliases"
+ln -s $ROOT/shell/inputrc.sh $HOME/.inputrc
+if [ -f "$ROOT/tmux/tmux.conf" ] && hash tmux 2>/dev/null; then
+	ln -s $ROOT/tmux/tmux.conf $HOME/.tmux.conf
+fi
 
 # >>>>>>>>>>>>>>>>>>>> Python releases >>>>>>>>>>>>>>>>>>>>>>>>>
 if ! [ -d "/opt/miniforge3" ]; then
@@ -52,16 +59,6 @@ if hash mamba 2>/dev/null && hash pip 2>/dev/null; then
 	pip config set global.index-url "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 fi
 
-# >>>>>>>>>>>>>>>>>>>>> Shell RC addon >>>>>>>>>>>>>>>>>>>>>>>>>>
-ln -s "$ROOT/shell/rcaddon.sh" "$HOME/.$(basename $SHELL)_aliases"
-ln -s $ROOT/shell/inputrc.sh $HOME/.inputrc
-if [ -f "$ROOT/tmux/tmux.conf" ] && hash tmux 2>/dev/null; then
-	ln -s $ROOT/tmux/tmux.conf $HOME/.tmux.conf
-fi
-if [ -f "$ROOT/git/gitconfig" ] && hash git 2>/dev/null; then
-	ln -s $ROOT/git/gitconfig $HOME/.gitconfig
-fi
-
 # >>>>>>>>>>>>>>>>>>>>> Vim dev environment >>>>>>>>>>>>>>>>>>>>>
 if [ -d "$ROOT/vim" ] && ! [ -e "$HOME/.vim" ] && hash vim 2>/dev/null; then
 # if [ -d "$ROOT/vim" ] && hash vim 2>/dev/null; then
@@ -97,4 +94,18 @@ if [ -f "$ROOT/vim/plugged/YouCompleteMe/install.py" ] && [ -z $(ls "$ROOT/vim/p
 	# Compiling with only basic sematic support.
 	/usr/bin/python3 install.py 
 	cd $ROOT
+fi
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> Git >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+if hash git 2>/dev/null; then
+	ln -s "$ROOT/git/gitconfig" "$HOME/.gitconfig"
+	ln -s "$ROOT/ssh/config" "$HOME/.ssh/config"
+	# The proxy host should be the firewall for WSL2.
+	firewall="http://$(ip neighbor | cut -d \  -f 1):7890"
+	if [ -z $firewall ]; then
+		git config --global https.proxy $firewall
+		git config --global http.proxy $firewall
+		git config --global --unset https.proxy $firewall
+		git config --global --unset http.proxy $firewall
+	fi
 fi
