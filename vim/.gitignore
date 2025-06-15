@@ -16,6 +16,5 @@ __pycache__/
 *.tag
 
 # DIY
-/plugged
-/autoload
-/views
+plugged/
+views/

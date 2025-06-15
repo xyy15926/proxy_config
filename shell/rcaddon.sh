@@ -3,7 +3,7 @@
 #   Name: rcaddon.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 11:48:41
-#   Updated: 2025-06-11 10:09:33
+#   Updated: 2025-06-14 20:25:00
 #   Description:
 # ---------------------------------------------------------
 
@@ -45,6 +45,8 @@ if [ -d "/opt/miniforge3" ]; then
 	unset __mamba_setup
 	if [[ $(mamba env list | grep aki7) != "" ]]; then
 		mamba deactivate && mamba activate aki7
+	else
+		mamba activate base
 	fi
 # 2. `conda init` will generate the block in the shell rc.
 elif [ -d "/opt/miniconda3" ]; then
@@ -61,6 +63,8 @@ elif [ -d "/opt/miniconda3" ]; then
 	unset __conda_setup
 	if [[ $(conda env list | grep aki7) != "" ]]; then
 		conda deactivate && conda activate aki7
+	else
+		mamba activate base
 	fi
 fi
 
@@ -78,6 +82,7 @@ unset $PROXY_ROOT
 # Ref:
 # - https://dslztx.github.io/blog/2017/05/19/ssh%E5%91%BD%E4%BB%A4%E4%B9%8BProxyCommand%E9%80%89%E9%A1%B9/
 # Just export a environment variable for SSH config.
-export CLASH_PROXY="$(ip neighbor | cut -d \  -f 1):7890"
+# export CLASH_PROXY="$(ip neighbor | cut -d \  -f 1 | head -n 1):7890"
+export CLASH_PROXY="127.0.0.1:7890"
 # Set global proxy `ALL_PROXY` only when necessary.
-# export ALL_PROXY="http://$CLASH_PROXY"
+export ALL_PROXY="http://$CLASH_PROXY"
