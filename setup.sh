@@ -3,7 +3,7 @@
 #   Name: setup.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 08:35:54
-#   Updated: 2025-06-15 16:32:11
+#   Updated: 2025-06-17 11:13:09
 #   Description:
 # ---------------------------------------------------------
 set +e
@@ -86,7 +86,7 @@ if [ -d "$ROOT/vim" ] && ! [ -e "$HOME/.vim" ] && hash vim 2>/dev/null; then
 fi
 if ! hash global 2>/dev/null; then
 	sudo apt update
-	sudo apt install global
+	sudo apt install global universal-ctags
 	sudo ln -s "$ROOT/gtags/pygments_parser.py" "/usr/share/global/gtags/script/pygments_parser.py"
 	if hash mamba 2>/dev/null && hash pip 2>/dev/null; then
 		# mamba activate $PYENV
