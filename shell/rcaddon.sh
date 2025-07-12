@@ -3,7 +3,7 @@
 #   Name: rcaddon.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 11:48:41
-#   Updated: 2025-06-14 20:25:00
+#   Updated: 2025-06-19 10:30:09
 #   Description:
 # ---------------------------------------------------------
 
@@ -18,6 +18,14 @@ alias ls="ls --group-directories-first --color"
 alias ll="ls --group-directories-first --color -l"
 alias la="ls --group-directories-first --color -l -a"
 alias ipythonn="ipython --no-autoindent"
+alias pargs="xargs -p"
+alias grep="grep -n -H --color=always"
+# Ref:
+# - `xargs`'s tutorial: https://www.ruanyifeng.com/blog/2019/08/xargs-tutorial.html
+# - Params for `alias`: https://forsworns.github.io/zh/blogs/20190919/
+alias xgrep='grep_(){ find $1 -name $2 -print0 | xargs -0 grep -n -H --color=always $3; }; grep_'
+alias tboard="tensorboard --logir=$PROXY_ROOT/../aki7proj/tmp"
+
 
 # >>>>>>>>>>>>>>>>>>>>>>>>> Gtags >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 if [ -f $HOME/.globalrc ] && hash gtags 2>/dev/null; then

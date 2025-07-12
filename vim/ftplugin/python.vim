@@ -21,7 +21,11 @@ iabbrev <buffer> #%-
 
 " >>>>>>> For plugin jpalardy/vim-slime >>>>>>>
 " packadd vim\-slime
-let g:slime_target='vimterminal'
+if $TERM_PROGRAM ==# 'tmux'
+	let g:slime_target = 'tmux'
+else
+	let g:slime_target = 'vimterminal'
+endif
 let g:slime_vimterminal_config={
 	\ "term_name": "ipython",
 	\ "term_cols": 70,

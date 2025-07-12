@@ -106,6 +106,10 @@ set cscopeprg='gtags-cscope'
 " 	silent! call mkdir(s:vim_tags, 'p')
 " endif
 " set tags=./.tags;,.tags
+" Set terminal to use bash
+set shell=/usr/bin/bash
+autocmd TerminalOpen * setlocal list
+autocmd TerminalOpen * setlocal listchars=tab:»-,precedes:?,extends:?,multispace:⋅⋅⋅⋅,trail:‹
 " <<<<<<<<<<<<<<<<<<<<<<<<<<<< Usage Setting <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -152,6 +156,10 @@ inoremap <M-L> <Esc><C-w>l
 inoremap <M-J> <Esc><C-w>j
 inoremap <M-K> <Esc><C-w>k
 tnoremap <Esc> <C-\><C-n>
+" Open vim-terminal.
+" Replaced by `vim-terminal-help`.
+" nnoremap <leader>t :term<CR>
+" let g:terminal_ansi_colors = ['#2d2d2d', '#f2777a', '#99cc99', '#ffcc66', '#6699cc', '#cc99cc', '#66cccc', '#d3d0c8']
 " <<<<<<<<<<<<<<<<<<<<<<<<<<< Key Mapper <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -245,7 +253,7 @@ augroup end
 " --------------------------- preservim/nerdtree ----------------------------
 augroup nerdtree_setting
 	au!
-	let g:NERDTreeIgnore = [ '__pycache__', '\.pyc$' ]
+	let g:NERDTreeIgnore = [ '__pycache__', '\.pyc$', '.egg-info' ]
 	autocmd StdinReadPre * let s:std_in=1
 	" Start NERDTree when Vim is started without file arguments.
 	" autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
@@ -740,7 +748,8 @@ augroup vimstartify_setting
 	au!
 	let g:startify_bookmarks = [
 		\	'~/code/proxy',
-		\	'~/code/utils',
+		\	'~/code/pproxy',
+		\	'~/code/proxy_config',
 		\	'~/references/',
 		\	'~/.vim/vimrc'
 		\	]
@@ -774,11 +783,12 @@ augroup end
 augroup vimterminalhelp_setting
 	au!
 	let g:terminal_rootmarkers = s:root_flags
-	let g:terminal_key = "<m-=>"
+	" let g:terminal_key = "<m-=>"
+	let g:terminal_key = "<leader>tt"
 	let g:terminal_default_mapping = 1
 	let g:terminal_cwd = 2
 	let g:terminal_vertical = 1
-	let g:terminal_width = 70
+	let g:terminal_width = 78
 	let g:terminal_close = 1
 	" This function will be injected to `SlimeConfig` to override the default
 	" behavior.
@@ -815,6 +825,7 @@ augroup vimtablemode_setting
 
 	" let g:table_mode_prefix = ""
 	let g:table_mode_disable_mappings = 1
+	let g:table_mode_disable_tableize_mappings = 1
 	" let g:table_mode_tableize_map = ""
 	" let g:table_mode_relign_map = ""
 	" let g:table_mode_delete_row_map = ""
@@ -947,7 +958,8 @@ augroup vimwhichkey_setting
 		\		'dp': [ '<Plug>(YCMHover)'							, 'ycm-popup-doc' ],
 		\	},
 		\	't': {
-		\		'name': 'which_key_ignore',
+		\		'name': '+termimal',
+		\		't': 'toggle-terminal',
 		\	},
 		\	'm': {
 		\		'name': '+movement',
