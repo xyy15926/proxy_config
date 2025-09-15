@@ -783,8 +783,8 @@ augroup end
 augroup vimterminalhelp_setting
 	au!
 	let g:terminal_rootmarkers = s:root_flags
-	" let g:terminal_key = "<m-=>"
-	let g:terminal_key = "<leader>tt"
+	let g:terminal_key = "<m-=>"
+	" let g:terminal_key = "<leader>tt"
 	let g:terminal_default_mapping = 1
 	let g:terminal_cwd = 2
 	let g:terminal_vertical = 1
@@ -959,7 +959,7 @@ augroup vimwhichkey_setting
 		\	},
 		\	't': {
 		\		'name': '+termimal',
-		\		't': 'toggle-terminal',
+		\		't': ['<m-=>'						, 'toggle-terminal'],
 		\	},
 		\	'm': {
 		\		'name': '+movement',

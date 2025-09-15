@@ -3,7 +3,7 @@
 #   Name: setup.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 08:35:54
-#   Updated: 2025-06-17 11:13:09
+#   Updated: 2025-07-13 15:17:39
 #   Description:
 # ---------------------------------------------------------
 set +e
@@ -125,4 +125,13 @@ if hash git 2>/dev/null; then
 		git config --global --unset https.proxy $firewall
 		git config --global --unset http.proxy $firewall
 	fi
+fi
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> Tmux >>>>>>>>>>>>>>>>>>>>>>>>>>>
+if ! hash tmux 2>/dev/null; then
+	sudo apt update
+	sudo apt install tmux
+fi
+if [ -f "$ROOT/tmux/tmux.conf" ] && hash tmux 2>/dev/null; then
+	ln -s $ROOT/tmux/tmux.conf $HOME/.tmux.conf
 fi

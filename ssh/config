@@ -2,4 +2,4 @@ Host github.com
 	Hostname ssh.github.com
 	# Port 443
 	User git
-	ProxyCommand nc -v -X 5 -x $CLASH_PROXY %h %p
+	# ProxyCommand nc -v -X 5 -x $CLASH_PROXY %h %p

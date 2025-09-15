@@ -14,7 +14,8 @@ endif
 " colorscheme gruvbox
 let b:md_ftplugin = 1
 if ! exists("b:lang")
-	let b:lang = input("about what lang?")
+	" let b:lang = input("about what lang?")
+	let b:lang = "python"
 endif
 set noexpandtab
 
