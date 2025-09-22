@@ -32,7 +32,7 @@ let g:slime_vimterminal_config={
 	\ "vertical": 2,
 	\ "norestore": 1
 	\ }
-let g:slime_vimterminal_cmd='ipython --no-autoindent'
+let g:slime_vimterminal_cmd='pixi run ipython --no-autoindent'
 let b:slime_cell_delimiter='^#\ %%'
 " nnoremap <buffer> <localleader>sm <Plug>SlimeSendCell:<C-U>/^#\ %%\+<CR>
 " let g:which_key_map.s.m = "send-cell-and-move"
@@ -44,9 +44,9 @@ function! TestPython()
 	let paths = split(abspath, "/")
 	let filename = paths[-1]
 	if filename[0:4] ==# "test_"
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest ' . abspath
+		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pixi run pytest ' . abspath
 	elseif filereadable(getcwd() . "/tests/test_" . filename)
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest tests/test_' . filename
+		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pixi run pytest tests/test_' . filename
 	else
 		let cur_pos = 2
 		while cur_pos <= len(paths)
@@ -54,13 +54,13 @@ function! TestPython()
 			" `/home/<USER>`.
 			let modname = join(paths[-cur_pos: -2], "/")
 			if filereadable(getcwd() . "/tests/" . modname . "/test_" . filename)
-				execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pytest tests/' . modname . '/test_' . filename
+				execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pixi run pytest tests/' . modname . '/test_' . filename
 			endif
 			let cur_pos += 1
 		endwhile
 	endif
 endfunction
-nnoremap <buffer> <localleader>xr :AsyncRun python "$(VIM_FILEDIR)/$(VIM_FILENAME)" <CR>
+nnoremap <buffer> <localleader>xr :AsyncRun pixi run python "$(VIM_FILEDIR)/$(VIM_FILENAME)" <CR>
 nnoremap <buffer> <localleader>xt :call TestPython()<CR>
 " <<<<<<< For plugin skywind3000/asyncrun <<<<<<<
 

@@ -3,7 +3,7 @@
 #   Name: rcaddon.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 11:48:41
-#   Updated: 2025-06-19 10:30:09
+#   Updated: 2025-09-15 18:26:17
 #   Description:
 # ---------------------------------------------------------
 
@@ -38,43 +38,49 @@ if [ -d "/opt/vim/bin" ]; then
 	export PATH="/opt/vim/bin:$PATH"
 fi
 
-# >>>>>>>>>>>>>>>>>>>>>>>>> Forge or Conda >>>>>>>>>>>>>>>>>>>>>>>>>>
-# Init conda or forge for shell interaction.
-# 1. `mamba shell init` will generate the block in the shell rc.
-if [ -d "/opt/miniforge3" ]; then
-	export MAMBA_EXE='/opt/miniforge3/bin/mamba';
-	export MAMBA_ROOT_PREFIX='/opt/miniforge3';
-	__mamba_setup="$("$MAMBA_EXE" shell hook --shell bash --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
-	if [ $? -eq 0 ]; then
-		eval "$__mamba_setup"
-	else
-		alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
-	fi
-	unset __mamba_setup
-	if [[ $(mamba env list | grep aki7) != "" ]]; then
-		mamba deactivate && mamba activate aki7
-	else
-		mamba activate base
-	fi
-# 2. `conda init` will generate the block in the shell rc.
-elif [ -d "/opt/miniconda3" ]; then
-	__conda_setup="$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-	if [ $? -eq 0 ]; then
-		eval "$__conda_setup"
-	else
-		if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
-			. "/opt/miniconda3/etc/profile.d/conda.sh"
-		else
-			export PATH="/opt/miniconda3/bin:$PATH"
-		fi
-	fi
-	unset __conda_setup
-	if [[ $(conda env list | grep aki7) != "" ]]; then
-		conda deactivate && conda activate aki7
-	else
-		mamba activate base
-	fi
-fi
+# # >>>>>>>>>>>>>>>>>>>>>>>>> Forge or Conda >>>>>>>>>>>>>>>>>>>>>>>>>>
+# # Init conda or forge for shell interaction.
+# # 1. `mamba shell init` will generate the block in the shell rc.
+# if [ -d "/opt/miniforge3" ]; then
+# 	export MAMBA_EXE='/opt/miniforge3/bin/mamba';
+# 	export MAMBA_ROOT_PREFIX='/opt/miniforge3';
+# 	__mamba_setup="$("$MAMBA_EXE" shell hook --shell bash --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+# 	if [ $? -eq 0 ]; then
+# 		eval "$__mamba_setup"
+# 	else
+# 		alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+# 	fi
+# 	unset __mamba_setup
+# 	if [[ $(mamba env list | grep aki7) != "" ]]; then
+# 		mamba deactivate && mamba activate aki7
+# 	else
+# 		mamba activate base
+# 	fi
+# # 2. `conda init` will generate the block in the shell rc.
+# elif [ -d "/opt/miniconda3" ]; then
+# 	__conda_setup="$('/opt/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+# 	if [ $? -eq 0 ]; then
+# 		eval "$__conda_setup"
+# 	else
+# 		if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
+# 			. "/opt/miniconda3/etc/profile.d/conda.sh"
+# 		else
+# 			export PATH="/opt/miniconda3/bin:$PATH"
+# 		fi
+# 	fi
+# 	unset __conda_setup
+# 	if [[ $(conda env list | grep aki7) != "" ]]; then
+# 		conda deactivate && conda activate aki7
+# 	else
+# 		mamba activate base
+# 	fi
+# fi
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>> pixi >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Ref:
+# - Official: https://pixi.sh/latest/installation/
+export PATH="/home/ubearly/.pixi/bin:$PATH"
+eval "$(pixi completion --shell bash)"
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>> z.sh >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Ref:
@@ -93,4 +99,13 @@ unset $PROXY_ROOT
 # export CLASH_PROXY="$(ip neighbor | cut -d \  -f 1 | head -n 1):7890"
 export CLASH_PROXY="127.0.0.1:7890"
 # Set global proxy `ALL_PROXY` only when necessary.
-export ALL_PROXY="http://$CLASH_PROXY"
+function proxy_on() {
+	export ALL_PROXY="http://$CLASH_PROXY"
+	ssh_conf=$(cat "${PROXY_ROOT}/ssh/config" | sed 's/\t\# ProxyCommand/\tProxyCommand/g')
+	echo -e "${ssh_conf}" > "${PROXY_ROOT}/ssh/config" && echo -e "\033[36m Proxy On! \033[0m"
+}
+function proxy_off() {
+	unset ALL_PROXY="http://$CLASH_PROXY"
+	ssh_conf=$(cat "${PROXY_ROOT}/ssh/config" | sed 's/\tProxyCommand/\t\# ProxyCommand/g')
+	echo -e "${ssh_conf}" > "${PROXY_ROOT}/ssh/config" && echo -e "\033[36m Proxy Off! \033[0m"
+}

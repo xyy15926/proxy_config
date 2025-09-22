@@ -609,6 +609,8 @@ augroup leaderf_setting
 augroup end
 
 " ----------------------------- dense-analysis/ale --------------------------
+" Ref:
+" - https://github.com/dense-analysis/ale/blob/master/doc/ale.txt
 augroup ale_setting
 	au!
 	" Only linters specified explicitly will be run.
@@ -616,7 +618,7 @@ augroup ale_setting
 	let g:ale_linters = {
 		\	'c': [ 'clang' ],
 		\	'cpp': [ 'clang' ],
-		\	'python': [ 'flake8' ],
+		\	'python': [ 'ruff', 'flake8', 'black' ],
 		\	'rust': [ 'analyzer' ]
 		\	}
 	" Default `*` will be recovered entirely by explicit filetype.
@@ -624,7 +626,7 @@ augroup ale_setting
 		\	'*': [ 'remove_trailing_lines', 'trim_whitespace' ],
 		\	'c': [ 'clang' ],
 		\	'cpp': [ 'clang' ],
-		\	'python': [ 'isort', 'black' ],
+		\	'python': [ 'ruff', 'autoflake', 'black' ],
 		\	'rust': [ 'rustfmt' ]
 		\	}
 	let g:airline#extensions#ale#enabled = 1
@@ -640,8 +642,8 @@ augroup ale_setting
 	let g:ale_echo_msg_format = '[%linter%] [%code]: %%s'
 	let g:ale_echo_delay = 20
 	let g:ale_set_signs = 1
-	let g:ale_sign_error = '>'
-	let g:ale_sign_warning = '-'
+	let g:ale_sign_error = '🚫'
+	let g:ale_sign_warning = '⚡'
 	let g:ale_change_sign_column_color = 0
 	let g:ale_set_highlights = 1
 	hi ALEError cterm=underline,reverse gui=undercurl guisp=#fb4934
@@ -666,12 +668,22 @@ augroup ale_setting
 	let g:ale_c_cppcheck_options = ''
 	let g:ale_cpp_cppcheck_options = ''
 
+" Ref:
+" - https://github.com/dense-analysis/ale/blob/master/doc/ale-python.txt
+" 1. `ruff` must be exposed to path to be recognized instead of `python -m ruff`.
+" 2. `ruff` options are specified in `pyproject.toml` for each project
+"   seperately.
 	let g:ale_python_flake8_options = '--max-line-length=88 --ignore=E231,E203,W503'
 	let g:ale_python_autoflake_options = '--expand-star-imports --ignore-init-module-imports --remove-duplicate-keys'
-	let g:ale_python_black_options = '--line-length=80'
+	let g:ale_python_black_options = '--line-length=88'
+	let g:ale_python_ruff_executable = 'ruff'
+	let g:ale_python_ruff_format_change_directory = 1
+	let g:ale_python_ruff_options = ''
 augroup end
 
 " ------------------------------ ycm-core/YouCompleteMe ---------------------
+" Ref:
+" - https://github.com/ycm-core/YouCompleteMe
 augroup youcompleteme_setting
 	au!
 	let g:ycm_filetype_whitelist = { '*': 1 }
@@ -726,18 +738,24 @@ augroup youcompleteme_setting
 		\	<bar> <mods> YcmCompleter GetDoc
 		\	<bar> let &previewheight=g:ph
 
-	let g:ycm_goto_buffer_command = 'same-buffer'
+	let g:ycm_goto_buffer_command = 'split-or-existing-window'
 
-	" YouCompleteMe Python environment setting with vimrc
+	" Ref:
+	" - https://github.com/ycm-core/YouCompleteMe?tab=readme-ov-file#python-semantic-completion
+	" 1. Set interpreter and sys-path for each project seperately with
+	"   `.ycm_extra_conf.py` in root directory of each project.
+	"   (But cancel the confirm.)
+	let g:ycm_confirm_extra_conf = 0
+	" 2. Set interpreter and sys-path globally `vimrc` with VIM options that
+	"   will be passed by the file specified with
+	"   `g:ycm_global_ycm_extra_conf`
 	let g:ycm_python_interpreter_path = ''
 	let g:ycm_python_sys_path = []
-	" Determine effective configs in `g:ycm_global_extra_conf`
 	let g:ycm_extra_conf_vim_data = [
 		\	'g:ycm_python_interpreter_path',
 		\	'g:ycm_python_sys_path'
 		\	]
-	" Storing default compilation flags
-	let g:ycm_global_ycm_extra_conf = '~/ycm_global_extra_conf.py'
+	let g:ycm_global_ycm_extra_conf = expand('$HOME/.vim/ycm_global_extra_conf.py')
 
 	inoremap <C-l> <Plug>(YCMToggleSignatureHelp)
 	nnoremap <C-l> <Plug>(YCMToggleInlayHints)
@@ -953,7 +971,8 @@ augroup vimwhichkey_setting
 		\	},
 		\	'g': {
 		\		'name': '+goto-desc',
-		\		'g': [ ':rightbelow vertical YcmCompleter GoTo'		, 'ycm-goto' ],
+		\		'g': [ ':tab YcmCompleter GoTo'						, 'ycm-goto' ],
+		\		't': [ ':rightbelow vertical YcmCompleter GoTo'		, 'ycm-goto' ],
 		\		'dw': [ ':rightbelow vertical 80ShowDocWithSize'	, 'ycm-win-doc' ],
 		\		'dp': [ '<Plug>(YCMHover)'							, 'ycm-popup-doc' ],
 		\	},
