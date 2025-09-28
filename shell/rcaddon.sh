@@ -3,7 +3,7 @@
 #   Name: rcaddon.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 11:48:41
-#   Updated: 2025-09-15 18:26:17
+#   Updated: 2025-09-26 09:33:21
 #   Description:
 # ---------------------------------------------------------
 
@@ -81,6 +81,8 @@ fi
 # - Official: https://pixi.sh/latest/installation/
 export PATH="/home/ubearly/.pixi/bin:$PATH"
 eval "$(pixi completion --shell bash)"
+alias ipython='ipython_(){ if [ -d ./.pixi ] && [ $(pwd) != ${HOME} ]; then pixi run ipython; else ipython; fi; }; ipython_'
+alias ipythonn='ipythonn_(){ if [ -d ./.pixi ] && [ $(pwd) != ${HOME} ]; then pixi run ipython --no-autoindent; else ipython --no-autoindent; fi; }; ipythonn_'
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>> z.sh >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Ref:

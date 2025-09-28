@@ -34,6 +34,7 @@ set display=truncate,lastline,uhex
 if &t_Co > 2 || has("gui_running")
 	set hlsearch
 endif
+set magic
 " set nohlsearch
 " noremap n :set hls<CR>n
 " noremap N :set hls<CR>N
@@ -141,6 +142,8 @@ set history=200
 
 
 " >>>>>>>>>>>>>>>>>>>>>>>>>>> Key Mapper >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+" Clear highlight
+noremap <Esc> <Esc>:silent! nohls<CR>
 inoremap KK <Esc>
 nnoremap K <NOP>
 let mapleader=";"
