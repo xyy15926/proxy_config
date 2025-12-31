@@ -214,6 +214,8 @@ Plug 'rust-lang/rust.vim', { 'for': [ 'rust' ] }
 " Plug 'preservim/vim-markdown', { 'for': [ 'markdown' ] }
 " Plug 'vim-pandoc/vim-pandoc', { 'for': [ 'markdown', 'pandoc' ] }
 " Plug 'vim-pandoc/vim-pandoc-syntax', { 'for': [ 'markdown', 'pandoc' ] }
+
+Plug 'simnalamburt/vim-mundo'
 call plug#end()
 
 " ------------------------- frazrepo/vim-rainbow ----------------------------
@@ -637,7 +639,7 @@ augroup ale_setting
 	" nnoremap <localleader>cp :ALEPrevious<CR>
 
 	let g:ale_lint_on_text_changed = 'normal'
-	let g:ale_lint_on_insert_leave = 1
+	let g:ale_lint_on_insert_leave = 0
 	let g:ale_lint_on_enter = 0
 	let g:ale_lint_on_save = 1
 	let g:ale_lint_delay = 500
@@ -856,7 +858,7 @@ augroup vimtablemode_setting
 augroup end
 
 " --------------------------- preservim/vim-markdown ------------------------
-augroup vim_markdown_setting
+augroup vimmarkdown_setting
 	au!
 	let g:vim_markdown_folding_disabled = 1
 	let g:vim_markdown_folding_level = 4
@@ -874,6 +876,20 @@ augroup vim_markdown_setting
 	let g:vim_markdown_conceal_blocks = 0
 	let g:vim_markdown_auto_insert_bullets = 0
 augroup end
+
+" --------------------------- simnalamburt/vim-mundo ----------------------
+augroup vimmundo_setting
+	au!
+	let g:mundo_width = 30
+	let g:mundo_preview_height = 15
+	let g:mundo_right = 1
+	let g:mundo_auto_preview = 1
+	let g:mundo_auto_preview_delay = 1000
+	let g:mundo_verbose_graph = 0
+	let g:mundo_close_on_revert = 1
+	let g:mundo_return_on_revert = 1
+augroup end
+
 
 " --------------------------- liuchengxu/vim-which-key ----------------------
 augroup vimwhichkey_setting
@@ -915,14 +931,14 @@ augroup vimwhichkey_setting
 		\		'j' : ['<C-W>j'		, 'window-below'],
 		\		'l' : ['<C-W>l'		, 'window-right'],
 		\		'k' : ['<C-W>k'		, 'window-up'],
-		\		'H' : ['<C-W>5<'		, 'expand-window-left'],
+		\		'H' : ['<C-W>5<'	, 'expand-window-left'],
 		\		'J' : [':resize +5'	, 'expand-window-below'],
-		\		'L' : ['<C-W>5>'		, 'expand-window-right'],
+		\		'L' : ['<C-W>5>'	, 'expand-window-right'],
 		\		'K' : [':resize -5'	, 'expand-window-up'],
 		\		'=' : ['<C-W>='		, 'balance-window'],
 		\		's' : ['<C-W>s'		, 'split-window-below'],
 		\		'v' : ['<C-W>v'		, 'split-window-below'],
-		\		'?' : ['Windows'		, 'fzf-window'],
+		\		'?' : ['Windows'	, 'fzf-window'],
 		\		'm' : ['<C-W>m'		, 'zoom-inout-window'],
 		\	},
 		\	'b': {
@@ -943,6 +959,7 @@ augroup vimwhichkey_setting
 		\		'l': [ ':NERDTreeFind'				, 'find-in-nerdtree' ],
 		\		't': [ ':TagbarToggle'				, 'toggle-tagbar' ],
 		\		'f': [ ':Leaderf file'				, 'leaderf-find-file' ],
+		\		'h': [ ':MundoToggle'				, 'undo-tree' ],
 		\	},
 		\	's': {
 		\		'name': '+source-fix',
@@ -1001,14 +1018,15 @@ augroup vimwhichkey_setting
 	let g:which_key_local_map = {
 		\	'x': {
 		\		'name': '+build-run',
-		\		'b': 'proj-build',
-		\		't': 'proj-test',
-		\		'r': 'proj-run',
+		\		'b': 'async proj-build',
+		\		't': 'async unit-test',
+		\		'r': 'async unit-run',
+		\		'e': 'shell proj-run',
 		\	},
 		\	's': {
 		\		'name': '+send-source',
-		\		'l': [ '<Plug>SlimeLineSend'		, 'send-line' ],
-		\		'c': [ '<Plug>SlimeSendCell'		, 'send-cell' ],
+		\		'l': [ '<Plug>SlimeLineSend'					, 'send-line' ],
+		\		'c': [ '<Plug>SlimeSendCell'					, 'send-cell' ],
 		\		'm': [ '<Plug>SlimeCellsSendAndGoToNext'		, 'send-cell-and-move' ],
 		\	},
 		\	'u': {
@@ -1025,7 +1043,7 @@ augroup vimwhichkey_setting
 	let g:which_key_map_visual = {
 		\	's': {
 		\		'name': '+send-source',
-		\		'l': [ '<Plug>SlimeRegionSend', 'send-selected-region' ],
+		\		'l': [ '<Plug>SlimeRegionSend`>', 'send-selected-region' ],
 		\	},
 		\	'u': {
 		\		'name': '+tiny-function',
@@ -1066,6 +1084,19 @@ function! ToggleWindows()
 			lclose
 			return 0
 		endif
+
+		" Close help
+		if getwinvar(nr, '&buftype') == 'help'
+			execute nr . ' wincmd c'
+			return 0
+		endif
+
+		" Close terminal
+		if getwinvar(nr, '&buftype') == 'terminal'
+			execute nr . ' wincmd c'
+			return 0
+		endif
+
 	endfor
 
 	" Toggle vimterminal if vimterminal ever used by vim-terminal-help

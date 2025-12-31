@@ -10,6 +10,7 @@ if exists("b:py_ftplugin")
 	finish
 endif
 let b:py_ftplugin = 1
+let b:private_project_root = ""
 
 " Move to next or previous section
 " nnoremap <buffer> <localleader>mn :<C-u>/^#\ %%\+<CR>
@@ -38,30 +39,86 @@ let b:slime_cell_delimiter='^#\ %%'
 " let g:which_key_map.s.m = "send-cell-and-move"
 " <<<<<<< For plugin jpalardy/vim-slime <<<<<<<
 
+function! SetRoot()
+	let root_flags = ['.root', '.svn', '.git', '.hg', '.project', 'Makefile']
+	let abspath = expand("%:p")
+	let paths = split(abspath, "/")
+
+	let cur_pos = 2
+	while cur_pos <= len(paths)
+		for rf in root_flags
+			let cur_dir = "/" . join(paths[:-cur_pos], "/")
+			" echo cur_dir . '/' . rf
+			if !empty(glob(cur_dir . '/' . rf ))
+				let b:private_project_root = cur_dir
+				break
+			endif
+		endfor
+		if !empty(b:private_project_root)
+			break
+		endif
+		let cur_pos += 1
+	endwhile
+endfunction
+call SetRoot()
+
 " >>>>>>> For plugin skywind3000/asyncrun >>>>>>>
 function! TestPython()
 	let abspath = expand("%:p")
 	let paths = split(abspath, "/")
 	let filename = paths[-1]
-	if filename[0:4] ==# "test_"
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pixi run pytest ' . abspath
-	elseif filereadable(getcwd() . "/tests/test_" . filename)
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pixi run pytest tests/test_' . filename
-	else
-		let cur_pos = 2
-		while cur_pos <= len(paths)
-			" Skip the first and second parent dirname that should always be
-			" `/home/<USER>`.
-			let modname = join(paths[-cur_pos: -2], "/")
-			if filereadable(getcwd() . "/tests/" . modname . "/test_" . filename)
-				execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" pixi run pytest tests/' . modname . '/test_' . filename
-			endif
-			let cur_pos += 1
-		endwhile
+
+	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT) '
+	let pymode = ''
+	if !empty(b:private_project_root)
+		if !empty(glob(b:private_project_root . '/' . '.pixi'))
+			let pymode = 'pixi run '
+		endif
+
+		if filename[0:4] ==# "test_"
+			execute run_mode . pymode . 'pytest ' . abspath
+		else
+			let cur_pos = 2
+			let root_hier = len(split(b:private_project_root, "/"))
+			while cur_pos + root_hier <= len(paths)
+				let modname = join(paths[-cur_pos: -2], "/")
+				let testfile = b:private_project_root . "/tests/" . modname . "/test_" . filename
+				echo testfile
+				if filereadable(testfile)
+					execute run_mode . pymode . 'pytest ' . testfile
+				endif
+				let cur_pos += 1
+			endwhile
+		endif
 	endif
 endfunction
-nnoremap <buffer> <localleader>xr :AsyncRun pixi run python "$(VIM_FILEDIR)/$(VIM_FILENAME)" <CR>
+function! BuildPython()
+	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT) '
+	let pymode = ''
+	if !empty(b:private_project_root)
+		if !empty(glob(b:private_project_root . '/' . '.pixi'))
+			let pymode = 'pixi run '
+		endif
+		execute run_mode . pymode . 'python -m build'
+	endif
+endfunction
+function! RunPython()
+	let abspath = expand("%:p")
+	let paths = split(abspath, "/")
+	let filename = paths[-1]
+
+	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT) '
+	let pymode = ''
+	if !empty(b:private_project_root)
+		if !empty(glob(b:private_project_root . '/' . '.pixi'))
+			let pymode = 'pixi run '
+		endif
+		execute run_mode . pymode . 'python "$(VIM_FILEDIR)/$(VIM_FILENAME)"'
+	endif
+endfunction
+nnoremap <buffer> <localleader>xb :call BuildPython()<CR>
 nnoremap <buffer> <localleader>xt :call TestPython()<CR>
+nnoremap <buffer> <localleader>xr :call RunPython()<CR>
 " <<<<<<< For plugin skywind3000/asyncrun <<<<<<<
 
 " >>>>>>> For plugin skywind3000/vim-terminal-helper && jpalardy/vim-slime >>>>>>>

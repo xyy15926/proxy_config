@@ -27,27 +27,55 @@ let b:rust_ftplugin = 1
 " `:cwindow` won't reopen quickfix if opened, a.k.a. content won't be
 " refreshed.
 function! BuildRust()
+	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT) '
 	if filereadable( getcwd() . "/Cargo.toml" )
-		execute 'AsyncRun -once -mode=quickfix -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT)" cargo build'
+		execute run_mode . '-cwd=$(VIM_ROOT) RUST_BACKTRACE=1 cargo build'
 	else
-		execute 'AsyncRun -once -mode=quickfix -pos=right -cols=70 -focus=0 -hidden=1 rustc "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)"'
+		execute run_mode . 'rustc "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)"'
 	endif
 	" sleep 100m
 	" copen
 endfunction
 function! RunRust()
+	let abspath = expand("%:p")
+	let paths = split(abspath, "/")
+	let filename = paths[-1]
+	let binname = filename[:-4]
+	let par_dir = paths[-2]
+
+	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT) '
 	if filereadable( getcwd() . "/Cargo.toml" )
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" cargo run'
+		if filename ==# "main.rs"
+			execute run_mode . '-cwd="$(VIM_ROOT)" cargo run'
+		elseif par_dir ==# "bin"
+			execute run_mode . '-cwd="$(VIM_ROOT)" cargo run --bin ' . binname
+		elseif par_dir ==# "examples"
+			execute run_mode . '-cwd="$(VIM_ROOT)" cargo run --example ' . binname
+		endif
 	else
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_FILEDIR)"  "$(VIM_FILEDIR)/$(VIM_FILENOEXT)"'
+		execute run_mode '-cwd="$(VIM_FILEDIR)" "$(VIM_FILEDIR)/$(VIM_FILENOEXT)"'
 	endif
 endfunction
 function! TestRust()
+	let abspath = expand("%:p")
+	let paths = split(abspath, "/")
+	let filename = paths[-1]
+	let binname = filename[:-4]
+	let par_dir = paths[-2]
+
+	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT) '
 	if filereadable( getcwd() . "/Cargo.toml" )
-		execute 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" cargo test'
+		if par_dir == "bin"
+			execute run_mode . '-cwd=$(VIM_ROOT) cargo test --bin ' . binname
+		elseif par_dir == "tests"
+			execute run_mode . '-cwd=$(VIM_ROOT) cargo test --test ' . binname
+		else
+			execute run_mode . '-cwd=$(VIM_ROOT) cargo test ' . binname . '::tests'
+		endif
 	endif
 endfunction
 nnoremap <buffer> <localleader>xb :call BuildRust()<CR>
-nnoremap <buffer> <localleader>xr :call RunRust()<CR>
 nnoremap <buffer> <localleader>xt :call TestRust()<CR>
+nnoremap <buffer> <localleader>xr :call RunRust()<CR>
+nnoremap <buffer> <localleader>xe :!cargo run<CR>
 " <<<<<<< For plugin skywind3000/asyncrun <<<<<<<

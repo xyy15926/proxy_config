@@ -3,7 +3,7 @@
 #   Name: setup.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 08:35:54
-#   Updated: 2025-09-19 14:41:04
+#   Updated: 2025-12-18 19:13:40
 #   Description:
 # ---------------------------------------------------------
 set +e
@@ -13,6 +13,7 @@ echo "Config file in $ROOT will be used to init current user environment."
 
 # >>>>>>>>>>>>>>>>>>>>> Shell RC addon >>>>>>>>>>>>>>>>>>>>>>>>>>
 ln -s "$ROOT/shell/rcaddon.sh" "$HOME/.$(basename $SHELL)_aliases"
+# echo '. $HOME/.'."$(basename $SHELL)_aliases" >> "$HOME/.$(basename $SHELL)rc"
 ln -s $ROOT/shell/inputrc.sh $HOME/.inputrc
 if [ -f "$ROOT/tmux/tmux.conf" ] && hash tmux 2>/dev/null; then
 	ln -s $ROOT/tmux/tmux.conf $HOME/.tmux.conf
@@ -154,3 +155,19 @@ fi
 if [ -f "$ROOT/tmux/tmux.conf" ] && hash tmux 2>/dev/null; then
 	ln -s $ROOT/tmux/tmux.conf $HOME/.tmux.conf
 fi
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>> PyPI >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+if [ -f "$ROOT/pypi/pypirc" ]; then
+	ln -s $ROOT/pypi/pypirc $HOME/.pypirc
+fi
+
+# >>>>>>>>>>>>>>>>>>>>>>>>> rust >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+export RUSTUP_UPDATE_ROOT="https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup"
+export RUSTUP_DIST_SERVER="https://mirrors.tuna.tsinghua.edu.cn/rustup"
+if hash curl 2>/dev/null; then
+	curl --proto "=https" --tlsv1.2 "https://sh.rustup.rs -sSf" | sh
+	# Add rust-analyzer, rustfmt
+	rustup component add rust-analyzer
+	rustup component add rustfmt
+fi
+

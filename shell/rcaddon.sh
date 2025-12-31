@@ -3,7 +3,7 @@
 #   Name: rcaddon.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 11:48:41
-#   Updated: 2025-09-26 09:33:21
+#   Updated: 2025-09-29 12:04:10
 #   Description:
 # ---------------------------------------------------------
 
@@ -17,7 +17,7 @@ alias rm="rm -i"
 alias ls="ls --group-directories-first --color"
 alias ll="ls --group-directories-first --color -l"
 alias la="ls --group-directories-first --color -l -a"
-alias ipythonn="ipython --no-autoindent"
+# alias ipythonn="ipython --no-autoindent"
 alias pargs="xargs -p"
 alias grep="grep -n -H --color=always"
 # Ref:
@@ -81,8 +81,8 @@ fi
 # - Official: https://pixi.sh/latest/installation/
 export PATH="/home/ubearly/.pixi/bin:$PATH"
 eval "$(pixi completion --shell bash)"
-alias ipython='ipython_(){ if [ -d ./.pixi ] && [ $(pwd) != ${HOME} ]; then pixi run ipython; else ipython; fi; }; ipython_'
-alias ipythonn='ipythonn_(){ if [ -d ./.pixi ] && [ $(pwd) != ${HOME} ]; then pixi run ipython --no-autoindent; else ipython --no-autoindent; fi; }; ipythonn_'
+alias ipython='ipython_(){ if [ -d ./.pixi ] && [ $(pwd) != ${HOME} ]; then pixi run \ipython; else \ipython; fi; }; ipython_'
+alias ipythonn='ipythonn_(){ if [ -d ./.pixi ] && [ $(pwd) != ${HOME} ]; then pixi run \ipython --no-autoindent; else \ipython --no-autoindent; fi; }; ipythonn_'
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>> z.sh >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Ref:
@@ -111,3 +111,7 @@ function proxy_off() {
 	ssh_conf=$(cat "${PROXY_ROOT}/ssh/config" | sed 's/\tProxyCommand/\t\# ProxyCommand/g')
 	echo -e "${ssh_conf}" > "${PROXY_ROOT}/ssh/config" && echo -e "\033[36m Proxy Off! \033[0m"
 }
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> rustup >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+export RUSTUP_UPDATE_ROOT="https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup"
+export RUSTUP_DIST_SERVER="https://mirrors.tuna.tsinghua.edu.cn/rustup"
