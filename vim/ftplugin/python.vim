@@ -68,7 +68,7 @@ function! TestPython()
 	let paths = split(abspath, "/")
 	let filename = paths[-1]
 
-	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT) '
+	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" '
 	let pymode = ''
 	if !empty(b:private_project_root)
 		if !empty(glob(b:private_project_root . '/' . '.pixi'))
@@ -93,7 +93,7 @@ function! TestPython()
 	endif
 endfunction
 function! BuildPython()
-	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT) '
+	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" '
 	let pymode = ''
 	if !empty(b:private_project_root)
 		if !empty(glob(b:private_project_root . '/' . '.pixi'))
@@ -107,7 +107,7 @@ function! RunPython()
 	let paths = split(abspath, "/")
 	let filename = paths[-1]
 
-	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT) '
+	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT)" '
 	let pymode = ''
 	if !empty(b:private_project_root)
 		if !empty(glob(b:private_project_root . '/' . '.pixi'))

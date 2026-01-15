@@ -27,9 +27,9 @@ let b:rust_ftplugin = 1
 " `:cwindow` won't reopen quickfix if opened, a.k.a. content won't be
 " refreshed.
 function! BuildRust()
-	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT) '
+	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT)" '
 	if filereadable( getcwd() . "/Cargo.toml" )
-		execute run_mode . '-cwd=$(VIM_ROOT) RUST_BACKTRACE=1 cargo build'
+		execute run_mode . 'RUST_BACKTRACE=1 cargo build'
 	else
 		execute run_mode . 'rustc "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)"'
 	endif
@@ -43,7 +43,7 @@ function! RunRust()
 	let binname = filename[:-4]
 	let par_dir = paths[-2]
 
-	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT) '
+	let run_mode = 'AsyncRun -once -mode=term -pos=right -cols=70 -focus=0 -hidden=1 -cwd="$(VIM_ROOT)" '
 	if filereadable( getcwd() . "/Cargo.toml" )
 		if filename ==# "main.rs"
 			execute run_mode . '-cwd="$(VIM_ROOT)" cargo run'
@@ -63,7 +63,7 @@ function! TestRust()
 	let binname = filename[:-4]
 	let par_dir = paths[-2]
 
-	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT) '
+	let run_mode = 'AsyncRun -once -mode=quickfix -cwd="$(VIM_ROOT)" '
 	if filereadable( getcwd() . "/Cargo.toml" )
 		if par_dir == "bin"
 			execute run_mode . '-cwd=$(VIM_ROOT) cargo test --bin ' . binname

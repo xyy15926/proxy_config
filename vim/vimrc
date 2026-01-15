@@ -46,6 +46,7 @@ set cursorline
 set cursorcolumn
 highlight cursorline cterm=none ctermbg=237
 highlight cursorcolumn cterm=none ctermbg=237
+highlight normal ctermbg=none
 let &t_SI = "\x1b[6 q\x1b]12;green\x7"
 let &t_SR = "\x1b[4 q\x1b]12;green\x7"
 let &t_EI = "\x1b[2 q\x1b]12;grey\x7"
