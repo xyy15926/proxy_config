@@ -11,6 +11,7 @@
 filetype indent plugin on
 set number
 set ruler
+set signcolumn=yes
 set background=dark
 if has('guitermcolors')
 	set termguicolors
@@ -208,6 +209,7 @@ Plug 'dense-analysis/ale', { 'for': [ 'python', 'cpp', 'c', 'rust' ] }
 " YCM requirements:
 " -	For python:
 Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py' }
+" Plug 'ycm-core/YouCompleteMe', { 'for': [ 'python', 'cpp', 'c', 'rust' ], 'do': '/usr/bin/python3 install.py --rust-completer' }
 
 Plug 'tpope/vim-commentary'
 Plug 'dhruvasagar/vim-table-mode', { 'for': [ 'markdown', 'python' ] }
@@ -287,10 +289,21 @@ augroup nerdtree_setting
 augroup end
 
 " --------------------------- perservim/tagbar ------------------------------
+" Ref:
+" - https://blog.csdn.net/gitblog_00677/article/details/151746256
 augroup tagbar_setting
-	let g:tagbar_width=25
-	let g:tagbar_sort=1
+	let g:tagbar_position='rightbelow vertical'
+	let g:tagbar_width=max([25, winwidth(0) / 5])
+	let g:tagbar_autoclose=0
 	let g:tagbar_autofocus=1
+	let g:tagbar_autopreview=0
+	let g:tagbar_compact=0
+	let g:tagbar_show_visibility=1
+	let g:tagbar_indent=1
+	let g:tagbar_sort=1
+	let g:tagbar_foldlevel=2
+	let g:tagbar_file_size_limit=1000000
+	let g:tagbar_use_cache=0
 	" nnoremap <leader>nt :TagbarToggle<CR>
 	" nnoremap <leader>tf :TagbarCurrentTag<CR>
 	let g:tagbar_type_markdown = {
@@ -309,20 +322,6 @@ augroup tagbar_setting
 		"	char from the token, and group the content to 
 		"	the relavant tag(after the `:`)
 		"sort: default sorting method
-	let g:tagbar_type_rust = {
-		\	'ctagstype'	: 'rust',
-		\	'kinds'		: [
-		\		'T:types,type definitions',
-		\		'f:functions,function definitions',
-		\		'g:enum,enumeration names',
-		\		's:structure names',
-		\		'm:modules,module names',
-		\		'c:consts,static constants',
-		\		't:traits',
-		\		'i:impls,trait implementations',
-		\	]
-		\	}
-
 	let g:tagbar_type_scala = {
 		\	'ctagstype'	: 'scala',
 		\	'sro'		: '.',
@@ -625,8 +624,9 @@ augroup ale_setting
 		\	'c': [ 'clang' ],
 		\	'cpp': [ 'clang' ],
 		\	'python': [ 'ruff', 'flake8', 'black' ],
-		\	'rust': [ 'analyzer' ]
 		\	}
+		" Use YCM to lint for Rust.
+		" 'rust': [ 'analyzer' ]
 	" Default `*` will be recovered entirely by explicit filetype.
 	let g:ale_fixers = {
 		\	'*': [ 'remove_trailing_lines', 'trim_whitespace' ],
@@ -674,11 +674,12 @@ augroup ale_setting
 	let g:ale_c_cppcheck_options = ''
 	let g:ale_cpp_cppcheck_options = ''
 
-" Ref:
-" - https://github.com/dense-analysis/ale/blob/master/doc/ale-python.txt
-" 1. `ruff` must be exposed to path to be recognized instead of `python -m ruff`.
-" 2. `ruff` options are specified in `pyproject.toml` for each project
-"   seperately.
+	" Ref:
+	" - https://github.com/dense-analysis/ale/blob/master/doc/ale-python.txt
+	" 1. `ruff` must be exposed to path to be recognized instead of
+	"   `python -m ruff`.
+	" 2. `ruff` options are specified in `pyproject.toml` for each project
+	"   seperately.
 	let g:ale_python_flake8_options = '--max-line-length=88 --ignore=E231,E203,W503'
 	let g:ale_python_autoflake_options = '--expand-star-imports --ignore-init-module-imports --remove-duplicate-keys'
 	let g:ale_python_black_options = '--line-length=88'
@@ -692,7 +693,12 @@ augroup end
 " - https://github.com/ycm-core/YouCompleteMe
 augroup youcompleteme_setting
 	au!
-	let g:ycm_filetype_whitelist = { '*': 1 }
+	let g:ycm_filetype_whitelist = {
+		\	'rust': 1,
+		\	'python': 1,
+		\	'c': 1,
+		\	'cpp': 1,
+		\	}
 	" let g:ycm_filetype_blacklist = {}
 
 	let g:ycm_semantic_triggers =  {
@@ -720,20 +726,51 @@ augroup youcompleteme_setting
 	let g:ycm_complete_in_strings = 1
 	let g:ycm_collect_identifiers_from_tag_files = 0
 
+	" Highlight
 	let g:ycm_enable_semantic_highlighting = 1
 	let g:ycm_enable_inlay_hints = 1
 	let g:ycm_clear_inlay_hints_in_insert_mode = 1
+	" Link highlight for rust-analyzer's customed unstandard token type.
+	let MY_YCM_HIGHLIGHT_GROUP = {
+		\	'typeParameter': 'PreProc',
+		\	'parameter': 'Normal',
+		\	'variable': 'Normal',
+		\	'property': 'Normal',
+		\	'enumMember': 'Normal',
+		\	'event': 'Special',
+		\	'member': 'Normal',
+		\	'method': 'Normal',
+		\	'class': 'Special',
+		\	'namespace': 'Special',
+		\	'generic': 'Normal',
+		\	'selfKeyword': 'Normal',
+		\	'selfTypeKeyword': 'Normal',
+		\	'attributeBracket': 'Normal',
+		\	'typeAlias': 'Normal',
+		\	'const': 'PreProc',
+		\	'derive': 'PreProc',
+		\	'formatSpecifier': 'PreProc',
+		\	'unresolvedReference': 'PreProc',
+		\	'lifetime': 'PreProc',
+		\	'punctuation': 'PreProc',
+		\ }
+	for tokenType in keys( MY_YCM_HIGHLIGHT_GROUP )
+	  call prop_type_add( 'YCM_HL_' . tokenType,
+						\ { 'highlight': MY_YCM_HIGHLIGHT_GROUP[ tokenType ] } )
+	endfor
 
+	" Diag
 	let g:ycm_enable_diagnostic_highlighting = 1
 	let g:ycm_key_detailed_diagnostics = ""
 	let g:ycm_show_detailed_diag_in_popup = 1
 	let g:ycm_echo_current_diagnostic = 'virtual-text'
 	let g:ycm_update_diagnostics_in_insert_mode = 0
-	let g:ycm_error_symbol = '>>'
-	let g:ycm_warning_symbol = '--'
+	let g:ycm_error_symbol = '🚫'
+	let g:ycm_warning_symbol = '⚡'
 	let g:ycm_open_loclist_on_ycm_diags = 1
 	let g:ycm_always_populate_location_list = 1
 
+	" Preview
 	let g:ycm_add_preview_to_completeopt = 0
 	let g:ycm_autoclose_preview_window_after_completion = 1
 	let g:ycm_autoclose_preview_window_after_insertion = 1
@@ -746,22 +783,33 @@ augroup youcompleteme_setting
 
 	let g:ycm_goto_buffer_command = 'split-or-existing-window'
 
-	" Ref:
-	" - https://github.com/ycm-core/YouCompleteMe?tab=readme-ov-file#python-semantic-completion
-	" 1. Set interpreter and sys-path for each project seperately with
-	"   `.ycm_extra_conf.py` in root directory of each project.
-	"   (But cancel the confirm.)
-	let g:ycm_confirm_extra_conf = 0
-	" 2. Set interpreter and sys-path globally `vimrc` with VIM options that
-	"   will be passed by the file specified with
-	"   `g:ycm_global_ycm_extra_conf`
+	" For rust.
+	let g:ycm_rust_toolchain_root = expand("$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu")
+
+	" For python.
+	" only interpreter and sys-path is neeed, so init 2 **customed**
+	"  variable which will be added to `g:ycm_extra_conf_vim_data`.
 	let g:ycm_python_interpreter_path = ''
 	let g:ycm_python_sys_path = []
+
+	" Items will be passed as keywords-arguments to function `def Settings`
+	" in `.ycm_extra_conf.py`, which should be placed at the root of the project
+	" or the global one specified by `g:ycm_global_ycm_extra_conf`.
 	let g:ycm_extra_conf_vim_data = [
 		\	'g:ycm_python_interpreter_path',
 		\	'g:ycm_python_sys_path'
 		\	]
+
+	" Ref:
+	" - https://github.com/ycm-core/YouCompleteMe?tab=readme-ov-file#python-semantic-completion
+	" 1. Load some extra conf, interpreter and sys-path for example, for
+	"   each project seperately with `.ycm_extra_conf.py` in root directory
+	"   of each project.
+	" 2. Or the global extra conf file (python script) specified by
+	"   `g:ycm_global_ycm_extra_conf`.
 	let g:ycm_global_ycm_extra_conf = expand('$HOME/.vim/ycm_global_extra_conf.py')
+	" Skip the confirmation for extra conf.
+	let g:ycm_confirm_extra_conf = 0
 
 	inoremap <C-l> <Plug>(YCMToggleSignatureHelp)
 	nnoremap <C-l> <Plug>(YCMToggleInlayHints)
@@ -992,8 +1040,8 @@ augroup vimwhichkey_setting
 		\	},
 		\	'g': {
 		\		'name': '+goto-desc',
-		\		'g': [ ':tab YcmCompleter GoTo'						, 'ycm-goto' ],
-		\		't': [ ':rightbelow vertical YcmCompleter GoTo'		, 'ycm-goto' ],
+		\		'g': [ ':tab YcmCompleter GoTo'						, 'ycm-goto tab' ],
+		\		't': [ ':rightbelow vertical YcmCompleter GoTo'		, 'ycm-goto win' ],
 		\		'dw': [ ':rightbelow vertical 80ShowDocWithSize'	, 'ycm-win-doc' ],
 		\		'dp': [ '<Plug>(YCMHover)'							, 'ycm-popup-doc' ],
 		\	},

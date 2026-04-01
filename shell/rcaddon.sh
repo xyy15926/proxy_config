@@ -107,7 +107,7 @@ function proxy_on() {
 	echo -e "${ssh_conf}" > "${PROXY_ROOT}/ssh/config" && echo -e "\033[36m Proxy On! \033[0m"
 }
 function proxy_off() {
-	unset ALL_PROXY="http://$CLASH_PROXY"
+	unset ALL_PROXY
 	ssh_conf=$(cat "${PROXY_ROOT}/ssh/config" | sed 's/\tProxyCommand/\t\# ProxyCommand/g')
 	echo -e "${ssh_conf}" > "${PROXY_ROOT}/ssh/config" && echo -e "\033[36m Proxy Off! \033[0m"
 }
