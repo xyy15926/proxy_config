@@ -60,7 +60,7 @@ set foldcolumn=0
 set smarttab
 set tabstop=4
 set softtabstop=4
-set noexpandtab
+set expandtab
 set shiftwidth=4
 set autoindent
 set smartindent
@@ -69,6 +69,7 @@ set breakindent
 set showbreak=››››
 set wrap
 "set textwidth=78
+set colorcolumn=80
 " Character display
 set list
 set listchars=tab:»-,precedes:?,extends:?,eol:«,multispace:⋅⋅⋅⋅,trail:‹
@@ -230,6 +231,15 @@ augroup end
 " ------------------------- itchyny/lightline.vim ---------------------------
 augroup lightline_setting
 	au!
+	" Get the exact position of the cursor instead of count of bytes by the
+	" predefined `lineinfo`.
+    function! LightlineLineWidth()
+        let l:ln = line('.')
+        let l:lt = line('$')
+        let l:cw = virtcol('.')
+        let l:lw = strdisplaywidth(getline('.'))
+        return printf('%d/%d : %d/%d', l:ln, l:lt, l:cw, l:lw)
+    endfunction
 	let g:lightline = {
 		\	'colorscheme': 'solarized',
 		\	'active': {
@@ -238,13 +248,16 @@ augroup lightline_setting
 		\			[ 'readonly', 'filename', 'modified', 'charvaluehex' ],
 		\		],
 		\		'right': [ 
-		\			[ 'lineinfo' ],
+		\			[ 'lineinfo_self' ],
 		\			[ 'percent' ],
 		\			[ 'fileformat', 'fileencoding', 'filetype' ],
 		\		],
 		\	},
+		\	'component_function': {
+		\		'lineinfo_self': 'LightlineLineWidth',
+		\	},
 		\	'component': {
-		\		'charvaluehex': '0x%B'
+		\		'charvaluehex': '0x%B',
 		\	},
 		\	}
 augroup end
@@ -512,7 +525,7 @@ augroup leaderf_setting
 	let g:Lf_UseVersionControlTool = 1
 	let g:Lf_DefaultExternalTool = "rg"
 	let g:Lf_WildIgnore = {
-		\	'file': [ '*.bak', '*.tmp' ],
+		\	'file': [ '*.bak', '*.tmp', '*.pyc' ],
 		\	'dir': [ '*tmp', '*bak' ],
 		\	}
 
@@ -620,13 +633,15 @@ augroup ale_setting
 	au!
 	" Only linters specified explicitly will be run.
 	let g:ale_linters_explicit = 1
+	" Use `cargo` instead of `analyzer` for ALE to lint to decrease the
+	" the memory usage, since ALE will be used to lint instead of
+	" semetically completation or jump.
 	let g:ale_linters = {
 		\	'c': [ 'clang' ],
 		\	'cpp': [ 'clang' ],
-		\	'python': [ 'ruff', 'flake8', 'black' ],
+		\	'python': [ 'ruff', 'flake8', 'black', 'mypy' ],
+		\	'rust': [ 'cargo' ],
 		\	}
-		" Use YCM to lint for Rust.
-		" 'rust': [ 'analyzer' ]
 	" Default `*` will be recovered entirely by explicit filetype.
 	let g:ale_fixers = {
 		\	'*': [ 'remove_trailing_lines', 'trim_whitespace' ],
@@ -645,7 +660,10 @@ augroup ale_setting
 	let g:ale_lint_on_save = 1
 	let g:ale_lint_delay = 500
 	let g:ale_echo_cursor = 1
-	let g:ale_echo_msg_format = '[%linter%] [%code]: %%s'
+	let g:ale_echo_msg_format = '[%severity%] [%linter%] %code: % %s'
+	let g:ale_echo_msg_error_str = "ERR"
+	let g:ale_echo_msg_warning_str = "WARN"
+	let g:ale_echo_msg_info_str = "INFO"
 	let g:ale_echo_delay = 20
 	let g:ale_set_signs = 1
 	let g:ale_sign_error = '🚫'
@@ -686,6 +704,11 @@ augroup ale_setting
 	let g:ale_python_ruff_executable = 'ruff'
 	let g:ale_python_ruff_format_change_directory = 1
 	let g:ale_python_ruff_options = ''
+
+	let g:ale_rust_cargo_use_check = 0
+	let g:ale_rust_cargo_use_clippy = 1
+	let g:ale_rust_cargo_check_tests = 1
+	let g:ale_rust_cargo_check_examples = 1
 augroup end
 
 " ------------------------------ ycm-core/YouCompleteMe ---------------------
@@ -753,6 +776,8 @@ augroup youcompleteme_setting
 		\	'unresolvedReference': 'PreProc',
 		\	'lifetime': 'PreProc',
 		\	'punctuation': 'PreProc',
+		\	'builtinType': 'PreProc',
+		\	'builtinAttribute': 'PreProc',
 		\ }
 	for tokenType in keys( MY_YCM_HIGHLIGHT_GROUP )
 	  call prop_type_add( 'YCM_HL_' . tokenType,
@@ -760,11 +785,15 @@ augroup youcompleteme_setting
 	endfor
 
 	" Diag
+	let g:ycm_show_diagnostics_ui = 0
+	let g:ycm_enable_diagnostics_signs = 1
 	let g:ycm_enable_diagnostic_highlighting = 1
+	let g:ycm_enable_diagnostics_virtual_text = 1
+	let g:ycm_update_diagnostics_in_insert_mode = 0
+	let g:ycm_update_diagnostics_delay_ms = 5000
 	let g:ycm_key_detailed_diagnostics = ""
 	let g:ycm_show_detailed_diag_in_popup = 1
 	let g:ycm_echo_current_diagnostic = 'virtual-text'
-	let g:ycm_update_diagnostics_in_insert_mode = 0
 	let g:ycm_error_symbol = '🚫'
 	let g:ycm_warning_symbol = '⚡'
 	let g:ycm_open_loclist_on_ycm_diags = 1
