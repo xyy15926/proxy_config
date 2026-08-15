@@ -3,6 +3,8 @@
 	editor = vim
 	autocrlf = input
 	safecrlf = true
+	quotepath = false
+    hooksPath = ".githooks"
 [user]
 	name = xyy15926
 	email = xyy15926@163.com
