@@ -1,0 +1,79 @@
+-- ============================================================
+-- colorscheme_options.lua
+-- ============================================================
+local M = {}
+
+local save_path = vim.fn.stdpath("data") .. "/last_colorscheme"
+
+-- 保存当前配色
+M.save = function(name)
+  local f = io.open(save_path, "w")
+  if f then
+    f:write(name)
+    f:close()
+  end
+end
+
+-- 读取保存的配色
+M.load = function()
+  local f = io.open(save_path, "r")
+  if not f then return nil end
+  local saved = f:read("*a")
+  f:close()
+  if saved then
+    saved = saved:gsub("%s+", "")
+    if saved ~= "" then return saved end
+  end
+  return nil
+end
+
+-- 切换透明背景
+M.toggle_transparent = function()
+  vim.g.transparent_enabled = not vim.g.transparent_enabled
+  vim.cmd.colorscheme(vim.g.colors_name)
+  vim.notify("透明背景: " .. (vim.g.transparent_enabled and "开" or "关"))
+end
+
+-- 自动保存
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function(args)
+    M.save(args.match)
+
+    vim.schedule(function()
+      -- 透明背景
+      if vim.g.transparent_enabled then
+        local groups = {
+          "Normal", "NormalNC", "NormalFloat",
+          "FloatBorder", "EndOfBuffer",
+        }
+        for _, group in ipairs(groups) do
+          local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group })
+          if ok then
+            hl.bg = nil
+            vim.api.nvim_set_hl(0, group, hl)
+          end
+        end
+      end
+
+      -- vim-slime-cells 分割线
+      vim.api.nvim_set_hl(0, "CellBoundary", {
+        underline = true,
+        sp = 0xe8a043,
+      })
+    end)
+  end,
+})
+
+-- 启动时恢复配色
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
+  callback = function()
+    local saved = M.load()
+    if saved then
+      pcall(vim.cmd.colorscheme, saved)
+    end
+    vim.cmd("doautocmd ColorScheme")
+  end,
+})
+
+return M
