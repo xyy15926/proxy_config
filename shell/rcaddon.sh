@@ -40,6 +40,10 @@ fi
 if [ -d "/opt/vim/bin" ]; then
 	export PATH="/opt/vim/bin:$PATH"
 fi
+# win32yank: add `win32yank.exe` to `PATH` so that VIM in WSL could find it
+if [ -f "/mnt/d/win32yank/win32yank.exe" ]; then
+    export PATH="/mnt/d/win32yank:$PATH"
+fi
 
 # # >>>>>>>>>>>>>>>>>>>>>>>>> Forge or Conda >>>>>>>>>>>>>>>>>>>>>>>>>>
 # # Init conda or forge for shell interaction.

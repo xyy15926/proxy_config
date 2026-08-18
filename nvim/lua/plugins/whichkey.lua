@@ -61,11 +61,14 @@ return {
         { "<leader>nh", "<cmd>MundoToggle<cr>",          desc = "undo-tree" },
       })
 
-      -- ;s source-fix（YCM/ALE→LSP/nvim-lint/conform）
+      -- ;s send-source-fix（YCM/ALE→LSP/nvim-lint/conform）
       wk.add({
-        { "<leader>s",  group = "source-fix" },
+        { "<leader>s",  group = "send-source-fix" },
         { "<leader>sl", "<Plug>SlimeLineSend",   desc = "send-line" },
         { "<leader>sc", "<Plug>SlimeSendCell",   desc = "send-cell" },
+        { "<leader>sm", "<Plug>SlimeCellsSendAndGoToNext",  desc = "send-cell-and-move" },
+        { "<leader>sl", "<Plug>SlimeRegionSend`>", desc = "send-region", mode = "x" },
+
         { "<leader>sd", vim.diagnostic.open_float,        desc = "diagnostic" },
         { "<leader>sr", vim.lsp.buf.code_action,          desc = "code-action" },
         { "<leader>ss", function() require("lint").try_lint() end,                    desc = "lint" },
@@ -78,21 +81,25 @@ return {
         { "<leader>fj",  "<cmd>Telescope resume<cr>",                desc = "telescope-resume" },
         { "<leader>ff",  "<cmd>Telescope find_files<cr>",            desc = "find-files" },
         { "<leader>fb",  "<cmd>Telescope buffers<cr>",               desc = "buffers" },
-        { "<leader>fc",  "<cmd>Telescope lsp_document_symbols<cr>",  desc = "lsp-symbols" },
         { "<leader>fm",  "<cmd>Telescope oldfiles<cr>",              desc = "mru" },
-        { "<leader>ft",  "<cmd>Telescope lsp_document_symbols<cr>",  desc = "buf-tag" },
         { "<leader>fl",  "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "line" },
         { "<leader>fq",  "<cmd>Telescope quickfix<cr>",              desc = "quickfix" },
-        { "<leader>fx",  function()
-            require("telescope.builtin").grep_string({ only_current_buffer = true })
-          end, desc = "rg-cbuf" },
-        { "<leader>fg",  "<cmd>Telescope live_grep<cr>",             desc = "rg-global" },
-        { "<leader>fjr", "<cmd>Telescope resume<cr>",                desc = "rg-recall" },
+
+        { "<leader>fc",  "<cmd>Telescope lsp_document_symbols<cr>",  desc = "lsp-symbols" },
         { "<leader>fd",  "<cmd>Telescope lsp_definitions<cr>",       desc = "lsp-definition" },
         { "<leader>fr",  "<cmd>Telescope lsp_references<cr>",        desc = "lsp-reference" },
+        { "<leader>ft",  "<cmd>Telescope lsp_document_symbols<cr>",  desc = "buf-tag" },
+
+        { "<leader>fg",  "<cmd>Telescope live_grep<cr>",             desc = "rg-global" },
+        { "<leader>hd",  function()
+            require("telescope.builtin").grep_string({ only_current_buffer = true })
+          end, desc = "rg-cbuf" },
+        { "<leader>fj",  function()
+            require("telescope.builtin").grep_string({ default_text = vim.fn.expand("<cword>") })
+          end, desc = "rg-selection" },
+
         { "<leader>fp",  function() vim.diagnostic.jump({ count = -1 }) end,  desc = "diag-prev" },
         { "<leader>fn",  function() vim.diagnostic.jump({ count = 1 }) end,   desc = "diag-next" },
-        { "<leader>fjg", "<cmd>Telescope resume<cr>",                desc = "recall" },
       })
 
       -- ;g goto-desc（YCM→LSP）
@@ -110,28 +117,16 @@ return {
         { "<leader>gdp", vim.lsp.buf.hover,  desc = "hover-doc" },
       })
 
-      -- ;t terminal（不变）
-      wk.add({
-        { "<leader>t",  group = "terminal" },
-        { "<leader>tt", "<M-=>", desc = "toggle-terminal" },
-      })
-
       -- ;m movement（NextError→vim.diagnostic）
       wk.add({
         { "<leader>m",  group = "movement" },
         { "<leader>mn", function() vim.diagnostic.jump({ count = 1 }) end,  desc = "next-diagnostic" },
         { "<leader>mp", function() vim.diagnostic.jump({ count = -1 }) end, desc = "prev-diagnostic" },
-        { "<leader>mc", function() vim.diagnostic.open_float() end,         desc = "current-diagnostic" },
+        { "<leader>mt", function() vim.diagnostic.open_float() end,         desc = "current-diagnostic" },
         { "<leader>me", "`.",  desc = "last-edit" },
         { "<leader>mm", "`m",  desc = "to-markm" },
-      })
-
-      -- ;u tiny-functions
-      wk.add({
-        { "<leader>u",  group = "tiny-functions" },
-        { "<leader>ut", "<cmd>TableModeToggle<cr>",                desc = "table-mode" },
-        { "<leader>us", ":source $MYVIMRC<cr>",                    desc = "reload-config" },
-        { "<leader>uq", function() vim.fn.setqflist({}) end,       desc = "clean-qf" },
+        { "<leader>mc", "<Plug>SlimeCellsNext", desc = "next-cell" },
+        { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "prev-cell" },
       })
 
       -- ;c colorscheme
@@ -157,49 +152,21 @@ return {
         { "<leader>a", group = "avante" },
       })
 
-      -- ================ LocalLeader (,) Normal ================
-
-      -- ,s send-source（不变）
+      -- ;u tiny-func（不变）
       wk.add({
-        { ",s",  group = "send-source" },
-        { ",sl", "<Plug>SlimeLineSend",              desc = "send-line" },
-        { ",sc", "<Plug>SlimeSendCell",              desc = "send-cell" },
-        { ",sm", "<Plug>SlimeCellsSendAndGoToNext",  desc = "send-cell-and-move" },
-      })
+        { "<leader>u",  group = "tiny-func" },
 
-      -- ,u tiny-func（不变）
-      wk.add({
-        { ",u",  group = "tiny-func" },
-        { ",ul", desc = "list-sections" },
-        { ",uc", desc = "insert-comment" },
-        { ",ur", "<cmd>Markview toggle<cr>", desc = "toggle render" },
-      })
+        { "<leader>ur", "<cmd>Markview toggle<cr>", desc = "toggle render", },
+        { "<leader>ut", "<cmd>Tableize<cr>", desc = "tableize", mode = "x", },
+        { "<leader>ut", "<cmd>TableModeToggle<cr>", desc = "table-mode" },
+        { "<leader>us", ":source $MYVIMRC<cr>", desc = "reload-config" },
 
-      -- ,m movement（不变）
-      wk.add({
-        { ",m",  group = "movement" },
-        { ",mn", "<Plug>SlimeCellsNext", desc = "next-cell" },
-        { ",mp", "<Plug>SlimeCellsPrev", desc = "prev-cell" },
-      })
+        { "<leader>uq", function() vim.fn.setqflist({}) end, desc = "clean-qf" },
 
-      -- ================ Visual ================
-
-      wk.add({
-        { "<leader>s",  group = "send-source", mode = "v" },
-        { "<leader>sl", "<Plug>SlimeRegionSend`>", desc = "send-region", mode = "v" },
-      })
-
-      wk.add({
-        { "<leader>u",  group = "tiny-function", mode = "v" },
-        { "<leader>ut", ":Tableize<cr>", desc = "tableize", mode = "v" },
-        { "<leader>uy", desc = "copy2tmux", mode = "v" },
-      })
-
-      wk.add({
-        { "<leader>f",  group = "find", mode = "v" },
-        { "<leader>fg", function()
-            require("telescope.builtin").grep_string({ default_text = vim.fn.expand("<cword>") })
-          end, desc = "rg-selection", mode = "v" },
+        { "<leader>up", "\"+p", desc = "paste from +"},
+        { "<leader>uy", "\"+y", desc = "copy into +", mode = "x"},
+        { "<leader>uyy", "\"+yy", desc = "copy curline into +"},
+        -- { "<leader>uy", ":<C-u>'<,'>w !xargs -0 tmux set-buffer<CR><CR><C-b>:selectp -t", desc = "copy into tmux", mode = "x", silent = true },
       })
     end,
   },

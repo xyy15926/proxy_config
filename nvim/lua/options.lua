@@ -101,3 +101,21 @@ vim.opt.viewdir = vim.fn.stdpath("state") .. "/views"
 vim.opt.viewoptions = { "folds", "options", "cursor", "curdir" }
 
 vim.opt.history = 200
+
+-- Yank & Paste with win32 ----------------------------------
+-- Ref:
+-- - https://github.com/equalsraf/win32yank/releases/
+-- 1. 需要 win32yank.exe 位于 `PATH` 可被找到
+-- 2. WSL 可与 Win 正常通信
+vim.g.clipboard = {
+  name = 'win32yank',
+  copy = {
+    ['+'] = 'win32yank.exe -i --crlf',
+    ['*'] = 'win32yank.exe -i --crlf',
+  },
+  paste = {
+    ['+'] = 'win32yank.exe -o --lf',
+    ['*'] = 'win32yank.exe -o --lf',
+  },
+  cache_enabled = 0,
+}

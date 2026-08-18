@@ -6,10 +6,6 @@ vim.keymap.set("",  "<Esc>", "<Esc>:silent! nohls<CR>", { silent = true })
 vim.keymap.set("i", "KK", "<Esc>")
 vim.keymap.set("n", "K", "<Nop>")
 
-vim.keymap.set("x", "<leader>uy",
-  ":<C-u>'<,'>w !xargs -0 tmux set-buffer<CR><CR><C-b>:selectp -t",
-  { silent = true })
-
 vim.cmd([[iabbrev xtime <C-r>=strftime("%Y-%m-%d %H:%M:%S")<CR>]])
 
 -- 窗口导航 Alt+HJKL
