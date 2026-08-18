@@ -3,7 +3,7 @@
 #   Name: setup.sh
 #   Author: xyy15926
 #   Created: 2025-06-04 08:35:54
-#   Updated: 2025-12-18 19:13:40
+#   Updated: 2026-08-18 08:27:17
 #   Description:
 # ---------------------------------------------------------
 set +e
@@ -93,6 +93,10 @@ fi
 # 	pip install -i "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple" --upgrade pip
 # 	pip config set global.index-url "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 # fi
+
+# >>>>>>>>>>>>>>>>>>>>>>>>> neovim >>>>>>>>>>>>>>>>>>>>>>>>>>>
+sudo add-apt-repository ppa:neovim-ppa/stable
+sudo add-apt-repository ppa:neovim-ppa/unstable
 
 # >>>>>>>>>>>>>>>>>>>>> Vim dev environment >>>>>>>>>>>>>>>>>>>>>
 if [ -d "$ROOT/vim" ] && ! [ -e "$HOME/.vim" ] && hash vim 2>/dev/null; then
