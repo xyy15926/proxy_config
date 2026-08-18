@@ -4,6 +4,7 @@
 local M = {}
 
 local save_path = vim.fn.stdpath("data") .. "/last_colorscheme"
+local default_colorscheme = "catppuccin-mocha"
 
 -- 保存当前配色
 M.save = function(name)
@@ -36,10 +37,14 @@ end
 
 -- 自动保存
 vim.api.nvim_create_autocmd("ColorScheme", {
-  callback = function(args)
-    M.save(args.match)
-
+  callback = function()
     vim.schedule(function()
+      -- 保存：只用 vim.g.colors_name，不依赖 args.match
+      local name = vim.g.colors_name
+      if name and name ~= "" then
+        M.save(name)
+      end
+
       -- 透明背景
       if vim.g.transparent_enabled then
         local groups = {
@@ -71,6 +76,8 @@ vim.api.nvim_create_autocmd("User", {
     local saved = M.load()
     if saved then
       pcall(vim.cmd.colorscheme, saved)
+    else
+      pcall(vim.cmd.colorscheme, default_colorscheme)
     end
     vim.cmd("doautocmd ColorScheme")
   end,

@@ -141,7 +141,7 @@ return {
         { "<leader>ct", function() require("colorscheme_options").toggle_transparent() end, desc = "toggle transparent" },
       })
 
-      -- ,x overseer tasks
+      -- ;x overseer tasks
       wk.add({
         { "<leader>x",  group = "build-run" },
         { "<leader>xx", desc = "toggle task-list" },
@@ -150,6 +150,11 @@ return {
         { "<leader>xt", desc = "test" },
         { "<leader>xr", desc = "run" },
         { "<leader>xa", desc = "task action" },
+      })
+
+      -- ;a avante AI assistant（具体快捷键由 avante 默认、自行设置）
+      wk.add({
+        { "<leader>a", group = "avante" },
       })
 
       -- ================ LocalLeader (,) Normal ================
@@ -167,6 +172,7 @@ return {
         { ",u",  group = "tiny-func" },
         { ",ul", desc = "list-sections" },
         { ",uc", desc = "insert-comment" },
+        { ",ur", "<cmd>Markview toggle<cr>", desc = "toggle render" },
       })
 
       -- ,m movement（不变）

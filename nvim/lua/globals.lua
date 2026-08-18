@@ -4,7 +4,7 @@
 
 -- 格式化命令
 vim.api.nvim_create_user_command("Jsonf", function(opts)
-  local cmd = "python -c 'import json,sys,collections; sys.stdout.write(json.dumps(json.load(sys.stdin, object_pairs_hook=collections.OrderedDict), indent=2, ensure_ascii=False))'"
+  local cmd = "python3 -c 'import json,sys,collections; sys.stdout.write(json.dumps(json.load(sys.stdin, object_pairs_hook=collections.OrderedDict), indent=2, ensure_ascii=False))'"
   vim.cmd(opts.line1 .. "," .. opts.line2 .. " !" .. cmd)
 end, { range = true })
 

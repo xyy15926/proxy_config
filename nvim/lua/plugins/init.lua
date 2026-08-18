@@ -11,9 +11,9 @@ return {
   { import = "plugins.completion" },
   { import = "plugins.terminal" },
   { import = "plugins.overseer" },
-  { import = "plugins.git" },
+  { import = "plugins.avante" },
   { import = "plugins.whichkey" },
-  { 
+  {
     dir = vim.env.HOME .. "/code/corse/sop.nvim",
     name = "sop.nvim",
     lazy = false

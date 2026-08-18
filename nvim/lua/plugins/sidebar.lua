@@ -14,7 +14,22 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFile", "NvimTreeClose" },
     config = function()
+      -- 自定义 on_attach 函数
+      local function on_attach(bufnr)
+        local api = require("nvim-tree.api")
+        local function opts(desc)
+          return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+        end
+        -- 调用默认映射
+        api.config.mappings.default_on_attach(bufnr)
+        -- 覆盖或添加我们需要的映射
+        vim.keymap.set("n", "t", api.node.open.tab, opts("Open in new tab"))
+        vim.keymap.set("n", "v", api.node.open.vertical, opts("Open in vertical split"))
+        vim.keymap.set("n", "s", api.node.open.horizontal, opts("Open in horizontal split"))
+      end
+
       require("nvim-tree").setup({
+        on_attach = on_attach,
         view = { width = 25 },
         filters = {
           custom = { "__pycache__", "%.pyc$", ".egg-info" },

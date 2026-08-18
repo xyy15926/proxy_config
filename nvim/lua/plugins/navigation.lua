@@ -4,7 +4,7 @@
 --   telescope      文件导航，替代 LeaderF
 -- ============================================================
 
-local root_flags = { ".root", ".svn", ".git", ".hg", ".project", "Makefile" }
+local root_flags = require("_utils").root_flags
 
 return {
 
@@ -81,6 +81,9 @@ return {
               ["i"] = function()
                 vim.cmd("startinsert")
               end,
+              ["t"] = actions.select_tab,
+              ["v"] = actions.select_vertical,
+              ["s"] = actions.select_horizontal,
             },
           },
         },

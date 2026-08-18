@@ -9,6 +9,7 @@ return {
   {
     "catppuccin/nvim",
     name = "catppuccin",
+    event = "VeryLazy",
     priority = 1000,
     opts = {
       flavour = "mocha",
@@ -28,6 +29,7 @@ return {
   {
     "folke/tokyonight.nvim",
     priority = 1000,
+    event = "VeryLazy",
     opts = {
       style = "storm",
       transparent_background = false,
@@ -43,6 +45,7 @@ return {
   {
     "ellisonleao/gruvbox.nvim",
     priority = 1000,
+    event = "VeryLazy",
     opts = {
       contrast = "medium",
       transparent_mode = true,
@@ -62,6 +65,7 @@ return {
   {
     "rebelot/kanagawa.nvim",
     priority = 1000,
+    event = "VeryLazy",
     opts = {
       compile = false,
       theme = "wave",
@@ -73,6 +77,7 @@ return {
     "dracula/vim",
     name = "dracula",
     priority = 1000,
+    event = "VeryLazy",
   },
 
   -- ── 暗色柔和 ────────────────────────────────────────────
@@ -80,6 +85,7 @@ return {
     "rose-pine/neovim",
     name = "rose-pine",
     priority = 1000,
+    event = "VeryLazy",
     opts = {
       variant = "main",
     },
@@ -90,6 +96,7 @@ return {
     "savq/melange-nvim",
     name = "melange",
     priority = 1000,
+    event = "VeryLazy",
   },
 
   -- ── 低对比护眼 ──────────────────────────────────────────
@@ -97,12 +104,14 @@ return {
     "vague2k/vague.nvim",
     name = "vague",
     priority = 1000,
+    event = "VeryLazy",
   },
 
   -- ── Monokai 高饱和 ──────────────────────────────────────
   {
     "sainnhe/sonokai",
     priority = 1000,
+    event = "VeryLazy",
     init = function()
       vim.g.sonokai_style = "default"
       vim.g.sonokai_enable_italic = true
@@ -113,5 +122,6 @@ return {
   {
     "EdenEast/nightfox.nvim",
     priority = 1000,
+    event = "VeryLazy",
   },
 }

@@ -1,8 +1,10 @@
 local M = {}
 
+local root_flags = { '.root', '.svn', '.git', '.hg', '.project', 'Makefile' }
+M.root_flags = root_flags
+
 function M.find_project_root()
   -- vim.fs.root 自动向上查找，返回第一个匹配的目录
-  local root_flags = { '.root', '.svn', '.git', '.hg', '.project', 'Makefile' }
   return vim.fs.root(0, root_flags) or ''
 end
 
