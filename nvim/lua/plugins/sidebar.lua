@@ -13,6 +13,10 @@ return {
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFile", "NvimTreeClose" },
+    keys = {
+      -- { "<leader>nn", "<cmd>NvimTreeToggle<cr>", desc = "Toggle NvimTree" },
+      -- { "<leader>nl", "<cmd>NvimTreeFindFile<cr>", desc = "Find File in NvimTree" },
+    },
     config = function()
       -- 自定义 on_attach 函数
       local function on_attach(bufnr)
@@ -47,6 +51,9 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     cmd = { "AerialToggle" },
+    keys = {
+      { "<leader>nt", "<cmd>AerialToggle<CR>", desc = "Toggle Tag List" },
+    },
     config = function()
       require("aerial").setup({
         backends = { "lsp", "treesitter" },
@@ -60,7 +67,11 @@ return {
   },
 
   -- -------------------- mundo --------------------
-  { "simnalamburt/vim-mundo", cmd = "MundoToggle",
+  { "simnalamburt/vim-mundo",
+    cmd = "MundoToggle",
+    keys = {
+      { "<leader>nh", "<cmd>MundoToggle<CR>", desc = "Toggle Undo Tree" },
+    },
     config = function()
       vim.g.mundo_width = 30
       vim.g.mundo_preview_height = 15
@@ -70,7 +81,8 @@ return {
       vim.g.mundo_verbose_graph = 0
       vim.g.mundo_close_on_revert = 1
       vim.g.mundo_return_on_revert = 1
-    end },
+    end
+  },
 
   -- -------------------- zoom --------------------
   { "dhruvasagar/vim-zoom" },

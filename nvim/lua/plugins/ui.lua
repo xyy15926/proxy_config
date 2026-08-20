@@ -13,6 +13,8 @@
 -- 3. 可以考虑 JetBrain Nerd Font、FiraCode Nerd Font
 -- ============================================================
 
+local utils = require("_utils")
+
 return {
 
   -- -------------------- rainbow --------------------
@@ -47,41 +49,6 @@ return {
     end,
   },
 
-  -- -------------------- alpha-nvim（替代 startify）--------------------
-  {
-    "goolord/alpha-nvim",
-    lazy = false,
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      local alpha = require("alpha")
-      local dashboard = require("alpha.themes.startify")
-
-      -- 顶部按钮
-      dashboard.section.top_buttons.val = {
-        dashboard.button("e", "  New File", "<cmd>ene<CR>"),
-      }
-
-      -- 书签（startify 主题没有默认的 bookmarks section，需要自建）
-      local bookmarks = {
-        type = "group",
-        val = {
-          { type = "text", val = "Bookmarks", opts = { hl = "SpecialComment", position = "center" } },
-          { type = "padding", val = 1 },
-          dashboard.button("p", "  ~/code/proxy",        "<cmd>cd ~/code/proxy<CR>"),
-          dashboard.button("q", "  ~/code/pproxy",       "<cmd>cd ~/code/pproxy<CR>"),
-          dashboard.button("c", "  ~/code/proxy_config", "<cmd>cd ~/code/proxy_config<CR>"),
-          dashboard.button("r", "  ~/references/",       "<cmd>cd ~/references/<CR>"),
-          dashboard.button("v", "  nvim config",         "<cmd>cd ~/.config/nvim<CR>"),
-        },
-      }
-
-      -- 插入到 section 列表中（MRU 之后、sessions 之后）
-      table.insert(dashboard.config.layout, 4, bookmarks)
-
-      alpha.setup(dashboard.config)
-    end,
-  },
-
   -- -------------------- markview.nvim（MD 渲染插件）--------------------
   -- 渲染效果、对齐、语法高亮优于 render-markdown
   {
@@ -105,6 +72,9 @@ return {
       vim.g.table_mode_update_time = 100
       vim.g.table_mode_disable_mappings = 1
       vim.g.table_mode_disable_tableize_mappings = 1
+      -- 必须显式手动解绑
+      pcall(vim.keymap.del, "n", "<leader>tt")
+      pcall(vim.keymap.del, "n", "<leader>tm")
     end
   },
 
@@ -124,20 +94,24 @@ return {
         },
         on_attach = function(bufnr)
           local gs = package.loaded.gitsigns
-          local opts = { buffer = bufnr }
+
+          -- 工厂函数帮忙补充 `desc`
+          local function opts(desc)
+            return { buffer = bufnr, silent = true, desc = desc }
+          end
 
           -- 跳转 hunk
-          vim.keymap.set("n", "]h", gs.next_hunk,     opts)
-          vim.keymap.set("n", "[h", gs.prev_hunk,     opts)
+          vim.keymap.set("n", "]h", gs.next_hunk,     opts("Next Hunk"))
+          vim.keymap.set("n", "[h", gs.prev_hunk,     opts("Prev Hunk"))
 
           -- 操作
-          vim.keymap.set("n", "<leader>hp", gs.preview_hunk,  opts)
-          vim.keymap.set("n", "<leader>hs", gs.stage_hunk,    opts)
-          vim.keymap.set("n", "<leader>hr", gs.reset_hunk,    opts)
-          vim.keymap.set("n", "<leader>hu", gs.undo_stage_hunk, opts)
-          vim.keymap.set("n", "<leader>hb", gs.blame_line,    opts)
-          vim.keymap.set("v", "<leader>hs", function() gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts)
-          vim.keymap.set("v", "<leader>hr", function() gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts)
+          vim.keymap.set("n", "<leader>hp", gs.preview_hunk,  opts("Preview Hunk"))
+          vim.keymap.set("n", "<leader>hs", gs.stage_hunk,    opts("Stage Hunk"))
+          vim.keymap.set("n", "<leader>hr", gs.reset_hunk,    opts("Reset Hunk"))
+          vim.keymap.set("n", "<leader>hu", gs.undo_stage_hunk, opts("Undo Stage Hunk"))
+          vim.keymap.set("n", "<leader>hb", gs.blame_line,    opts("Blame Line"))
+          vim.keymap.set("v", "<leader>hs", function() gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts("Stage Hunk Line"))
+          vim.keymap.set("v", "<leader>hr", function() gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts("Reset Hunk Line"))
         end,
       })
     end,

@@ -42,6 +42,15 @@ vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.autoindent = true
 vim.opt.smartindent = true
+-- 针对少数语言特殊设置
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "lua", "javascript", "typescript", "json", "yaml", "html", "css" },
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.softtabstop = 2
+  end,
+})
 
 -- Line display
 vim.opt.breakindent = true
@@ -119,3 +128,6 @@ vim.g.clipboard = {
   },
   cache_enabled = 0,
 }
+
+-- nvim 0.11+ 恢复 E325，禁止 W325 静默忽略交换文件、直接打开
+vim.cmd("autocmd! nvim.swapfile")

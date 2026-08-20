@@ -1,14 +1,17 @@
 -- ============================================================
--- colorscheme_options.lua
+-- colorscheme_switch.lua
 -- ============================================================
 local M = {}
 
-local save_path = vim.fn.stdpath("data") .. "/last_colorscheme"
-local default_colorscheme = "catppuccin-mocha"
+M.defaults = {
+  save_path = vim.fn.stdpath("data") .. "/last_colorscheme",
+  default_colorscheme = "catppuccin-mocha",
+  transparent_enabled = true,
+}
 
 -- 保存当前配色
 M.save = function(name)
-  local f = io.open(save_path, "w")
+  local f = io.open(M.opts.save_path, "w")
   if f then
     f:write(name)
     f:close()
@@ -17,7 +20,7 @@ end
 
 -- 读取保存的配色
 M.load = function()
-  local f = io.open(save_path, "r")
+  local f = io.open(M.opts.save_path, "r")
   if not f then return nil end
   local saved = f:read("*a")
   f:close()
@@ -69,18 +72,26 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   end,
 })
 
--- 启动时恢复配色
-vim.api.nvim_create_autocmd("User", {
-  pattern = "VeryLazy",
-  callback = function()
-    local saved = M.load()
-    if saved then
-      pcall(vim.cmd.colorscheme, saved)
-    else
-      pcall(vim.cmd.colorscheme, default_colorscheme)
-    end
-    vim.cmd("doautocmd ColorScheme")
-  end,
-})
+function M.setup(opts)
+  M.opts = vim.tbl_deep_extend("force", {}, M.defaults, opts or {})
+
+  -- 启动时恢复配色
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "VeryLazy",
+    callback = function()
+      local saved = M.load()
+      if saved then
+        pcall(vim.cmd.colorscheme, saved)
+      else
+        pcall(vim.cmd.colorscheme, M.opts.default_colorscheme)
+      end
+      vim.cmd("doautocmd ColorScheme")
+    end,
+  })
+
+  vim.g.transparent_enabled = M.opts.transparent_enabled
+  -- vim.keymap.set("n", "<leader>cc", "<cmd>Telescope colorscheme<CR>", { desc = "🎨 Switch ColorScheme" })
+  vim.keymap.set("n", "<leader>ct", M.toggle_transparent, { desc = "Toggle Transparent" })
+end
 
 return M

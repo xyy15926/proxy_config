@@ -20,12 +20,14 @@ require("options")
 require("keymaps")
 require("autocmds")
 require("globals")
+require("users.markdown_todo")
+require("users.heading_file")
 
 -- 此处设置 `plugins` 将扫描、导入 `plugins/*.lua` 模块
 -- 即，`plugins/init.lua` 中无需 `import` lua 文件模块，仅需 `import` 文件夹
 require("lazy").setup("plugins", {
   defaults = { lazy = false, version = false },
-  install = { colorscheme = { "gruvbox" } },    -- 仅用于制定首次安装插件时的配色
+  install = { colorscheme = { "catppuccin-mocha" } },    -- 仅用于制定首次安装插件时的配色
   checker = { enabled = false },
   change_detection = { enabled = true, notify = false },
   performance = {
@@ -39,5 +41,4 @@ require("lazy").setup("plugins", {
   },
 })
 
-require("colorscheme_options")
-vim.g.transparent_enabled = true
+require("users.colorscheme_switch").setup()

@@ -11,6 +11,9 @@ return {
   {
     "mfussenegger/nvim-lint",
     event = { "BufReadPost", "BufWritePost" },
+    keys = {
+      { "<leader>ss", function() require("lint").try_lint() end, desc = "Lint" },
+    },
     config = function()
       local lint = require("lint")
       lint.linters_by_ft = {
@@ -30,6 +33,9 @@ return {
   {
     "stevearc/conform.nvim",
     event = "BufWritePre",
+    keys = {
+      { "<leader>sf", function() require("conform").format({ async = true }) end, desc = "Format" },
+    },
     config = function()
       require("conform").setup({
         formatters_by_ft = {

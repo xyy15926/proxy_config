@@ -21,14 +21,3 @@ vim.keymap.set("i", "<M-K>", "<Esc><C-w>k")
 -- Terminal
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
 
--- 错误/诊断导航（替代原 NextError/PreviousError/CurrentError）
-vim.keymap.set("n", ";mn", function() vim.diagnostic.jump({ count = 1 }) end,
-  { desc = "next-diagnostic" })
-vim.keymap.set("n", ";mp", function() vim.diagnostic.jump({ count = -1 }) end,
-  { desc = "prev-diagnostic" })
-vim.keymap.set("n", ";mc", function() vim.diagnostic.open_float() end,
-  { desc = "current-diagnostic" })
-
--- ColorScheme 切换
-vim.keymap.set("n", "<leader>cc", "<cmd>Telescope colorscheme<CR>",
-  { desc = "🎨 切换配色" })

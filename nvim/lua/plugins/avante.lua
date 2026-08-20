@@ -12,6 +12,7 @@ return {
   event = "VeryLazy",
   version = false,
   opts = {
+    log_level = "info",
     instructions_file = "avante.md",    -- file containing specific instructions for your project
     provider = "openrouter",
     auto_suggestions_provider = "openrouter",
@@ -99,7 +100,7 @@ return {
     "MunifTanjim/nui.nvim",
     "nvim-telescope/telescope.nvim",
     "hrsh7th/nvim-cmp",
-    -- reader-markdown 效果不如 markview，此处删除对 markdown 文件支持
+    -- reader-markdown 效果不如 markview，此处删除对 markdown 文件的启用
     {
       "MeanderingProgrammer/render-markdown.nvim",
       opts = { file_types = { "Avante" } },

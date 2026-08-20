@@ -10,7 +10,22 @@ local root_flags = require("_utils").root_flags
 return {
 
   -- -------------------- slime（保留）--------------------
-  { "jpalardy/vim-slime", ft = { "python", "sh" }, pin = true,
+  {
+    "jpalardy/vim-slime",
+    ft = { "python", "sh" },
+    pin = true,
+    keys = {
+      -- `<Plug>` 可视为是 "虚拟目标按键“，插件内部将 `<Plug>xxxx` 绑定到某个函数、命令
+      -- 后续，可以自由再将其他按键绑定到 `<Plug>xxxx`
+      -- 故此时必须设置 `remap = true`？
+      -- 但，事实上此处设置 `remap = false` 依然工作，之前在 Vim 中也是如此
+      { "<leader>sl", "<Plug>SlimeLineSend", desc = "Send Line", remap = true },
+      { "<leader>sc", "<Plug>SlimeSendCell", desc = "Send Cell", remap = true },
+      { "<leader>sm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
+      { "<leader>sl", "<Plug>SlimeRegionSend", desc = "Send Region", mode = "x", remap = true },
+      { "<leader>mc", "<Plug>SlimeCellsNext", desc = "Next Cell", remap = true },
+      { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "Prev Cell", remap = true },
+    },
     config = function()
       vim.g.slime_target = "neovim"
       vim.g.slime_cell_delimiter = "^#\\s*%%"
@@ -19,7 +34,8 @@ return {
         term_name = "vterm", term_cols = 70, vertical = 2, norestore = 1,
       }
       vim.g.slime_no_mappings = 1
-    end },
+    end
+  },
 
   -- -------------------- vim-slime-cells（保留）--------------------
   { "Klafyvel/vim-slime-cells", ft = { "python", "sh" }, pin = true },
