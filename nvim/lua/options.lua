@@ -97,7 +97,7 @@ vim.opt.backup = true
 vim.opt.backupext = ".bak"
 vim.opt.backupdir = vim.fn.stdpath("state") .. "/backup//"
 
-vim.opt.undofile = true
+vim.opt.undofile = false  -- 禁止 undo 持久化
 vim.opt.undodir = vim.fn.stdpath("state") .. "/undo//"
 
 vim.opt.swapfile = true

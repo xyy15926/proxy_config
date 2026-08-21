@@ -101,10 +101,10 @@ return {
     "nvim-telescope/telescope.nvim",
     "hrsh7th/nvim-cmp",
     -- reader-markdown 效果不如 markview，此处删除对 markdown 文件的启用
-    {
-      "MeanderingProgrammer/render-markdown.nvim",
-      opts = { file_types = { "Avante" } },
-      ft = { "Avante" },
-    },
+    -- {
+    --   "MeanderingProgrammer/render-markdown.nvim",
+    --   opts = { file_types = { "Avante" } },
+    --   ft = { "Avante" },
+    -- },
   },
 }

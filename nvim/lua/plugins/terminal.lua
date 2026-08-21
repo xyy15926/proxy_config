@@ -5,7 +5,7 @@
 --   vim-terminal-help      切换显示 terminal，配合 vim-slime
 -- ============================================================
 
-local root_flags = require("_utils").root_flags
+local root_flags = require("_utils").opts.root_flags
 
 return {
 

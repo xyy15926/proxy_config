@@ -4,7 +4,7 @@
 --   telescope      文件导航，替代 LeaderF
 -- ============================================================
 
-local root_flags = require("_utils").root_flags
+local root_flags = require("_utils").opts.root_flags
 
 return {
 

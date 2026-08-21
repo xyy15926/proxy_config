@@ -35,10 +35,10 @@ end
 M.toggle_transparent = function()
   vim.g.transparent_enabled = not vim.g.transparent_enabled
   vim.cmd.colorscheme(vim.g.colors_name)
-  vim.notify("透明背景: " .. (vim.g.transparent_enabled and "开" or "关"))
+  vim.notify("Transparent BG: " .. (vim.g.transparent_enabled and "On" or "Off"))
 end
 
--- 自动保存
+-- 自动保存 Colorscheme
 vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()
     vim.schedule(function()
@@ -81,10 +81,19 @@ function M.setup(opts)
     callback = function()
       local saved = M.load()
       if saved then
-        pcall(vim.cmd.colorscheme, saved)
+        -- 显式加载模块，colorscheme 插件均默认不加载
+        -- 1. `saved:match("^([^%-]+)")` 用以提取包含 flavour 的 colorscheme 
+        --   的模块名，如`catppuccin-mocha` 中模块名 `catppuccin`
+        pcall(require, saved:match("^([^%-]+)"))
       else
-        pcall(vim.cmd.colorscheme, M.opts.default_colorscheme)
+        saved = M.opts.default_colorscheme
       end
+      -- vim.cmd.colorscheme(saved)
+      local ok, err = pcall(vim.cmd.colorscheme, saved) -- pcall 捕获加载问题
+      if not ok then
+        vim.notify("Colorscheme " .. saved .. " failed: " .. err, vim.log.levls.ERROR)
+      end
+      -- 手动触发 `ColorScheme` 事件，确保 transparent_enabled 生效
       vim.cmd("doautocmd ColorScheme")
     end,
   })
