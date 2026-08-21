@@ -2,8 +2,6 @@
 -- snacks.dashboard config
 -- =======================================================
 
-local utils = require("_utils")
-
 return {
   enabled = true,
   width = 60,           -- 内容总宽度
@@ -26,7 +24,7 @@ return {
     -- 快捷按键列表（按这里定义的顺序显示）
     keys = {
       { icon = " ", key = "f", desc = "Find File",       action = ":lua Snacks.dashboard.pick('files')" },
-      { icon = " ", key = "t", desc = "Today",           action = ":edit" .. utils.today_note() },
+      { icon = " ", key = "t", desc = "Today",           action = ":edit" .. require("users.daily_todo").weekly_todo() },
       { icon = " ", key = "n", desc = "New File",        action = ":ene | startinsert" },
       { icon = " ", key = "r", desc = "Recent Files",    action = ":lua Snacks.dashboard.pick('recent')" },
       { icon = " ", key = "g", desc = "Find Text",       action = ":lua Snacks.dashboard.pick('grep')" },

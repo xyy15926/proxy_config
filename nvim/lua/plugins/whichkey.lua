@@ -67,7 +67,7 @@ return {
       { "<leader>up", "\"+p", desc = "paste from +" },
       { "<leader>uo", "o<esc>\"+p", desc = "newline paate" },
       -- { "<leader>uy", "\"+y", desc = "copy into +", mode = "x" },
-      { "<leader>uy", require("_utils").yank_without_indent, desc = "copy into +", mode = "x" },
+      -- { "<leader>uy", require("_utils").yank_without_indent, desc = "copy into +", mode = "x" },
       { "<leader>uyy", "\"+yy", desc = "copy curline into +" },
     },
   },

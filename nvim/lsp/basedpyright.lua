@@ -28,8 +28,9 @@ return {
     -- local pixi_python = cwd .. "/.pixi/envs/default/bin/python"
     -- if vim.fn.filereadable(pixi_python) == 1 then
     local utils = require("_utils")
+    local pyenv = require("users.pyenv")
     local root = utils.find_project_root()
-    if utils.has_pixi(root) then
+    if pyenv.has_pixi(root) then
       local pixi_python = root .. "/.pixi/envs/default/bin/python"
       client.config.settings.python.pythonPath = pixi_python
       client:notify("workspace/didChangeConfiguration", {

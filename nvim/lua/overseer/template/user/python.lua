@@ -2,7 +2,9 @@
 -- ~/.config/nvim/lua/overseer/template/user/python.lua
 -- overseer 任务模板
 -- =======================================================
+
 local utils = require("_utils")
+local pyenv = require("users.pyenv")
 
 -- 查找对应测试文件（对应原 TestPython 的测试发现逻辑）
 local function find_test_file(root, abspath)
@@ -42,7 +44,7 @@ return {
       desc = "Run current Python file (pixi-aware)",
       tags = { "RUN", "PYTHON" },
       builder = function()
-        local cmd = utils.pixify({ "python3", abspath }, root)
+        local cmd = pyenv.pixify({ "python3", abspath }, root)
         return {
           cmd = cmd,
           cwd = root,
@@ -61,7 +63,7 @@ return {
       desc = "Build Python project with python -m build (pixi-aware)",
       tags = { "BUILD", "PYTHON" },
       builder = function()
-        local cmd = utils.pixify({ "python3", "-m", "build" }, root)
+        local cmd = pyenv.pixify({ "python3", "-m", "build" }, root)
         return {
           cmd = cmd,
           cwd = root,
@@ -78,7 +80,7 @@ return {
         desc = "Run pytest (pixi-aware, auto-discovers test files)",
         tags = { "TEST", "PYTHON" },
         builder = function()
-          local cmd = utils.pixify({ "pytest", target }, root)
+          local cmd = pyenv.pixify({ "pytest", target }, root)
           return {
             cmd = cmd,
             cwd = root,
