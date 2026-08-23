@@ -12,7 +12,7 @@ return {
   event = "VeryLazy",
   version = false,
   opts = {
-    log_level = "info",
+    log_level = vim.log.levels.WARN,
     instructions_file = "avante.md",    -- file containing specific instructions for your project
     provider = "openrouter",
     auto_suggestions_provider = "openrouter",

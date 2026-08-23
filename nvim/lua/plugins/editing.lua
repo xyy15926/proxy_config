@@ -2,7 +2,6 @@
 -- editing.lua
 --   nvim-lint          替代 ALE lint
 --   conform            替代 ALE fix
---   vim-commentary     移除（Neovim 0.10+ 内置 gc）
 -- ============================================================
 
 return {
@@ -65,4 +64,28 @@ return {
   --     })
   --   end,
   -- },
+
+  {
+    "L3MON4D3/LuaSnip",
+    version = "v2.*",  -- 推荐 v2 稳定版
+    build = "make install_jsregexp",  -- 可选：支持正则变换
+    -- dependencies = { "rafamadriz/friendly-snippets" },  -- 可选，VSCode JSON 风格预设 Snippnet
+    keys = {
+      { "<C-j>", function() require("luasnip").jump(1) end, desc = "Next Node", mode = { "i", "s" }, silent = true },
+      { "<C-k>", function() require("luasnip").jump(-1) end, desc = "Prev Node", mode = { "i", "s" }, silent = true },
+      { "<C-l>", function() require("luasnip").change_choice(1) end, desc = "Next Snip", mode = { "i", "s" }, silent = true },
+    },
+    config = function()
+      local ls = require("luasnip")
+      ls.setup({
+        history = true,               -- 允许跳转回之前的 insert 节点
+        updateevents = "TextChanged,TextChangedI",
+        enable_autosnippets = true,   -- 启用自动触发（比如输入 `date` 自动展开）
+      })
+      -- require("luasnip.loaders.from_vscode").lazy_load() -- 加载 friendly-snippets 的 vscode 格式片段
+      -- 1. `lazy_load` 将根据文件类型加载对应类型文件：可搭配命令式、或声明式配置
+      -- 2. `load` 将加载目录下所有文件：此时不应搭配声明式配置，否则所有配置对所有文件均生效
+      require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/lua/snippets/" })
+    end,
+  }
 }

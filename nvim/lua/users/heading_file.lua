@@ -5,88 +5,91 @@ local header_group = vim.api.nvim_create_augroup("heading_file", { clear = true 
 vim.api.nvim_create_autocmd("BufNewFile", {
   group = header_group,
   pattern = { "*.py", "*.rs", "*.c", "*.cpp", "*.h", "*.sh", "*.java", "*.scala", "*.vim", "*.md" },
-  callback = function()
-    local file = vim.fn.expand("%:t")
-    local xtime = os.date("%Y-%m-%d %H:%M:%S")
-    local author = "xyy15926"
-    local ft = vim.bo.filetype
+  callback = function()       -- Neovim 中 filetype 设置在此 autocmd 后执行，直接执行则 `ft` 为空值
+    vim.schedule(function()   -- 故需再包装一层 `vim.schedule` 确保文件完全打开后执行
+      local file = vim.fn.expand("%:t")
+      local xtime = os.date("%Y-%m-%d %H:%M:%S")
+      local author = "xyy15926"
+      local ft = vim.bo.filetype
 
-    local lines = {}
+      local lines = {}
 
-    if ft == "python" then
-      lines = {
-        "#!/usr/bin/env python3",
-        "# ---------------------------------------------------------",
-        "#   Name: " .. file,
-        "#   Author: " .. author,
-        "#   Created: " .. xtime,
-        "#   Updated: " .. xtime,
-        "#   Description:",
-        "# ---------------------------------------------------------",
-      }
-    elseif ft == "vim" then
-      lines = {
-        '" ---------------------------------------------------------',
-        '"   Name: ' .. file,
-        '"   Author: ' .. author,
-        '"   Created: ' .. xtime,
-        '"   Updated: ' .. xtime,
-        '"   Description:',
-        '" ---------------------------------------------------------',
-      }
-    elseif ft == "rust" then
-      lines = {
-        "// ---------------------------------------------------------",
-        "//  Name: " .. file,
-        "//  Author: " .. author,
-        "//  Created: " .. xtime,
-        "//  Updated: " .. xtime,
-        "//  Description:",
-        "// ---------------------------------------------------------",
-      }
-    elseif ft == "cpp" or ft == "c" or ft == "scala" or ft == "java" then
-      lines = {
-        "/*",
-        " * ---------------------------------------------------------",
-        " *  Name: " .. file,
-        " *  Author: " .. author,
-        " *  Created: " .. xtime,
-        " *  Updated: " .. xtime,
-        " *  Description:",
-        " * ---------------------------------------------------------",
-        " */",
-      }
-    elseif ft == "sh" then
-      lines = {
-        "#!/usr/bin/env shell",
-        "# ---------------------------------------------------------",
-        "#   Name: " .. file,
-        "#   Author: " .. author,
-        "#   Created: " .. xtime,
-        "#   Updated: " .. xtime,
-        "#   Description:",
-        "# ---------------------------------------------------------",
-      }
-    elseif ft == "markdown" or ft == "pandoc" then
-      lines = {
-        "---",
-        "title: ",
-        "categories:",
-        "  - ",
-        "tags:",
-        "  - ",
-        "date: " .. xtime,
-        "updated: " .. xtime,
-        "toc: true",
-        "mathjax: true",
-        "description: ",
-        "---",
-      }
-    end
+      if ft == "python" then
+        lines = {
+          "#!/usr/bin/env python3",
+          "# ---------------------------------------------------------",
+          "#   Name: " .. file,
+          "#   Author: " .. author,
+          "#   Created: " .. xtime,
+          "#   Updated: " .. xtime,
+          "#   Description:",
+          "# ---------------------------------------------------------",
+        }
+      elseif ft == "vim" then
+        lines = {
+          '" ---------------------------------------------------------',
+          '"   Name: ' .. file,
+          '"   Author: ' .. author,
+          '"   Created: ' .. xtime,
+          '"   Updated: ' .. xtime,
+          '"   Description:',
+          '" ---------------------------------------------------------',
+        }
+      elseif ft == "rust" then
+        lines = {
+          "// ---------------------------------------------------------",
+          "//  Name: " .. file,
+          "//  Author: " .. author,
+          "//  Created: " .. xtime,
+          "//  Updated: " .. xtime,
+          "//  Description:",
+          "// ---------------------------------------------------------",
+        }
+      elseif ft == "cpp" or ft == "c" or ft == "scala" or ft == "java" then
+        lines = {
+          "/*",
+          " * ---------------------------------------------------------",
+          " *  Name: " .. file,
+          " *  Author: " .. author,
+          " *  Created: " .. xtime,
+          " *  Updated: " .. xtime,
+          " *  Description:",
+          " * ---------------------------------------------------------",
+          " */",
+        }
+      elseif ft == "sh" then
+        lines = {
+          "#!/usr/bin/env shell",
+          "# ---------------------------------------------------------",
+          "#   Name: " .. file,
+          "#   Author: " .. author,
+          "#   Created: " .. xtime,
+          "#   Updated: " .. xtime,
+          "#   Description:",
+          "# ---------------------------------------------------------",
+        }
+      elseif ft == "markdown" or ft == "pandoc" then
+        print(ft)
+        lines = {
+          "---",
+          "title: ",
+          "categories:",
+          "  - ",
+          "tags:",
+          "  - ",
+          "date: " .. xtime,
+          "updated: " .. xtime,
+          "toc: true",
+          "mathjax: true",
+          "description: ",
+          "---",
+        }
+      end
 
-    if #lines > 0 then
-      vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
-    end
+      if #lines > 0 then
+        vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+      end
+    end)
   end,
 })
 

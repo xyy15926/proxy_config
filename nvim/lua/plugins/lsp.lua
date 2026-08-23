@@ -79,11 +79,20 @@ return {
       end,
     })
 
+    -- =================================================================
+    -- `vim.lsp.config`、`vim.lsp.enable` 是 neovim 0.11 的新增机制
+    --
+    -- 1. `vim.lsp.config(<lang>, ...)` 为语言 lang 配置 LSP
+    -- 2. `vim.lsp.enable(<lang>)` 为语言 lang 启用 LSP 后，neovim 会自动将
+    --   `vim.lsp.config`、各 `runtimepath` 下 `lsp/<lang>.lua` 合并
+    -- 3. 下述 `vim.lsp.config` 配置已被分散至对应 lua 文件中，同时已配置
+    --   `mason-lspconfig` 自动为相应语言调用 `vim.lsp.enable` 启用 LSP
+    -- =================================================================
+
     -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
     -- local utils = require("_utils")
     -- local lspconfig = require("lspconfig")
-
-    -- 下述由 `mason-lspconfig` 自动加载 `nvim/lsp` 目录下文件自动配置替代
+    -- 
     -- vim.lsp.config("lua_ls",{
     --   capabilities = capabilities,
     --   settings = {
