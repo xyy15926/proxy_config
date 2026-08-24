@@ -77,6 +77,7 @@ function M.setup(opts)
 
   -- 启动时恢复配色
   vim.api.nvim_create_autocmd("User", {
+    group = vim.api.nvim_create_augroup("colorscheme_switch", { clear = true }),
     pattern = "VeryLazy",
     callback = function()
       local saved = M.load()

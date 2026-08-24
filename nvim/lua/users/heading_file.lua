@@ -1,116 +1,59 @@
+-- ============================================================
+-- heading_file.lua
+--
 -- 自动添加文件头 + 保存时更新时间
+-- ============================================================
 
-local header_group = vim.api.nvim_create_augroup("heading_file", { clear = true })
+local M = {}
 
-vim.api.nvim_create_autocmd("BufNewFile", {
-  group = header_group,
-  pattern = { "*.py", "*.rs", "*.c", "*.cpp", "*.h", "*.sh", "*.java", "*.scala", "*.vim", "*.md" },
-  callback = function()       -- Neovim 中 filetype 设置在此 autocmd 后执行，直接执行则 `ft` 为空值
-    vim.schedule(function()   -- 故需再包装一层 `vim.schedule` 确保文件完全打开后执行
-      local file = vim.fn.expand("%:t")
-      local xtime = os.date("%Y-%m-%d %H:%M:%S")
-      local author = "xyy15926"
-      local ft = vim.bo.filetype
+M.defaults = {
+  file_ptns = { "*.py", "*.rs", "*.c", "*.cpp", "*.h", "*.sh", "*.java", "*.scala", "*.vim", "*.md", "*.lua" },
+}
+M.opts = vim.deepcopy(M.defaults)
 
-      local lines = {}
+-- 检查文件前 lineno 行，更新 `Updated`、`updated` 引导的时间戳
+function M.update_timestamp(lineno)
+  local buf = vim.api.nvim_get_current_buf()
+  local total = vim.api.nvim_buf_line_count(buf)
+  local limit = math.min(lineno or 30, total)
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, limit, false)
+  local now = os.date("%Y-%m-%d %H:%M:%S")
+  local ts_pattern = "%d%d%d%d%-%d%d%-%d%d %d%d:%d%d:%d%d"
 
-      if ft == "python" then
-        lines = {
-          "#!/usr/bin/env python3",
-          "# ---------------------------------------------------------",
-          "#   Name: " .. file,
-          "#   Author: " .. author,
-          "#   Created: " .. xtime,
-          "#   Updated: " .. xtime,
-          "#   Description:",
-          "# ---------------------------------------------------------",
-        }
-      elseif ft == "vim" then
-        lines = {
-          '" ---------------------------------------------------------',
-          '"   Name: ' .. file,
-          '"   Author: ' .. author,
-          '"   Created: ' .. xtime,
-          '"   Updated: ' .. xtime,
-          '"   Description:',
-          '" ---------------------------------------------------------',
-        }
-      elseif ft == "rust" then
-        lines = {
-          "// ---------------------------------------------------------",
-          "//  Name: " .. file,
-          "//  Author: " .. author,
-          "//  Created: " .. xtime,
-          "//  Updated: " .. xtime,
-          "//  Description:",
-          "// ---------------------------------------------------------",
-        }
-      elseif ft == "cpp" or ft == "c" or ft == "scala" or ft == "java" then
-        lines = {
-          "/*",
-          " * ---------------------------------------------------------",
-          " *  Name: " .. file,
-          " *  Author: " .. author,
-          " *  Created: " .. xtime,
-          " *  Updated: " .. xtime,
-          " *  Description:",
-          " * ---------------------------------------------------------",
-          " */",
-        }
-      elseif ft == "sh" then
-        lines = {
-          "#!/usr/bin/env shell",
-          "# ---------------------------------------------------------",
-          "#   Name: " .. file,
-          "#   Author: " .. author,
-          "#   Created: " .. xtime,
-          "#   Updated: " .. xtime,
-          "#   Description:",
-          "# ---------------------------------------------------------",
-        }
-      elseif ft == "markdown" or ft == "pandoc" then
-        print(ft)
-        lines = {
-          "---",
-          "title: ",
-          "categories:",
-          "  - ",
-          "tags:",
-          "  - ",
-          "date: " .. xtime,
-          "updated: " .. xtime,
-          "toc: true",
-          "mathjax: true",
-          "description: ",
-          "---",
-        }
-      end
-
-      if #lines > 0 then
-        vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
-      end
-    end)
-  end,
-})
-
-vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
-  group = header_group,
-  pattern = { "*.py", "*.rs", "*.c", "*.cpp", "*.h", "*.sh", "*.java", "*.scala", "*.vim", "*.md" },
-  callback = function()
-    local update_time = os.date("%Y-%m-%d %H:%M:%S")
-    local lineno = 6
-    while lineno < 100 do
-      local ok, line = pcall(vim.api.nvim_buf_get_lines, 0, lineno - 1, lineno, false)
-      if not ok or #line == 0 then break end
-      line = line[1]
-      if line:sub(5):match("Updated") then
-        vim.api.nvim_buf_set_lines(0, lineno - 1, lineno, false, { line:sub(1, 4) .. "Updated: " .. update_time })
-        break
-      elseif line:match("updated") then
-        vim.api.nvim_buf_set_lines(0, lineno - 1, lineno, false, { "updated: " .. update_time })
-        break
-      end
-      lineno = lineno + 1
+  for i, line in ipairs(lines) do
+    if line:match("[Uu]pdated") and line:match(ts_pattern) then
+      local new_line = line:gsub(ts_pattern, now, 1)
+      vim.api.nvim_buf_set_lines(buf, i - 1, i, false, { new_line })
+      break
     end
-  end,
-})
+  end
+end
+
+function M.setup(opts)
+  M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
+
+  local header_group = vim.api.nvim_create_augroup("heading_file", { clear = true })
+
+  vim.api.nvim_create_autocmd("BufNewFile", {
+    group = header_group,
+    pattern = M.opts.file_ptns,
+    callback = function()           -- Neovim 中 filetype 设置在此 autocmd 后执行，直接执行则 `ft` 为空值
+      vim.schedule(function()       -- 故需再包装一层 `vim.schedule` 确保文件完全打开后执行
+        local ls = require("luasnip")
+        local ft = vim.bo.filetype  -- 所有文件类型的首个 snippets 均为文件模板
+        if ls.get_snippets(ft)[1] then
+          ls.snip_expand(ls.get_snippets(ft)[1])
+        end
+      end)
+    end,
+  })
+
+  vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
+    group = header_group,
+    pattern = M.opts.file_ptns,
+    callback = function() M.update_timestamp(30) end,
+  })
+
+end
+
+return M

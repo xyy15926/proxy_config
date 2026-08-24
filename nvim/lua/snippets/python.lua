@@ -210,6 +210,22 @@ return {                              -- 声明式风格配置
   }),
 
   -- 模块相关
+  s("reload", {
+    t({
+      "if __name__ == \"__main__\":",
+      "    from importlib import reload",
+      "",
+    }),
+    t({
+      "",
+      "    from "
+    }), i(1, "package"), t({ " import " }), i(2, "mod"),
+    t({
+      "",
+      "    reload(",
+    }), i(3, "mod"), t(")"),
+  }),
+
   s("logging", {
     t({
       "import logging",

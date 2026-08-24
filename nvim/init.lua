@@ -23,8 +23,12 @@ require("options")
 require("keymaps")
 require("autocmds")
 require("globals")
-require("users.markdown_todo")
-require("users.heading_file")
+require("users.markdown_todo").setup({
+  convert = true,
+})
+require("users.heading_file").setup({
+  file_ptns = { "*.py", "*.rs", "*.c", "*.cpp", "*.h", "*.sh", "*.java", "*.scala", "*.vim", "*.md", "*.lua" },
+})
 require("users.yank2gclip").setup({
   win32yank = "/mnt/d/win32yank/win32yank.exe",
 })
