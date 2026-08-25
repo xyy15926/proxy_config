@@ -6,7 +6,9 @@
 return {
   "neovim/nvim-lspconfig",
   event = { "BufReadPre", "BufNewFile" },
-  dependencies = { "hrsh7th/cmp-nvim-lsp" },
+  dependencies = {
+    "saghen/blink.cmp",
+  },
   config = function()
     -- 诊断外观
     vim.diagnostic.config({
@@ -67,8 +69,9 @@ return {
         vim.keymap.set("n", "gf", vim.diagnostic.open_float, opts("Open Diagnostic"))
 
         -- 信息
-        vim.keymap.set("i", "<C-l>", vim.lsp.buf.signature_help, opts("Toggle Signature Help"))
-        vim.keymap.set("n", "<leader>sk",   vim.lsp.buf.hover, opts("Hover"))
+        -- `vim.lsp.buf.signature_help` 包含 doc 且无法 toggle
+        vim.keymap.set("i", "<C-l>", vim.lsp.buf.signature_help, opts("Signature Help"))
+        vim.keymap.set("n", "<leader>sk", vim.lsp.buf.hover, opts("Hover"))
         local client = vim.lsp.get_client_by_id(args.data.client_id)
         if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
           vim.keymap.set("n", "<leader>sh", function()
@@ -78,6 +81,17 @@ return {
 
       end,
     })
+
+    -- 一次性设置默认 capabilities，后续所有 LSP server 自动继承
+    local lspconfig = require('lspconfig')
+    local capabilities = require('blink.cmp').get_lsp_capabilities()
+    -- local capabilities = require("cmp_nvim_lsp").default_capabilities(),
+    lspconfig.util.default_config = vim.tbl_deep_extend(
+      'force',
+      lspconfig.util.default_config,
+      { capabilities = capabilities }
+    )
+
 
     -- =================================================================
     -- `vim.lsp.config`、`vim.lsp.enable` 是 neovim 0.11 的新增机制

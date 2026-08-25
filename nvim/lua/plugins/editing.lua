@@ -73,13 +73,15 @@ return {
     keys = {
       { "<C-j>", function() require("luasnip").jump(1) end, desc = "Next Node", mode = { "i", "s" }, silent = true },
       { "<C-k>", function() require("luasnip").jump(-1) end, desc = "Prev Node", mode = { "i", "s" }, silent = true },
-      { "<C-l>", function() require("luasnip").change_choice(1) end, desc = "Next Snip", mode = { "i", "s" }, silent = true },
+      -- { "<C-l>", function() require("luasnip").change_choice(1) end, desc = "Next Snip", mode = { "i", "s" }, silent = true },
     },
     config = function()
       local ls = require("luasnip")
       ls.setup({
-        history = true,               -- 允许跳转回之前的 insert 节点
+        history = false,              -- 允许在事件检查后删除 snippets，否则永远可以跳转
         updateevents = "TextChanged,TextChangedI",
+        delete_check_events = "TextChanged,InsertLeave",  -- 事件触发时，检查 snippets 外内容是否变动，变动则删除 snippet
+        -- region_check_events = "InsertEnter",              -- 事件触发时，**检查光标**，若光标离开 snippet 区域则不活跃
         enable_autosnippets = true,   -- 启用自动触发（比如输入 `date` 自动展开）
       })
       -- require("luasnip.loaders.from_vscode").lazy_load() -- 加载 friendly-snippets 的 vscode 格式片段

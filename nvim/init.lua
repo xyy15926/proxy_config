@@ -27,13 +27,34 @@ require("users.markdown_todo").setup({
   convert = true,
 })
 require("users.heading_file").setup({
-  file_ptns = { "*.py", "*.rs", "*.c", "*.cpp", "*.h", "*.sh", "*.java", "*.scala", "*.vim", "*.md", "*.lua" },
+  file_ptns = {
+    "*.py",
+    "*.rs",
+    "*.lua",
+    "*.c", "*.cpp", "*.h",
+    "*.sh",
+    "*.java", "*.scala",
+    "*.vim",
+    "*.md",
+  },
 })
 require("users.yank2gclip").setup({
   win32yank = "/mnt/d/win32yank/win32yank.exe",
 })
 require("users.daily_todo").setup({
   todo_base = vim.fn.expand("~/files.md/gtd"),
+})
+require("users.alignment").setup({
+  min_spaces = 2,       -- 代码与注释之间至少保留的空格数
+  search_range = 5,     -- 上下搜索的行数范围
+  auto_align = true,    -- 退出 Insert 自动对齐
+  auto_fts = {
+    "*.py",
+    "*.rs",
+    "*.lua",
+    "*.c", "*.cpp", "*.h",
+    "*.sh",
+  }
 })
 
 -- 此处设置 `plugins` 将扫描、导入 `plugins/*.lua` 模块

@@ -15,7 +15,7 @@ return {
     log_level = vim.log.levels.WARN,
     instructions_file = "avante.md",    -- file containing specific instructions for your project
     provider = "openrouter",
-    auto_suggestions_provider = "openrouter",
+    auto_suggestions_provider = false,
     providers = {
       claude = {
         endpoint = "https://api.anthropic.com",

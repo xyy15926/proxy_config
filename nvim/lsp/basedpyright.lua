@@ -8,7 +8,7 @@
 -- ==================================================
 
 return {
-  capabilities = require("cmp_nvim_lsp").default_capabilities(),
+  -- capabilities = require("cmp_nvim_lsp").default_capabilities(),
   cmd = {"basedpyright-langserver", "--stdio"},
   -- cmd = { "pixi", "run", "basedpyright-langserver", "--stdio" },
   settings = {

@@ -103,7 +103,7 @@ function M.setup(opts)
       -- neovim 0.11+ 新 API 实现：绑定快捷键 toggle 选取的每行
       vim.keymap.set("x", "<leader>ud", function()
         local region = vim.fn.getregionpos(
-          vim.fn.getpos("V"), vim.fn.getpos("."), { type = "v", inclusive = true }
+          vim.fn.getpos("v"), vim.fn.getpos("."), { type = "V", inclusive = true }
         )
         local start_line = region[1][1][2]      -- 第一个位置的行号
         local end_line   = region[#region][2][2] -- 最后一个位置的行号

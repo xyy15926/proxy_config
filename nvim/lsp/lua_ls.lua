@@ -7,7 +7,7 @@
 --  `require(...)`。（或者不拆分）
 -- ==================================================
 return {
-  capabilities = require("cmp_nvim_lsp").default_capabilities(),
+  -- capabilities = require("cmp_nvim_lsp").default_capabilities(),
   settings = {
     Lua = {
       workspace = { checkThirdParty = false },

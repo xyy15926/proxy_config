@@ -8,14 +8,22 @@
 -- ==================================================
 
 return {
-  capabilities = require("cmp_nvim_lsp").default_capabilities(),
+  -- capabilities = require("cmp_nvim_lsp").default_capabilities(),
   settings = {
     ["rust-analyzer"] = {
-      checkOnSave = { command = "clippy" },
+      checkOnSave = true, -- 默认就是 true，可省略
+      check = {
+        command = "clippy",
+        -- extraArgs = { "--", "-W", "clippy::pedantic" }, -- 可选
+      },
       inlayHints = {
-        parameterHints = { enable = true },
+        -- 新版 rust-analyzer 的 inlayHints 配置项如下：
+        bindingModeHints = { enable = true },
+        closureReturnTypeHints = { enable = true },
+        lifetimeElisionHints = { enable = true },
+        parameterNames = { enable = true },
         typeHints = { enable = true },
-        chainingHints = { enable = true },
+        chainingHints = { enable = true }, -- 新版中可能已合并到 typeHints
       },
     },
   },
