@@ -81,13 +81,9 @@ function M.setup(opts)
     "Convert to Todo Item",
     "converted to todo items"
   )
-  -- vim.api.nvim_create_user_command("ToggleTodo", function(args)
-  --   utils.apply_on_1range_lines(args.line1, args.line2, M.toggle_line_todo)
-  -- end, { range = true, nargs = 0, desc = "Range 操作 Toggle" })
 
   if M.opts.set_keymap then
-    vim.keymap.set("n", "<leader>ud", ":ToggleTodo<cr>", { buffer = true, silent = true, desc = "Toggle Markdown Todo" })
-    vim.keymap.set("v", "<leader>ud", ":ToggleTodo<cr>", { buffer = true, silent = true, desc = "Toggle Markdown Todo" })
+    vim.keymap.set( { "n", "v" }, "<leader>ud", ":ToggleTodo<cr>", { silent = true, desc = "Toggle Markdown Todo" })
   end
 end
 

@@ -81,7 +81,15 @@ return {
 
       end,
     })
-
+    -- =================================================================
+    -- `vim.lsp.config`、`vim.lsp.enable` 是 neovim 0.11 的新增机制
+    --
+    -- 1. `vim.lsp.config(<lang>, ...)` 为语言 lang 配置 LSP
+    -- 2. `vim.lsp.enable(<lang>)` 为语言 lang 启用 LSP 后，neovim 会自动将
+    --   `vim.lsp.config`、各 `runtimepath` 下 `lsp/<lang>.lua` 合并
+    -- 3. 各语言 `vim.lsp.config` 配置已被分散至对应 lua 文件中，同时已配置
+    --   `mason-lspconfig` 自动为相应语言调用 `vim.lsp.enable` 启用 LSP
+    -- =================================================================
     -- 一次性设置默认 capabilities，后续所有 LSP server 自动继承
     local lspconfig = require('lspconfig')
     local capabilities = require('blink.cmp').get_lsp_capabilities()
@@ -92,81 +100,6 @@ return {
       { capabilities = capabilities }
     )
 
-
-    -- =================================================================
-    -- `vim.lsp.config`、`vim.lsp.enable` 是 neovim 0.11 的新增机制
-    --
-    -- 1. `vim.lsp.config(<lang>, ...)` 为语言 lang 配置 LSP
-    -- 2. `vim.lsp.enable(<lang>)` 为语言 lang 启用 LSP 后，neovim 会自动将
-    --   `vim.lsp.config`、各 `runtimepath` 下 `lsp/<lang>.lua` 合并
-    -- 3. 下述 `vim.lsp.config` 配置已被分散至对应 lua 文件中，同时已配置
-    --   `mason-lspconfig` 自动为相应语言调用 `vim.lsp.enable` 启用 LSP
-    -- =================================================================
-
-    -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
-    -- local utils = require("_utils")
-    -- local lspconfig = require("lspconfig")
-    -- 
-    -- vim.lsp.config("lua_ls",{
-    --   capabilities = capabilities,
-    --   settings = {
-    --     Lua = {
-    --       workspace = { checkThirdParty = false },
-    --       telemetry = { enable = false },
-    --       diagnostics = { globals = { "vim" } },
-    --     },
-    --   },
-    -- })
-    --
-    -- vim.lsp.config("basedpyright",{
-    --   capabilities = capabilities,
-    --   cmd = {"basedpyright-langserver", "--stdio"},
-    --   -- cmd = { "pixi", "run", "basedpyright-langserver", "--stdio" },
-    --   settings = {
-    --     basedpyright = {
-    --       analysis = {
-    --         typeCheckingMode = "basic",
-    --         autoSearchPaths = true,
-    --         useLibraryCodeForTypes = true,
-    --       },
-    --     },
-    --     python = {},
-    --   },
-    --   -- 指定解释器路径，否则须在目录根目录通过 `pyrightconfig.json` 指定
-    --   -- 或者，如前述 `cmd` 配置，直接在 `pixi run` 启动 LSP 服务器
-    --   on_init = function(client)
-    --     -- local cwd = vim.fn.getcwd()
-    --     -- local pixi_python = cwd .. "/.pixi/envs/default/bin/python"
-    --     -- if vim.fn.filereadable(pixi_python) == 1 then
-    --     local root = utils.find_project_root()
-    --     if utils.has_pixi(root) then
-    --       local pixi_python = root .. "/.pixi/envs/default/bin/python"
-    --       client.config.settings.python.pythonPath = pixi_python
-    --       client:notify("workspace/didChangeConfiguration", {
-    --         settings = client.config.settings,
-    --       })
-    --     end
-    --   end,
-    -- })
-    --
-    -- vim.lsp.config("clangd",{
-    --   capabilities = capabilities,
-    --   cmd = { "clangd", "--background-index", "--clang-tidy", "--header-insertion=never" },
-    -- })
-    --
-    -- vim.lsp.config("rust_analyzer",{
-    --   capabilities = capabilities,
-    --   settings = {
-    --     ["rust-analyzer"] = {
-    --       checkOnSave = { command = "clippy" },
-    --       inlayHints = {
-    --         parameterHints = { enable = true },
-    --         typeHints = { enable = true },
-    --         chainingHints = { enable = true },
-    --       },
-    --     },
-    --   },
-    -- })
   end,
 }
 

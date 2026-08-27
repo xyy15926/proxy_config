@@ -63,11 +63,17 @@ vim.api.nvim_create_autocmd("ColorScheme", {
         end
       end
 
-      -- vim-slime-cells 分割线
-      vim.api.nvim_set_hl(0, "CellBoundary", {
-        underline = true,
-        sp = 0xe8a043,
-      })
+      -- 设置 vim-slime Cells 分割线
+      vim.api.nvim_set_hl(0, "CellBoundary", { underline = true, sp = "#E8A043" })
+
+      -- 设置 rainbow-delimiters 括号颜色循环
+      vim.api.nvim_set_hl(0, "RainbowDelimiterRed",    { fg = "#E06C75" })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterYellow",  { fg = "#E5C07B" })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterBlue",   { fg = "#61AFEF" })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterOrange", { fg = "#D19A66" })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterGreen",  { fg = "#98C379" })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterViolet", { fg = "#C678DD" })
+      vim.api.nvim_set_hl(0, "RainbowDelimiterCyan",   { fg = "#56B6C2" })
     end)
   end,
 })

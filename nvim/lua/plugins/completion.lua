@@ -87,6 +87,7 @@ return {
           "hide_signature",
         },
         ["<C-k>"] = false,                -- 将 <C-k> 从 toggle-sign 解绑，还给 Snipnets 的 next-node
+        ["<Tab>"] = false,                -- 将 <Tab> 从 snip-forward 解绑
       },
       appearance = {
         nerd_font_variant = "mono",       -- 图标样式："mono" 或 "normal"

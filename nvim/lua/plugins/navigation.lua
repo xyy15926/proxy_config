@@ -4,23 +4,7 @@
 --   telescope      文件导航，替代 LeaderF
 -- ============================================================
 
-local root_flags = require("_utils").opts.root_flags
-
 return {
-
-  -- -------------------- vim-rooter（保留）--------------------
-  {
-    "airblade/vim-rooter",
-    lazy = false,
-    config = function()
-      vim.g.rooter_targets = "/,*"
-      vim.g.rooter_buftypes = { "" }
-      vim.g.rooter_patterns = root_flags
-      vim.g.rooter_change_directory_for_non_project_files = "current"
-    end,
-  },
-
-  -- -------------------- telescope（替代 LeaderF）--------------------
   {
     "nvim-telescope/telescope.nvim",
     -- tag = "0.1.8",

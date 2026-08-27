@@ -5,10 +5,7 @@
 --   vim-terminal-help      切换显示 terminal，配合 vim-slime
 -- ============================================================
 
-local root_flags = require("_utils").opts.root_flags
-
 return {
-
   -- -------------------- slime（保留）--------------------
   {
     "jpalardy/vim-slime",
@@ -46,7 +43,7 @@ return {
     pin = true,
     lazy = false,
     config = function()
-      vim.g.terminal_rootmarkers = root_flags
+      vim.g.terminal_rootmarkers = require("users.rooter").opts.root_flags
       vim.g.terminal_key = "<m-=>"
       vim.g.terminal_default_mapping = 1
       vim.g.terminal_cwd = 2
@@ -75,16 +72,5 @@ return {
       ]])
     end,
   },
-
-  -- -------------------- asyncrun（保留）--------------------
-  -- {
-  --   "skywind3000/asyncrun.vim",
-  --   ft = { "python", "cpp", "c", "rust" },
-  --   config = function()
-  --     vim.g.asyncrun_open = 8
-  --     vim.g.asyncrun_bell = 0
-  --     vim.g.asyncrun_rootmarks = root_flags
-  --   end,
-  -- },
 
 }

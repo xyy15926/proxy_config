@@ -3,7 +3,7 @@
 -- overseer 任务模板
 -- =======================================================
 
-local utils = require("_utils")
+local rooter = require("users.rooter")
 local pyenv = require("users.pyenv")
 
 -- 查找对应测试文件（对应原 TestPython 的测试发现逻辑）
@@ -32,7 +32,7 @@ end
 --   `python`，可能导致任务一直 PENDING
 return {
   generator = function(search)
-    local root = utils.find_project_root()
+    local root = rooter.find_project_root()
 
     local tasks = {}
     local abspath = vim.fn.expand("%:p")
@@ -97,7 +97,7 @@ return {
   condition = {
     filetype = { "python" },
     -- callback = function(search)
-    --   return utils.find_project_root() ~= ""
+    --   return rooter.find_project_root() ~= ""
     -- end,
   },
 }

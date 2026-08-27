@@ -70,6 +70,10 @@ return {
     version = "v2.*",  -- 推荐 v2 稳定版
     build = "make install_jsregexp",  -- 可选：支持正则变换
     -- dependencies = { "rafamadriz/friendly-snippets" },  -- 可选，VSCode JSON 风格预设 Snippnet
+    opts = {
+      enable_autosnippets = false,      -- 禁止自动插入
+      store_selection_keys = "<C-q>",   -- 可视模式下存取文本快捷键，后续可用于填充 snippet
+    },
     keys = {
       { "<C-j>", function() require("luasnip").jump(1) end, desc = "Next Node", mode = { "i", "s" }, silent = true },
       { "<C-k>", function() require("luasnip").jump(-1) end, desc = "Prev Node", mode = { "i", "s" }, silent = true },

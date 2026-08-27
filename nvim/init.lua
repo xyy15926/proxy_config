@@ -16,15 +16,16 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("_utils").setup({
-  root_flags = { '.root', '.svn', '.git', '.hg', '.project', 'Makefile' },
-})
 require("options")
 require("keymaps")
 require("autocmds")
 require("globals")
+require("users.rooter").setup({
+  root_flags = { ".root", ".svn", ".git", ".hg", ".project", "Makefile" },
+  file_ptns = "*",
+})
 require("users.markdown_todo").setup({
-  convert = true,
+  set_keymap = true,
 })
 require("users.heading_file").setup({
   file_ptns = {

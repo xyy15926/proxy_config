@@ -67,7 +67,6 @@ end
 
 --  对可视选区内文本逐行应用 `func`、修改内容
 --  若行内容改变，则整体写回，否则保持不变
----@deprecated Use apply_on_1range_lines or register_range_command instead
 ---@param func function 将被逐行应用的函数
 ---@param msg? string 执行完成后的提示信息
 function M.apply_on_visual_range_lines(func, msg)

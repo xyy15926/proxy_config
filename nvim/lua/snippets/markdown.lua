@@ -4,7 +4,6 @@
 -- 1. 采用声明式风格配置，或许适合被其他 Snippets 文件引用？
 -- ========================================================
 
-local utils = require("_utils")
 local ls = require("luasnip")
 local daily = require("users.daily_todo")
 local s = ls.snippet
@@ -14,7 +13,7 @@ local f = ls.function_node
 
 -- local filename = function() return vim.fn.expand("%:t") end
 local now      = function() return os.date("%Y-%m-%d %H:%M:%S") end
-local author   = function() return os.getenv("USER") or "Author" end
+local author   = os.getenv("USER") or "Author"
 local basename = function() return vim.fn.expand("%:t:r") end
 local monday   = daily.get_week_date(1)
 
@@ -26,7 +25,7 @@ return {                              -- 声明式风格配置
     t({ "", "title: " }), i(1, basename()),
     t({ "", "categories:", "  - "}), i(2, "cat1"),
     t({ "", "tags:", "  - "}), i(3, "tag1"),
-    t({ "", "author: " }), i(4, utils.author or author()),
+    t({ "", "author: " }), i(4, author),
     t({ "", "date: " }), f(now),
     t({ "", "updated: " }), f(now),
     t({ "", "mathjax: true" }),

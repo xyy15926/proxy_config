@@ -27,9 +27,9 @@ return {
     -- local cwd = vim.fn.getcwd()
     -- local pixi_python = cwd .. "/.pixi/envs/default/bin/python"
     -- if vim.fn.filereadable(pixi_python) == 1 then
-    local utils = require("_utils")
+    local rooter = require("users.rooter")
     local pyenv = require("users.pyenv")
-    local root = utils.find_project_root()
+    local root = rooter.find_project_root()
     if pyenv.has_pixi(root) then
       local pixi_python = root .. "/.pixi/envs/default/bin/python"
       client.config.settings.python.pythonPath = pixi_python

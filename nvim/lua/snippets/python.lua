@@ -4,7 +4,6 @@
 -- 1. 采用声明式风格配置，或许适合被其他 Snippets 文件引用？
 -- ========================================================
 
-local utils = require("_utils")
 local ls = require("luasnip")
 local s = ls.snippet
 local t = ls.text_node
@@ -13,7 +12,7 @@ local f = ls.function_node
 
 local filename = function() return vim.fn.expand("%:t") end
 local now      = function() return os.date("%Y-%m-%d %H:%M:%S") end
-local author   = function() return os.getenv("USER") or "Author" end
+local author   = os.getenv("USER") or "Author"
 
 -- ls.add_snippets("python",  {})     -- 命令式风格配置
 return {                              -- 声明式风格配置
@@ -21,16 +20,16 @@ return {                              -- 声明式风格配置
   s("heading", {
     t({
       "#!/usr/bin/env python3",
-      "# =========================================================",
+      "# ===========================================================================",
     }),
     t({ "", "# File    : " }), f(filename),
-    t({ "", "# Author  : " }), i(1, utils.author or author()),
+    t({ "", "# Author  : " }), i(1, author),
     t({ "", "# Created : " }), f(now),
     t({ "", "# Updated : " }), f(now),
     t({ "", "# Desc    : " }), i(2, "TODO"),
     t({
       "",
-      "# =========================================================",
+      "# ===========================================================================",
       "",
     }),
     t({
