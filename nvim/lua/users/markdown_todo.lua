@@ -5,13 +5,47 @@
 local M = {}
 
 M.defaults = {
-  convert = true
+  set_keymap = true,
 }
 
 M.opts = vim.deepcopy(M.defaults)
+local utils = require("users.utils")
 
--- 将行文本转换为 `[]` todo 项、切换状态
-function M.toggle_line_todo(line, convert)
+-- ===========================================================================
+--    ToDo 项转换、状态切换
+-- ===========================================================================
+-- 将行文本转换为 `[]` todo 项
+function M.convert_line_todo(line)
+  local new_line = line
+
+  -- 1. 普通列表项转 todo：- item -> - [ ] item
+  if new_line == line then
+    new_line = line:gsub("^([%s]*[-*+][%s]+)([^%[].*)$", function(prefix, content)
+      return prefix .. "[ ] " .. content
+    end)
+  end
+
+  -- 2. 有序列表转 todo：1. item -> 1. [ ] item
+  if new_line == line then
+    new_line = line:gsub("^([%s]*%d+%.[%s]+)([^%[].*)$", function(prefix, content)
+      return prefix .. "[ ] " .. content
+    end)
+  end
+
+  -- 3. 纯文本转 todo：item -> - [ ] item
+  if new_line == line then
+    local indent = line:match("^%s*") or ""
+    local content = line:sub(#indent + 1)
+    if content ~= "" then
+      new_line = indent .. "- [ ] " .. content
+    end
+  end
+  return new_line
+
+end
+
+-- Toggle todo 项状态
+function M.toggle_line_todo(line)
   local new_line = line
 
   -- 1. 已有 checkbox 则切换：- [ ] <-> - [x]
@@ -26,104 +60,35 @@ function M.toggle_line_todo(line, convert)
     end)
   end
 
-  if convert then
-    -- 3. 普通列表项转 todo：- item -> - [ ] item
-    if new_line == line then
-      new_line = line:gsub("^([%s]*[-*+][%s]+)([^%[].*)$", function(prefix, content)
-        return prefix .. "[ ] " .. content
-      end)
-    end
-
-    -- 4. 有序列表转 todo：1. item -> 1. [ ] item
-    if new_line == line then
-      new_line = line:gsub("^([%s]*%d+%.[%s]+)([^%[].*)$", function(prefix, content)
-        return prefix .. "[ ] " .. content
-      end)
-    end
-
-    -- 5. 纯文本转 todo：item -> - [ ] item
-    if new_line == line then
-      local indent = line:match("^%s*") or ""
-      local content = line:sub(#indent + 1)
-      if content ~= "" then
-        new_line = indent .. "- [ ] " .. content
-      end
-    end
-  end
   return new_line
 end
 
+-- ===========================================================================
+--   配置、初始化
+-- ===========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
 
-  vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("markdown_todo", { clear = true }),
-    pattern = "markdown",
-    callback = function(args)
+  utils.register_range_command(
+    M.toggle_line_todo,
+    "ToggleTodo",
+    "Toggle Todo Item",
+    "toggled"
+  )
+  utils.register_range_command(
+    M.convert_line_todo,
+    "Convert2Todo",
+    "Convert to Todo Item",
+    "converted to todo items"
+  )
+  -- vim.api.nvim_create_user_command("ToggleTodo", function(args)
+  --   utils.apply_on_1range_lines(args.line1, args.line2, M.toggle_line_todo)
+  -- end, { range = true, nargs = 0, desc = "Range 操作 Toggle" })
 
-      -- 绑定快捷键 toggle 当前行
-      vim.keymap.set("n", "<leader>ud", function()
-        local line = vim.api.nvim_get_current_line()
-        local new_line = M.toggle_line_todo(line, M.opts.convert)
-        if new_line ~= line then
-          vim.api.nvim_set_current_line(new_line)
-        end
-      end, { buffer = args.buf, desc = "Toggle Markdown Todo" })
-
-      -- 绑定快捷键 toggle 选取的每行
-      -- vim.keymap.set("x", "<leader>ud", function()
-      --   -- 获取可视选区范围（0-indexed）
-      --   local start_line = vim.fn.line("v") - 1
-      --   local end_line   = vim.fn.line(".") - 1
-      --
-      --   if start_line > end_line then
-      --     start_line, end_line = end_line, start_line
-      --   end
-      --
-      --   local lines = vim.api.nvim_buf_get_lines(0, start_line, end_line + 1, false)
-      --   local changed = false
-      --
-      --   for i, line in ipairs(lines) do
-      --     local new_line = M.toggle_line_todo(line, M.opts.convert)
-      --     if new_line ~= line then
-      --       lines[i] = new_line
-      --       changed = true
-      --     end
-      --   end
-      --
-      --   if changed then
-      --     vim.api.nvim_buf_set_lines(0, start_line, end_line + 1, false, lines)
-      --   end
-      --
-      --   vim.api.nvim_feedkeys(
-      --     vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false
-      --   )
-      -- end, { desc = "Toggle Markdown Todos" })
-
-      -- neovim 0.11+ 新 API 实现：绑定快捷键 toggle 选取的每行
-      vim.keymap.set("x", "<leader>ud", function()
-        local region = vim.fn.getregionpos(
-          vim.fn.getpos("v"), vim.fn.getpos("."), { type = "V", inclusive = true }
-        )
-        local start_line = region[1][1][2]      -- 第一个位置的行号
-        local end_line   = region[#region][2][2] -- 最后一个位置的行号
-
-        local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-
-        for i, line in ipairs(lines) do
-          lines[i] = M.toggle_line_todo(line, M.opts.convert)
-        end
-
-        vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, lines)
-        -- 手动退出可视状态
-        vim.api.nvim_feedkeys(
-          vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false
-        )
-      end, { desc = "Toggle Markdown Todos" })
-    end,
-
-  })
-
+  if M.opts.set_keymap then
+    vim.keymap.set("n", "<leader>ud", ":ToggleTodo<cr>", { buffer = true, silent = true, desc = "Toggle Markdown Todo" })
+    vim.keymap.set("v", "<leader>ud", ":ToggleTodo<cr>", { buffer = true, silent = true, desc = "Toggle Markdown Todo" })
+  end
 end
 
 return M

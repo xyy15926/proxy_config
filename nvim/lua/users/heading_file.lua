@@ -7,7 +7,14 @@
 local M = {}
 
 M.defaults = {
-  file_ptns = { "*.py", "*.rs", "*.c", "*.cpp", "*.h", "*.sh", "*.java", "*.scala", "*.vim", "*.md", "*.lua" },
+  file_ptns = {
+    "*.py",
+    "*.rs",
+    "*.lua",
+    "*.md",
+    "*.c", "*.cpp", "*.h",
+    "*.sh",
+  },
 }
 M.opts = vim.deepcopy(M.defaults)
 

@@ -2,7 +2,7 @@
 -- File    : alignment.lua
 -- Author  : xyy15926
 -- Created : 2026-08-24 22:14:09
--- Updated : 2026-08-25 10:13:39
+-- Updated : 2026-08-26 10:31:00
 -- Desc    : 对齐注释、逗号等
 -- =========================================================
 
@@ -13,7 +13,7 @@ M.defaults = {
   min_spaces = 2,       -- 代码与注释之间至少保留的空格数
   search_range = 5,     -- 上下搜索的行数范围
   auto_align = false,   -- 退出 Insert 自动对齐
-  auto_fts = {
+  auto_file_ptns = {
     "*.py",
     "*.rs",
     "*.lua",
@@ -67,8 +67,8 @@ function M.split_inline_comment(line, marker)
   if not line or line:match("^%s*$") then
     return nil, nil
   end
-  local esc = vim.pesc(marker)
-  local start_pos = line:find(esc, 1, true)
+  -- local esc = vim.pesc(marker)               -- 无需转义
+  local start_pos = line:find(marker, 1, true)  -- 此处 `true` 表示纯文本匹配，转义反而不对
   if not start_pos then
     return nil, nil
   end
@@ -310,7 +310,7 @@ function M.setup(opts)
   if opts.auto_align then
     vim.api.nvim_create_autocmd({ "InsertLeave" }, {
       group = group,
-      pattern = M.opts.auto_fts,
+      pattern = M.opts.auto_file_ptns,
       callback = function(args)
         M.align_current_line_auto()
       end,
