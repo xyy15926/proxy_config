@@ -42,8 +42,8 @@ return {
         vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts("Goto Definition"))
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts("Goto Declaration"))
         vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts("Goto Implementation"))
-        vim.keymap.set("n", "]d", function() vim.diagnostic.jump( { count = 1 }) end, opts("Next Diagnostic"))
-        vim.keymap.set("n", "[d", function() vim.diagnostic.jump( { count = -1 }) end, opts("Prev Diagnostic"))
+        -- vim.keymap.set("n", "]d", function() vim.diagnostic.jump( { count = 1 }) end, opts("Next Diagnostic"))
+        -- vim.keymap.set("n", "[d", function() vim.diagnostic.jump( { count = -1 }) end, opts("Prev Diagnostic"))
         -- 信息
         vim.keymap.set("n", "K", vim.lsp.buf.hover, opts("Hover"))
         pcall(vim.keymap.del, "n", "K", { buffer = bufnr })
@@ -55,6 +55,8 @@ return {
         -- =============================================================
 
         -- 跳转
+        vim.keymap.set("n", "<leader>mj", function() vim.diagnostic.jump( { count = 1 }) end, opts("Next Diagnostic"))
+        vim.keymap.set("n", "<leader>mk", function() vim.diagnostic.jump( { count = -1 }) end, opts("Prev Diagnostic"))
         vim.keymap.set("n", "gy",   vim.lsp.buf.type_definition, opts("Goto Type Definition"))
         -- vim.keymap.set("n", "gg", function()
         --   vim.cmd("tab split")
@@ -71,10 +73,10 @@ return {
         -- 信息
         -- `vim.lsp.buf.signature_help` 包含 doc 且无法 toggle
         vim.keymap.set("i", "<C-l>", vim.lsp.buf.signature_help, opts("Signature Help"))
-        vim.keymap.set("n", "<leader>sk", vim.lsp.buf.hover, opts("Hover"))
+        vim.keymap.set("n", "<leader>hh", vim.lsp.buf.hover, opts("Hover"))
         local client = vim.lsp.get_client_by_id(args.data.client_id)
         if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-          vim.keymap.set("n", "<leader>sh", function()
+          vim.keymap.set("n", "<leader>hk", function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }))
           end, opts("Toggle Inlay Hints" ))
         end

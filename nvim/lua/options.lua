@@ -1,6 +1,10 @@
--- ============================================================
--- options.lua
--- ============================================================
+-- ==========================================================================
+-- File    : options.lua
+-- Author  : xyy1926
+-- Created : 2026-08-28 19:35:09
+-- Updated : 2026-08-28 19:37:36
+-- Desc    : Options
+-- ==========================================================================
 
 -- Appearance -----------------------------------------------
 vim.opt.number = true
@@ -114,3 +118,12 @@ vim.opt.history = 200
 
 -- nvim 0.11+ 恢复 E325，禁止 W325 静默忽略交换文件、直接打开
 vim.cmd("autocmd! nvim.swapfile")
+
+-- Important key mappings!!!
+vim.g.mapleader = ";"
+vim.g.maplocalleader = ","
+vim.keymap.set("",  "<Esc>", "<Esc>:silent! nohls<CR>", { silent = true })
+vim.keymap.set("i", "KK", "<Esc>", { desc = "to-normal" })
+vim.keymap.set("n", "K", "<Nop>", { desc = "mask-K" })
+-- 终端模式无法通过 `<Esc>` 返回 normal 模式
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "to-normal" })

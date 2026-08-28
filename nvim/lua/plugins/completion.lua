@@ -69,7 +69,7 @@ return {
 
   {
     'saghen/blink.cmp',
-    version = "1.*",                      -- blink.cmp 的 2.* 版本问题太多了，甚至连 accept 后光标位置都有问题
+    version = "1.*",                      -- blink.cmp 的 2.* 版本问题太多了，包括：accept 后光标位置都有问题、实时插入预览文本
     dependencies = {
       "L3MON4D3/LuaSnip",                 -- LusSnip 可选支持，替代内置 `mini.snippets`
     },
@@ -102,7 +102,7 @@ return {
         list = {
           selection = {
             preselect = true,
-            auto_insert = true,           -- 不实时插入预览文本，有 bug
+            auto_insert = false,          -- 不实时插入预览文本
           },
         },
         documentation = {
@@ -117,7 +117,7 @@ return {
             },
           },
         },
-        ghost_text = { enabled = true },  -- 选中即接受（ghost text）
+        ghost_text = { enabled = false }, -- 选中即接受（ghost text）
       },
       signature = {                       -- 函数签名（参数）提示，默认 `<c-k>` toggle
         enabled = true,

@@ -2,9 +2,6 @@
 -- init.lua
 -- ============================================================
 
-vim.g.mapleader = ";"
-vim.g.maplocalleader = ","
-
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -16,46 +13,11 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- require("keymaps")
+-- require("autocmds")
+-- require("globals")
 require("options")
-require("keymaps")
-require("autocmds")
-require("globals")
-require("users.rooter").setup({
-  root_flags = { ".root", ".svn", ".git", ".hg", ".project", "Makefile" },
-  file_ptns = "*",
-})
-require("users.markdown_todo").setup({
-  set_keymap = true,
-})
-require("users.heading_file").setup({
-  file_ptns = {
-    "*.py",
-    "*.rs",
-    "*.lua",
-    "*.md",
-    "*.c", "*.cpp", "*.h",
-    "*.sh",
-  },
-})
-require("users.yank2gclip").setup({
-  win32yank = "/mnt/d/win32yank/win32yank.exe",
-})
-require("users.daily_todo").setup({
-  todo_base = vim.fn.expand("~/files.md/gtd"),
-})
-require("users.alignment").setup({
-  min_spaces = 2,      -- 代码与注释之间至少保留的空格数
-  search_range = 10,   -- 上下搜索的行数范围
-  auto_align = false,  -- 退出 Insert 自动对齐
-  auto_file_ptns = {
-    "*.py",
-    "*.rs",
-    "*.lua",
-    "*.c", "*.cpp", "*.h",
-    "*.sh",
-  }
-})
-require("users.mark_jump").setup({ set_keymap = true })
+require("users.init")
 
 -- 此处设置 `plugins` 将扫描、导入 `plugins/*.lua` 模块
 -- 即，`plugins/init.lua` 中无需 `import` lua 文件模块，仅需 `import` 文件夹
@@ -73,8 +35,4 @@ require("lazy").setup("plugins", {
       },
     },
   },
-})
-
-require("users.colorscheme_switch").setup({
-  transparent_enabled = true,
 })

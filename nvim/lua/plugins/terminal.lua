@@ -16,12 +16,12 @@ return {
       -- 后续，可以自由再将其他按键绑定到 `<Plug>xxxx`
       -- 故此时必须设置 `remap = true`？
       -- 但，事实上此处设置 `remap = false` 依然工作，之前在 Vim 中也是如此
-      { "<leader>sl", "<Plug>SlimeLineSend", desc = "Send Line", remap = true },
-      { "<leader>sc", "<Plug>SlimeSendCell", desc = "Send Cell", remap = true },
-      { "<leader>sm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
-      { "<leader>sl", "<Plug>SlimeRegionSend", desc = "Send Region", mode = "x", remap = true },
-      { "<leader>mc", "<Plug>SlimeCellsNext", desc = "Next Cell", remap = true },
-      { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "Prev Cell", remap = true },
+      { "<leader>rl", "<Plug>SlimeLineSend", desc = "Send Line", remap = true },
+      { "<leader>rc", "<Plug>SlimeSendCell", desc = "Send Cell", remap = true },
+      { "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
+      { "<leader>rl", "<Plug>SlimeRegionSend", desc = "Send Region", mode = "x", remap = true },
+      -- { "<leader>mc", "<Plug>SlimeCellsNext", desc = "Next Cell", remap = true },
+      -- { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "Prev Cell", remap = true },
     },
     config = function()
       vim.g.slime_target = "neovim"

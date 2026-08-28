@@ -2,13 +2,12 @@
 -- File    : alignment.lua
 -- Author  : xyy15926
 -- Created : 2026-08-24 22:14:09
--- Updated : 2026-08-26 10:31:00
+-- Updated : 2026-08-28 22:20:31
 -- Desc    : 对齐注释、逗号等
 -- =========================================================
 
 local M = {}
 
--- 默认配置
 M.defaults = {
   min_spaces = 2,       -- 代码与注释之间至少保留的空格数
   search_range = 5,     -- 上下搜索的行数范围
@@ -21,8 +20,20 @@ M.defaults = {
     "*.sh",
   }
 }
-
 M.opts = vim.deepcopy(M.defaults)
+
+-- 常见语言 fallback
+local marker_map = {
+  c = "//", cpp = "//", java = "//", javascript = "//", typescript = "//",
+  javascriptreact = "//", typescriptreact = "//", jsonc = "//",
+  rust = "//", go = "//", kotlin = "//", swift = "//", csharp = "//",
+  php = "//", scala = "//", dart = "//",
+  lua = "--", sql = "--", haskell = "--",
+  python = "#", ruby = "#", perl = "#", sh = "#", bash = "#", zsh = "#",
+  yaml = "#", toml = "#", conf = "#", dockerfile = "#", makefile = "#",
+  r = "#",
+  vim = '"', dosini = ";", ini = ";",
+}
 
 -- ============================================================================
 -- 1. 获取当前代码类型的行内注释分隔符
@@ -43,20 +54,7 @@ function M.get_comment_marker()
       end
     end
   end
-
-  -- 常见语言 fallback
-  local map = {
-    c = "//", cpp = "//", java = "//", javascript = "//", typescript = "//",
-    javascriptreact = "//", typescriptreact = "//", jsonc = "//",
-    rust = "//", go = "//", kotlin = "//", swift = "//", csharp = "//",
-    php = "//", scala = "//", dart = "//",
-    lua = "--", sql = "--", haskell = "--",
-    python = "#", ruby = "#", perl = "#", sh = "#", bash = "#", zsh = "#",
-    yaml = "#", toml = "#", conf = "#", dockerfile = "#", makefile = "#",
-    r = "#",
-    vim = '"', dosini = ";", ini = ";",
-  }
-  return map[vim.bo.filetype] or "//"
+  return marker_map[vim.bo.filetype] or "//"
 end
 
 -- ============================================================================
@@ -254,7 +252,6 @@ end
 -- ============================================================================
 -- 组合功能
 -- ============================================================================
-
 -- 针对当前行的注释对齐（自动探测所属代码块）
 function M.align_current_line_auto()
   local row = vim.api.nvim_win_get_cursor(0)[1]
@@ -300,10 +297,10 @@ end
 -- ============================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
-  vim.keymap.set("n", "<leader>ua", M.align_current_line_auto, { desc = "Align Comments" })
-  vim.keymap.set("v", "<leader>ua", M.align_visual_auto, { desc = "Align Comments(auto split)" })
-  vim.keymap.set("n", "<leader>uq", M.align_normal_count_force, { desc = "Align Comments(force range)" })
-  vim.keymap.set("v", "<leader>uq", M.align_visual_force, { desc = "Align Comments(force range)" })
+  vim.keymap.set("n", "<leader>sa", M.align_current_line_auto, { desc = "Align Comments" })
+  vim.keymap.set("v", "<leader>sa", M.align_visual_auto, { desc = "Align Comments(auto split)" })
+  vim.keymap.set("n", "<leader>sq", M.align_normal_count_force, { desc = "Align Comments(force range)" })
+  vim.keymap.set("v", "<leader>sq", M.align_visual_force, { desc = "Align Comments(force range)" })
 
   -- 脱离 Insert 自动对齐
   local group = vim.api.nvim_create_augroup("AutoAlignInlineComment", { clear = true })
@@ -311,6 +308,13 @@ function M.setup(opts)
     vim.api.nvim_create_autocmd({ "InsertLeave" }, {
       group = group,
       pattern = M.opts.auto_file_ptns,
+      -- args.id: Autocmd ID
+      -- args.event: Event name
+      -- args.group: Group ID
+      -- args.match: Pattern matched
+      -- args.buf: Buffer NO.
+      -- args.file: File name.
+      -- args.data: Addtional data for some events.
       callback = function(args)
         M.align_current_line_auto()
       end,

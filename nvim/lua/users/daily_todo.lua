@@ -1,6 +1,10 @@
--- ==================================================
--- daily_todo.lua
--- ==================================================
+-- ==========================================================================
+-- File    : daily_todo.lua
+-- Author  : xyy15926
+-- Created : 2026-08-28 10:29:33
+-- Updated : 2026-08-28 17:25:23
+-- Desc    : Determine the todo file.
+-- ==========================================================================
 
 local M = {}
 
@@ -8,10 +12,15 @@ M.defaults = {
   todo_base = vim.fn.expand("."),
 }
 
--- 全局配置
 M.opts = vim.deepcopy(M.defaults)
 
--- 将 20220101、2022-01-01 类似的字符串转换为时间戳
+
+-- ==========================================================================
+--  日期处理
+-- ==========================================================================
+---将 20220101、2022-01-01 类似的字符串转换为时间戳
+---@param date string
+---@return integer time From os.time
 function M.str2timestamp(date)
   local date_t
   local ts
@@ -46,7 +55,10 @@ function M.str2timestamp(date)
   return ts
 end
 
--- 获取某日所属周的 `no` 指定的那日
+---获取某日所属周的 `no` 指定的那日
+---@param no number 1-Monday, 7-Sunday
+---@param date string 
+---@return integer From os.time
 function M.get_week_date(no, date)
   local today
   if date == nil then
@@ -70,7 +82,9 @@ function M.get_week_date(no, date)
   return monday + (no - 1) * 86400
 end
 
--- 获取当日所属的周日期范围
+---获取当日所属的周日期范围
+---@param date string 
+---@return {first:integer, last: integer} date_range
 function M.get_week_range(date)
   local monday = M.get_week_date(1, date)
   -- 本周日 = 周一 + 6 天
@@ -79,7 +93,13 @@ function M.get_week_range(date)
   return { first = monday, last = sunday, }
 end
 
--- 当前日期所属周 markdown 文件
+
+-- ==========================================================================
+--  Buffer 创建、打开
+-- ==========================================================================
+---当前日期所属周 markdown 文件
+---@param date string
+---@return string file_path
 function M.weekly_todo(date)
   local date_range = M.get_week_range(date)
   local date_str = os.date("%Y%m%d", date_range.first) .. "_" .. os.date("%m%d", date_range.last)
@@ -93,7 +113,10 @@ function M.weekly_todo(date)
   return M.opts.todo_base .. "/" .. date_str .. ".md"
 end
 
--- 允许自定义全局配置
+
+-- ==========================================================================
+--  模块初始化
+-- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
 end

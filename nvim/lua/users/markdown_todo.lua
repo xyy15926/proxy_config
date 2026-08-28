@@ -1,20 +1,26 @@
--- ================================================
--- 快速切换 markdown 待办、切换待办
--- ================================================
+-- ==========================================================================
+-- File    : markdown_todo.lua
+-- Author  : xyy15926
+-- Created : 2026-08-28 10:42:21
+-- Updated : 2026-08-28 17:28:10
+-- Desc    : Convert and toggle todo items.
+-- ==========================================================================
 
 local M = {}
 
 M.defaults = {
   set_keymap = true,
 }
-
 M.opts = vim.deepcopy(M.defaults)
 local utils = require("users.utils")
 
--- ===========================================================================
---    ToDo 项转换、状态切换
--- ===========================================================================
--- 将行文本转换为 `[]` todo 项
+
+-- ==========================================================================
+--  Todo 项转换、状态切换
+-- ==========================================================================
+---将行文本转换为 `[]` todo 项
+---@param line string Line to be converted into todo items.
+---@return string new_Line Line converted into todo items.
 function M.convert_line_todo(line)
   local new_line = line
 
@@ -44,7 +50,9 @@ function M.convert_line_todo(line)
 
 end
 
--- Toggle todo 项状态
+---Toggle todo 项状态
+---@param line string Todo items to be toggled the status.
+---@return string line
 function M.toggle_line_todo(line)
   local new_line = line
 
@@ -63,19 +71,20 @@ function M.toggle_line_todo(line)
   return new_line
 end
 
--- ===========================================================================
---   配置、初始化
--- ===========================================================================
+
+-- ==========================================================================
+--  模块初始化
+-- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
 
-  utils.register_range_command(
+  utils.register_range_apply_command(
     M.toggle_line_todo,
     "ToggleTodo",
     "Toggle Todo Item",
     "toggled"
   )
-  utils.register_range_command(
+  utils.register_range_apply_command(
     M.convert_line_todo,
     "Convert2Todo",
     "Convert to Todo Item",
@@ -83,7 +92,7 @@ function M.setup(opts)
   )
 
   if M.opts.set_keymap then
-    vim.keymap.set( { "n", "v" }, "<leader>ud", ":ToggleTodo<cr>", { silent = true, desc = "Toggle Markdown Todo" })
+    vim.keymap.set( { "n", "v" }, "<leader>cd", ":ToggleTodo<cr>", { silent = true, desc = "Toggle Markdown Todo" })
   end
 end
 

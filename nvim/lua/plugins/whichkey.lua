@@ -14,21 +14,25 @@ return {
       align = "center",
     },
     spec = {
+      { "<leader><leader>", "<cmd>WhichKey<cr>", desc = "which-key", icon = "? " },
       -- 分组定义（目录）
       { "<leader>w", group = "windows", icon = " " },
       { "<leader>b", group = "buffer", icon = " " },
 
-      { "<leader>n", group = "tree-content", icon = " " },
-      { "<leader>s", group = "source-fix-lint", icon = " " },
-      { "<leader>f", group = "find-file", icon = " " },
-      { "g",         group = "navtive-goto", icon = "󰋱 " },
+      { "<leader>n", group = "sidebar", icon = " " },
+      { "<leader>s", group = "format", icon = "󱇂 " },
+      { "<leader>r", group = "run-unit", icon = " " },
+      { "<leader>f", group = "file-picker", icon = " " },
+      { "<leader>l", group = "other-picker", icon = " " },
+      { "g",         group = "native-goto", icon = "󰋱 " },
       { "<leader>g", group = "goto-jump", icon = "󱋿 " },
       { "<leader>m", group = "move",      icon = " " },
-      { "<leader>x", group = "build-run", icon = " " },
+      { "<leader>x", group = "build-run", icon = " " },
       { "<leader>a", group = "ai-avante", icon = " " },
-      { "<leader>h", group = "git-hunk",  icon = " " },
+      { "<leader>q", group = "git-hunk",  icon = " " },
+      { "<leader>h", group = "lint-hint",  icon = "󰴑 " },
       { "<leader>u", group = "tiny-func", icon = "󰊕 " },
-      { "<leader>c", group = "colorscheme", icon = " " },
+      { "<leader>c", group = "content", icon = "󰆐 " },
 
       -- 原生 Window 操作（无插件依赖，留在这里）
       { "<leader>ww", "<C-w>w", desc = "other-window" },
@@ -49,6 +53,17 @@ return {
       { "<leader>wv", "<C-w>v", desc = "split-right" },
       { "<leader>wm", "<C-w>m", desc = "zoom" },
 
+      -- 特殊窗口导航
+      { "<M-H>", "<C-w>h", desc = "window-left" },
+      { "<M-L>", "<C-w>l", desc = "window-right" },
+      { "<M-J>", "<C-w>j", desc = "window-down" },
+      { "<M-K>", "<C-w>k", desc = "window-up" },
+      { "<M-H>", "<Esc><C-w>h", mode = "i", desc = "window-left" },
+      { "<M-L>", "<Esc><C-w>l", mode = "i", desc = "window-right" },
+      { "<M-J>", "<Esc><C-w>j", mode = "i", desc = "window-down" },
+      { "<M-K>", "<Esc><C-w>k", mode = "i", desc = "window-up" },
+      -- { "<Esc>", "<C-\\><C-n>", mode = "t", desc = "to-normal" },
+
       -- 原生 Buffer 操作
       { "<leader>b1", ":b1<cr>", desc = "buffer 1" },
       { "<leader>b2", ":b2<cr>", desc = "buffer 2" },
@@ -57,14 +72,16 @@ return {
       { "<leader>bl", ":blast<cr>", desc = "last-buffer" },
       { "<leader>bn", ":bnext<cr>", desc = "next-buffer" },
       { "<leader>bp", ":bprevious<cr>", desc = "previous-buffer" },
+      { "<leader>bo", ":only<cr>", desc = "only" },
 
       -- 杂项（tiny-func）
       { "<leader>us", ":source $MYVIMRC<cr>", desc = "reload-config" },
       { "<leader>uq", function() vim.fn.setqflist({}) end, desc = "clean-qf" },
-      { "<leader>up", "\"+p", desc = "paste from +" },
-      { "<leader>uo", "o<esc>\"+p", desc = "newline paate" },
-      -- { "<leader>uy", "\"+y", desc = "copy into +", mode = "x" },
-      { "<leader>uyy", "\"+yy", desc = "copy curline into +" },
+
+      -- GClip 复制、粘贴
+      { "<leader>cp", "\"+p", desc = "paste from +" },
+      { "<leader>co", "o<esc>\"+p", desc = "newline paste" },
+      { "<leader>cyy", "\"+yy", desc = "copy curline into +" },
     },
   },
 }

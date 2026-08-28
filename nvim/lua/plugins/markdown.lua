@@ -2,7 +2,7 @@
 -- File    : markdown.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:37:15
--- Updated : 2026-08-27 19:18:23
+-- Updated : 2026-08-28 22:17:53
 -- Desc    : Plugins related to markdown.
 --
 -- Notions:
@@ -20,7 +20,7 @@ return {
     ft = "markdown",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     keys = {
-      { "<leader>ur", "<cmd>Markview Toggle<cr>", buffer = true, desc = "Render Markdown" },
+      { "<leader>rr", "<cmd>Markview Toggle<cr>", buffer = true, desc = "Render Markdown" },
     },
     config = function()
       require("markview").setup({
@@ -40,8 +40,8 @@ return {
       -- 1. `:XXX<cr>`：真实模拟按键 `:XXX`、执行，兼容 visual 模式下按下
       --   `:` 后自动触发跟随 `:`<,`>`
       -- 2. `<cmd>XXX<cr>`：直接执行命令，没有 `:` 自动触发机制
-      { "<leader>ut", ":Tableize/;<cr>", mode = "x", desc = "Tableize" },
-      { "<leader>ut", "<cmd>TableModeToggle<cr>", desc = "Table Mode" },
+      { "<leader>st", ":Tableize/;<cr>", mode = "x", desc = "Tableize" },
+      { "<leader>st", "<cmd>TableModeToggle<cr>", desc = "Table Mode" },
     },
     config = function()
       vim.g.table_mode_auto_align = 1

@@ -98,12 +98,12 @@ return {
   { "<leader>fr", function() require("snacks").picker.lsp_references() end, desc = "LSP References" },
   { "<leader>ft", function() require("snacks").picker.lsp_symbols() end, desc = "LSP Symbols" },
 
-  -- 其他杂项
-  { "<leader>fq", function() require("snacks").picker.qflist() end, desc = "Quickfix List" },
-  { "<leader>fp", function() require("snacks").picker.registers() end, desc = "Register List" },
-
   { "<leader>fj", function() require("snacks").picker.resume() end, desc = "Resume Last Picker" },
-  { "<leader>cc", function() require("snacks").picker.colorschemes() end, desc = "Colorschemes" },
+
+  -- 其他杂项 picker
+  { "<leader>lq", function() require("snacks").picker.qflist() end, desc = "Quickfix List" },
+  { "<leader>lr", function() require("snacks").picker.registers() end, desc = "Register List" },
+  { "<leader>lc", function() require("snacks").picker.colorschemes() end, desc = "ColorSchemes" },
 
   -- ===================================================================
   -- snack.explorer
