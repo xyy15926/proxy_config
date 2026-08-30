@@ -1,14 +1,12 @@
+-- ==========================================================================
+-- File    : flashhl.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 14:43:58
--- Updated : 2026-08-28 23:01:40
+-- Updated : 2026-08-30 19:58:59
 -- Desc    : Flash highlight helper.
 -- ==========================================================================
 
 local M = {}
-
--- 统一命名空间
-local ns_id = vim.api.nvim_create_namespace("flash_highlight")
-local active_timer = nil
 
 -- 默认配置
 M.defaults = {
@@ -31,6 +29,10 @@ M.defaults = {
   },
 }
 M.opts = vim.deepcopy(M.defaults)
+
+-- 统一命名空间
+local ns_id = vim.api.nvim_create_namespace("flash_highlight")
+local active_timer = nil
 
 -- 初始化高亮组
 function M.setup_highlight()

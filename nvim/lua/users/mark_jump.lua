@@ -1,46 +1,54 @@
--- =========================================================
+-- ==========================================================================
 -- File    : mark_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-08-25 22:04:08
--- Updated : 2026-08-28 17:23:38
+-- Updated : 2026-08-30 20:02:50
 -- Desc    : Jump to the line with mark string.
--- =========================================================
+-- ==========================================================================
 
 local M = {}
 M.defaults = {
   set_keymap = true,
+  hl_group    = "MarkUnderline",
+  priority    = 200,
+  hl_opts = {
+    sp        = "#E8A043",
+    underline = true,
+  },
 }
 M.opts = vim.deepcopy(M.defaults)
 
 local utils = require("users.utils")
 
--- ==========================================================================
+-- %% =======================================================================
 --  标记模式设置
+--  可用以下 Ex 命令将 `-- ====` 替换为 `-- %% =`
+--  :let i=0 | g/^-- ====$/let i+=1 | if i%2==1 && i > 2 | s/^-- ====$/-- %% =/ | endif
 -- ==========================================================================
 -- 按文件类型默认标记正则
 local ft_marks = {
-  python = { "# %%%%" },
+  python = { "^# %%%%", "^# MARK:" },
   markdown = { "^## ", "^### ", "^#### ", "^##### " },
-  lua = { "^%-%- %=%=", "^%-%- %-%- " },
-  javascript = { "^// %=%=", "^// MARK:" },
-  typescript = { "^// %=%=", "^// MARK:" },
-  javascriptreact = { "^// %=%=", "^// MARK:" },
-  typescriptreact = { "^// %=%=", "^// MARK:" },
-  sh = { "^# %=%=", "^# MARK:" },
-  bash = { "^# %=%=", "^# MARK:" },
-  zsh = { "^# %=%=", "^# MARK:" },
-  vim = { '^"%=%=', '" MARK:' },
-  yaml = { "^# %=%=", "^# MARK:" },
-  toml = { "^# %=%=", "^# MARK:" },
-  rust = { "^// %=%=", "^// MARK:" },
-  go = { "^// %=%=", "^// MARK:" },
-  c = { "^// %=%=", "^// MARK:" },
-  cpp = { "^// %=%=", "^// MARK:" },
-  java = { "^// %=%=", "^// MARK:" },
+  lua = { "^%-%- %%%%", "^%-%- MARK:" },
+  javascript = { "^// %%%%", "^// MARK:" },
+  typescript = { "^// %%%%", "^// MARK:" },
+  javascriptreact = { "^// %%%%", "^// MARK:" },
+  typescriptreact = { "^// %%%%", "^// MARK:" },
+  sh = { "^# %%%%", "^# MARK:" },
+  bash = { "^# %%%%", "^# MARK:" },
+  zsh = { "^# %%%%", "^# MARK:" },
+  vim = { '^"%%%%', '" MARK:' },
+  yaml = { "^# %%%%", "^# MARK:" },
+  toml = { "^# %%%%", "^# MARK:" },
+  rust = { "^// %%%%", "^// MARK:" },
+  go = { "^// %%%%", "^// MARK:" },
+  c = { "^// %%%%", "^// MARK:" },
+  cpp = { "^// %%%%", "^// MARK:" },
+  java = { "^// %%%%", "^// MARK:" },
 }
 local current_marks = {}  -- 缓存当前缓冲区的标记位置
 
--- 更新文件类型对应标记模式
+--- 更新文件类型对应标记模式
 local function update_marks()
   if M.opts.marks then
     for ft, ptn in pairs(ft_marks) do
@@ -53,8 +61,8 @@ local function update_marks()
   end
 end
 
--- 获取当前文件类型的标记模式
-local function get_patterns()
+--- 获取当前文件类型的标记模式
+function M.get_patterns()
   local ft = vim.bo.filetype
   local patterns = M.opts.marks[ft]
   if not patterns then
@@ -70,12 +78,32 @@ local function get_patterns()
 end
 
 
+-- %% =======================================================================
+--  高亮
 -- ==========================================================================
+--- 对已扫描出的标记行应用高亮
+local function apply_highlights()
+  local ns_id = vim.api.nvim_create_namespace("mark_underline")
+  local buf = vim.api.nvim_get_current_buf() or 0
+  vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
+
+  for _, mark in ipairs(current_marks) do
+    vim.api.nvim_buf_set_extmark(buf, ns_id, mark.lnum - 1, 0, {
+      end_line   = mark.lnum,
+      hl_group   = M.opts.hl_group,
+      hl_eol     = true,
+      priority   = M.opts.priority,
+    })
+  end
+end
+
+
+-- %% =======================================================================
 --  扫描缓冲区标记
 -- ==========================================================================
 -- 扫描缓冲区中的所有标记
 local function scan_marks()
-  local patterns = get_patterns()
+  local patterns = M.get_patterns()
   if #patterns == 0 then
     current_marks = {}
     return current_marks
@@ -102,7 +130,7 @@ local function scan_marks()
 end
 
 
--- ==========================================================================
+-- %% =======================================================================
 --  标记跳转
 -- ==========================================================================
 --- 跳转到下一个标记
@@ -196,12 +224,17 @@ function M.list_marks()
 end
 
 
--- ==========================================================================
+-- %% =======================================================================
 --  模块初始化
 -- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
   update_marks()
+  if M.opts.hl_opts.link then
+    vim.api.nvim_set_hl(0, M.opts.hl_group, { link = M.otps.hl_opts.link })
+  else
+    vim.api.nvim_set_hl(0, M.opts.hl_group, M.opts.hl_opts)
+  end
 
   -- 创建用户命令
   vim.api.nvim_create_user_command("MarkJumpNext", M.next_mark, { desc = "Next Mark" })
@@ -215,6 +248,7 @@ function M.setup(opts)
     group = vim.api.nvim_create_augroup("MarkJumpRefresh", { clear = true }),
     callback = function()
       scan_marks()
+      apply_highlights()
     end,
   })
 

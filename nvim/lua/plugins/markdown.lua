@@ -2,7 +2,7 @@
 -- File    : markdown.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:37:15
--- Updated : 2026-08-28 22:17:53
+-- Updated : 2026-08-30 21:10:47
 -- Desc    : Plugins related to markdown.
 --
 -- Notions:
@@ -20,7 +20,7 @@ return {
     ft = "markdown",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     keys = {
-      { "<leader>rr", "<cmd>Markview Toggle<cr>", buffer = true, desc = "Render Markdown" },
+      { "<leader>rv", "<cmd>Markview Toggle<cr>", buffer = true, desc = "Render Markdown" },
     },
     config = function()
       require("markview").setup({
@@ -51,6 +51,15 @@ return {
       -- 必须显式手动解绑
       pcall(vim.keymap.del, "n", "<leader>tt")
       pcall(vim.keymap.del, "n", "<leader>tm")
+      vim.api.nvim_create_autocmd("InsertEnter", {
+        group = vim.api.nvim_create_augroup("DisableTableMode", { clear = true }),
+        pattern = "*.md",
+        callback = function()
+          if vim.fn.hlexists("Table") > 0 then
+            vim.cmd("TableModeDisable")
+          end
+        end,
+      })
     end
   },
 }

@@ -1,12 +1,17 @@
--- ============================================================
--- terminal.lua
+-- ==========================================================================
+-- File    : terminal.lua
+-- Author  : xyy15926
+-- Created : 2026-08-30 15:34:38
+-- Updated : 2026-08-30 20:47:01
+-- Desc    : Plugins for vim-terminal.
+-- Plugins : 
 --   vim-slime              文件、终端桥接
---   vim-slime-cells        文件 cells 定义、高亮
---   vim-terminal-help      切换显示 terminal，配合 vim-slime
--- ============================================================
+--   vim-slime-cells        配合 vim-slime 的 cells 定义、高亮、快速选区
+--   vim-terminal-help      切换显示 terminal
+-- ==========================================================================
 
 return {
-  -- -------------------- slime（保留）--------------------
+  -- ----------------------------- slime ------------------------------------
   {
     "jpalardy/vim-slime",
     ft = { "python", "sh" },
@@ -16,28 +21,68 @@ return {
       -- 后续，可以自由再将其他按键绑定到 `<Plug>xxxx`
       -- 故此时必须设置 `remap = true`？
       -- 但，事实上此处设置 `remap = false` 依然工作，之前在 Vim 中也是如此
-      { "<leader>rl", "<Plug>SlimeLineSend", desc = "Send Line", remap = true },
-      { "<leader>rc", "<Plug>SlimeSendCell", desc = "Send Cell", remap = true },
-      { "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
-      { "<leader>rl", "<Plug>SlimeRegionSend", desc = "Send Region", mode = "x", remap = true },
-      -- { "<leader>mc", "<Plug>SlimeCellsNext", desc = "Next Cell", remap = true },
-      -- { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "Prev Cell", remap = true },
+      { "<leader>rr", "<Plug>SlimeLineSend", desc = "Send Line", remap = true },
+      { "<leader>rr", "<Plug>SlimeRegionSend", desc = "Send Region", mode = "x", remap = true },
+      { "<leader>rc", "<Plug>SlimeSendCell", desc = "Send Cell", mode = "n", remap = true },
+      { "<leader>rm", function()
+        vim.fn["slime#send_cell"]()
+        require("users.mark_jump").next_mark()
+      end, desc = "Send Cell & Move", mode = "n" },
     },
     config = function()
       vim.g.slime_target = "neovim"
-      vim.g.slime_cell_delimiter = "^#\\s*%%"
-      vim.g.slime_preserve_curpos = 0
-      vim.g.slime_vimterminal_config = {
-        term_name = "vterm", term_cols = 70, vertical = 2, norestore = 1,
-      }
       vim.g.slime_no_mappings = 1
+      -- 全局 cell 分隔符，故上述 `SlimeSendCell` 也配置有全局映射
+      vim.g.slime_cell_delimiter = "^#\\s*%%"
+      -- 同时，根据 `users.mark_jump` 获取块分割符
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("SetSlimeCellDelimiter", { clear = true }),
+        pattern = { "python", "sh", "lua" },
+        callback = function()
+          local mark = string.format(require("users.mark_jump").get_patterns()[1])
+          vim.notify("Set cell delimiter: " .. mark)
+          vim.b.slime_cell_delimiter = mark
+        end,
+      })
+      vim.g.slime_preserve_curpos = 1
+      vim.g.slime_vimterminal_config = {
+        term_name = "vterm",
+        term_cols = 78,
+        vertical = 2,
+        norestore = 1,
+      }
     end
   },
 
-  -- -------------------- vim-slime-cells（保留）--------------------
-  { "Klafyvel/vim-slime-cells", ft = { "python", "sh" }, pin = true },
+  -- ------------------------- vim-slime-cells ------------------------------
+  -- {
+  --   "Klafyvel/vim-slime-cells",
+  --   requires = {
+  --     { "jpalardy/vim-slime", opt = true }
+  --   },
+  --   ft = { "python", "sh" },
+  --   pin = true,
+  --   -- cells 全局分隔符、keymapping 已在 vim-slime 中配置，此处仅保留局部
+  --   -- keys = {
+  --   --   { "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
+  --   --   { "<leader>mc", "<Plug>SlimeCellsNext", desc = "Next Cell", remap = true },
+  --   --   { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "Prev Cell", remap = true },
+  --   -- },
+  --   config = function()
+  --     vim.api.nvim_create_autocmd("FileType", {
+  --       group = vim.api.nvim_create_augroup("VimSlimeDelimiter", { clear = true }),
+  --       pattern = "python",
+  --       callback = function()
+  --         -- buffer 局部分割符，相应也再配置一次映射
+  --         vim.b.slime_cell_delimiter = "^#\\s*%%"
+  --         vim.keymap.set("n", "<leader>rc", "<Plug>SlimeSendCell", { desc = "Send Cell", remap = true, buffer = true })
+  --         vim.keymap.set("n", "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", { desc = "Send Cell & Move", remap = true, buffer = true})
+  --       end,
+  --     })
+  --   end,
+  -- },
 
-  -- -------------------- vim-terminal-help（保留）--------------------
+  -- -------------------- vim-terminal-help ---------------------------------
   {
     "xyy15926/vim-terminal-help",
     pin = true,
@@ -52,24 +97,26 @@ return {
       vim.g.terminal_close = 1
 
       -- SlimeOverrideConfig（保留原始 Vimscript）
-      vim.cmd([[
-        function! SlimeOverrideConfig(...)
-          let target = slime#config#resolve("target")
-          let bid = get(t:, "__terminal_bid__", -1)
-          let alive = 0
-          if bid > 0 && bufname(bid) != ''
-            let alive = (bufwinnr(bid) > 0) ? 1 : 0
-          endif
-          if target == 'vimterminal' && bid > 0 && alive > 0
-            if !exists("b:slime_config")
-              let b:slime_config = {"bufnr": ""}
-            endif
-            let b:slime_config["bufnr"] = bid
-          else
-            return call("slime#targets#" . slime#config#resolve("target") . "#config", a:000)
-          endif
-        endfunction
-      ]])
+      -- Ref:
+      -- https://github.com/jpalardy/vim-slime/blob/main/assets/doc/advanced.md#advanced-configuration-overrides
+      -- vim.cmd([[
+      --   function! SlimeOverrideConfig(...)
+      --     let target = slime#config#resolve("target")
+      --     let bid = get(t:, "__terminal_bid__", -1)
+      --     let alive = 0
+      --     if bid > 0 && bufname(bid) != ""
+      --       let alive = (bufwinnr(bid) > 0) ? 1 : 0
+      --     endif
+      --     if (target == "vimterminal" || target == "neovim") && bid > 0 && alive > 0
+      --       if !exists("b:slime_config")
+      --         let b:slime_config = {"bufnr": ""}
+      --       endif
+      --       let b:slime_config["bufnr"] = bid
+      --     else
+      --       return call("slime#targets#" . slime#config#resolve("target") . "#config", a:000)
+      --     endif
+      --   endfunction
+      -- ]])
     end,
   },
 

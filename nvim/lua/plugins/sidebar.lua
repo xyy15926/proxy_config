@@ -1,48 +1,12 @@
--- ============================================================
--- sidebar.lua — 侧边导航栏
---   nvim-tree      替代 nerdtree
---   aerial         替代 tagbar
---   mundo          编辑历史，保留
---   zoom           瞬时放大窗口，保留
--- ============================================================
+-- ==========================================================================
+-- File    : sidebar.lua
+-- Author  : xyy15926
+-- Created : 2026-08-30 15:20:25
+-- Updated : 2026-08-30 15:20:54
+-- Desc    : Plugins related to sidebars.
+-- ==========================================================================
 
 return {
-
-  -- -------------------- nvim-tree（替代 nerdtree）--------------------
-  {
-    "nvim-tree/nvim-tree.lua",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFile", "NvimTreeClose" },
-    keys = {
-      -- { "<leader>nn", "<cmd>NvimTreeToggle<cr>", desc = "Toggle NvimTree" },
-      -- { "<leader>nl", "<cmd>NvimTreeFindFile<cr>", desc = "Find File in NvimTree" },
-    },
-    config = function()
-      -- 自定义 on_attach 函数
-      local function on_attach(bufnr)
-        local api = require("nvim-tree.api")
-        local function opts(desc)
-          return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-        end
-        -- 调用默认映射
-        api.config.mappings.default_on_attach(bufnr)
-        -- 覆盖或添加我们需要的映射
-        vim.keymap.set("n", "t", api.node.open.tab, opts("Open in new tab"))
-        vim.keymap.set("n", "v", api.node.open.vertical, opts("Open in vertical split"))
-        vim.keymap.set("n", "s", api.node.open.horizontal, opts("Open in horizontal split"))
-      end
-
-      require("nvim-tree").setup({
-        on_attach = on_attach,
-        view = { width = 25 },
-        filters = {
-          custom = { "__pycache__", "%.pyc$", ".egg-info" },
-        },
-        update_focused_file = { enable = true },
-      })
-    end,
-  },
-
   -- -------------------- aerial（替代 tagbar）--------------------
   {
     "stevearc/aerial.nvim",
@@ -83,7 +47,4 @@ return {
       vim.g.mundo_return_on_revert = 1
     end
   },
-
-  -- -------------------- zoom --------------------
-  { "dhruvasagar/vim-zoom" },
 }
