@@ -14,7 +14,10 @@ return {
   -- ----------------------------- slime ------------------------------------
   {
     "jpalardy/vim-slime",
-    ft = { "python", "sh" },
+    -- `ft`、`cmd`、`event` 等字段只用于告知 lazyvim 加载插件的时点
+    -- `keys` 除告知 lazyvim 相应快捷键按下后应加载此插件外，还会配置对应映射
+    ft = { "python", "sh", "lua" },
+    cmd = { "SlimeConfig" },
     pin = true,
     keys = {
       -- `<Plug>` 可视为是 "虚拟目标按键“，插件内部将 `<Plug>xxxx` 绑定到某个函数、命令
@@ -39,9 +42,11 @@ return {
         group = vim.api.nvim_create_augroup("SetSlimeCellDelimiter", { clear = true }),
         pattern = { "python", "sh", "lua" },
         callback = function()
-          local mark = string.format(require("users.mark_jump").get_patterns()[1])
-          vim.notify("Set cell delimiter: " .. mark)
-          vim.b.slime_cell_delimiter = mark
+          local escaped = require("users.mark_jump").get_patterns()[1]
+          -- 将 lua 已转义的匹配模式转换为普通字符串
+          local plain = escaped:gsub("%%(.)", "%1")
+          vim.notify("Set cell delimiter: " .. plain)
+          vim.b.slime_cell_delimiter = plain
         end,
       })
       vim.g.slime_preserve_curpos = 1

@@ -121,6 +121,7 @@ return {
   -- ===================================================================
   { "<leader>un", function() require("snacks").notifier.show_history() end, desc = "Notification History" },
   { "<leader>ub", function() require("snacks").scratch() end, desc = "Scratch Buffer" },
+  { "<leader>uz", function() require("snacks").dashboard() end, desc = "Dashboard" },
   { "<leader>bd", function() require("snacks").bufdelete() end, desc = "Delete Buffer" },
   { "<leader>gB", function() require("snacks").gitbrowse() end, desc = "Git Browse" },
   { "<leader>gg", function() require("snacks").lazygit() end, desc = "Lazygit" },
