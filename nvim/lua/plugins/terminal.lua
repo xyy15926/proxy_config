@@ -2,7 +2,7 @@
 -- File    : terminal.lua
 -- Author  : xyy15926
 -- Created : 2026-08-30 15:34:38
--- Updated : 2026-08-30 20:47:01
+-- Updated : 2026-09-01 13:39:21
 -- Desc    : Plugins for vim-terminal.
 -- Plugins : 
 --   vim-slime              文件、终端桥接
@@ -18,7 +18,6 @@ return {
     -- `keys` 除告知 lazyvim 相应快捷键按下后应加载此插件外，还会配置对应映射
     ft = { "python", "sh", "lua" },
     cmd = { "SlimeConfig" },
-    pin = true,
     keys = {
       -- `<Plug>` 可视为是 "虚拟目标按键“，插件内部将 `<Plug>xxxx` 绑定到某个函数、命令
       -- 后续，可以自由再将其他按键绑定到 `<Plug>xxxx`
@@ -45,7 +44,7 @@ return {
           local escaped = require("users.mark_jump").get_patterns()[1]
           -- 将 lua 已转义的匹配模式转换为普通字符串
           local plain = escaped:gsub("%%(.)", "%1")
-          vim.notify("Set cell delimiter: " .. plain)
+          -- vim.notify("Set cell delimiter: " .. plain)
           vim.b.slime_cell_delimiter = plain
         end,
       })
@@ -59,38 +58,37 @@ return {
     end
   },
 
-  -- ------------------------- vim-slime-cells ------------------------------
-  -- {
-  --   "Klafyvel/vim-slime-cells",
-  --   requires = {
-  --     { "jpalardy/vim-slime", opt = true }
-  --   },
-  --   ft = { "python", "sh" },
-  --   pin = true,
-  --   -- cells 全局分隔符、keymapping 已在 vim-slime 中配置，此处仅保留局部
-  --   -- keys = {
-  --   --   { "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
-  --   --   { "<leader>mc", "<Plug>SlimeCellsNext", desc = "Next Cell", remap = true },
-  --   --   { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "Prev Cell", remap = true },
-  --   -- },
-  --   config = function()
-  --     vim.api.nvim_create_autocmd("FileType", {
-  --       group = vim.api.nvim_create_augroup("VimSlimeDelimiter", { clear = true }),
-  --       pattern = "python",
-  --       callback = function()
-  --         -- buffer 局部分割符，相应也再配置一次映射
-  --         vim.b.slime_cell_delimiter = "^#\\s*%%"
-  --         vim.keymap.set("n", "<leader>rc", "<Plug>SlimeSendCell", { desc = "Send Cell", remap = true, buffer = true })
-  --         vim.keymap.set("n", "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", { desc = "Send Cell & Move", remap = true, buffer = true})
-  --       end,
-  --     })
-  --   end,
-  -- },
+  ------------------------- vim-slime-cells ------------------------------
+  {
+    "Klafyvel/vim-slime-cells",
+    requires = {
+      { "jpalardy/vim-slime", opt = true }
+    },
+    ft = { "python", "sh" },
+    enabled = false,
+    -- cells 全局分隔符、keymapping 已在 vim-slime 中配置，此处仅保留局部
+    keys = {
+      { "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
+      { "<leader>mc", "<Plug>SlimeCellsNext", desc = "Next Cell", remap = true },
+      { "<leader>mv", "<Plug>SlimeCellsPrev", desc = "Prev Cell", remap = true },
+    },
+    config = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("VimSlimeDelimiter", { clear = true }),
+        pattern = "python",
+        callback = function()
+          -- buffer 局部分割符，相应也再配置一次映射
+          vim.b.slime_cell_delimiter = "^#\\s*%%"
+          vim.keymap.set("n", "<leader>rc", "<Plug>SlimeSendCell", { desc = "Send Cell", remap = true, buffer = true })
+          vim.keymap.set("n", "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", { desc = "Send Cell & Move", remap = true, buffer = true})
+        end,
+      })
+    end,
+  },
 
   -- -------------------- vim-terminal-help ---------------------------------
   {
     "xyy15926/vim-terminal-help",
-    pin = true,
     lazy = false,
     config = function()
       vim.g.terminal_rootmarkers = require("users.rooter").opts.root_flags

@@ -8,6 +8,7 @@ return {
   {
     "nvim-telescope/telescope.nvim",
     -- tag = "0.1.8",
+    enabled = false,
     branch = "master",
     dependencies = {
       "nvim-lua/plenary.nvim",

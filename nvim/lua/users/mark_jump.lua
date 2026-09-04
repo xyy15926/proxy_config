@@ -2,7 +2,7 @@
 -- File    : mark_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-08-25 22:04:08
--- Updated : 2026-08-30 20:02:50
+-- Updated : 2026-09-04 09:22:15
 -- Desc    : Jump to the line with mark string.
 -- ==========================================================================
 
@@ -10,7 +10,7 @@ local M = {}
 M.defaults = {
   set_keymap = true,
   hl_group    = "MarkUnderline",
-  priority    = 200,
+  priority    = 50,
   hl_opts = {
     sp        = "#E8A043",
     underline = true,
@@ -27,24 +27,24 @@ local utils = require("users.utils")
 -- ==========================================================================
 -- 按文件类型默认标记正则
 local ft_marks = {
-  python = { "^# %%%%", "^# MARK:" },
+  python = { "^%s*# %%%%", "^%s*# MARK:" },
   markdown = { "^## ", "^### ", "^#### ", "^##### " },
-  lua = { "^%-%- %%%%", "^%-%- MARK:" },
-  javascript = { "^// %%%%", "^// MARK:" },
-  typescript = { "^// %%%%", "^// MARK:" },
-  javascriptreact = { "^// %%%%", "^// MARK:" },
-  typescriptreact = { "^// %%%%", "^// MARK:" },
-  sh = { "^# %%%%", "^# MARK:" },
-  bash = { "^# %%%%", "^# MARK:" },
-  zsh = { "^# %%%%", "^# MARK:" },
-  vim = { '^"%%%%', '" MARK:' },
-  yaml = { "^# %%%%", "^# MARK:" },
-  toml = { "^# %%%%", "^# MARK:" },
-  rust = { "^// %%%%", "^// MARK:" },
-  go = { "^// %%%%", "^// MARK:" },
-  c = { "^// %%%%", "^// MARK:" },
-  cpp = { "^// %%%%", "^// MARK:" },
-  java = { "^// %%%%", "^// MARK:" },
+  lua = { "^%s*%-%- %%%%", "^%s*%-%- MARK:" },
+  javascript = { "^%s*// %%%%", "^%s*// MARK:" },
+  typescript = { "^%s*// %%%%", "^%s*// MARK:" },
+  javascriptreact = { "^%s*// %%%%", "^%s*// MARK:" },
+  typescriptreact = { "^%s*// %%%%", "^%s*// MARK:" },
+  sh = { "^%s*# %%%%", "^%s*# MARK:" },
+  bash = { "^%s*# %%%%", "^%s*# MARK:" },
+  zsh = { "^%s*# %%%%", "^%s*# MARK:" },
+  vim = { '^%s*"%%%%', '" MARK:' },
+  yaml = { "^%s*# %%%%", "^%s*# MARK:" },
+  toml = { "^%s*# %%%%", "^%s*# MARK:" },
+  rust = { "^%s*// %%%%", "^%s*// MARK:" },
+  go = { "^%s*// %%%%", "^%s*// MARK:" },
+  c = { "^%s*// %%%%", "^%s*// MARK:" },
+  cpp = { "^%s*// %%%%", "^%s*// MARK:" },
+  java = { "^%s*// %%%%", "^%s*// MARK:" },
 }
 local current_marks = {}  -- 缓存当前缓冲区的标记位置
 
@@ -81,6 +81,14 @@ end
 -- %% =======================================================================
 --  高亮
 -- ==========================================================================
+function M.setup_highlight()
+  if M.opts.hl_opts.link then
+    vim.api.nvim_set_hl(0, M.opts.hl_group, { link = M.otps.hl_opts.link })
+  else
+    vim.api.nvim_set_hl(0, M.opts.hl_group, M.opts.hl_opts)
+  end
+end
+
 --- 对已扫描出的标记行应用高亮
 local function apply_highlights()
   local ns_id = vim.api.nvim_create_namespace("mark_underline")
@@ -229,12 +237,8 @@ end
 -- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
+  M.setup_highlight()
   update_marks()
-  if M.opts.hl_opts.link then
-    vim.api.nvim_set_hl(0, M.opts.hl_group, { link = M.otps.hl_opts.link })
-  else
-    vim.api.nvim_set_hl(0, M.opts.hl_group, M.opts.hl_opts)
-  end
 
   -- 创建用户命令
   vim.api.nvim_create_user_command("MarkJumpNext", M.next_mark, { desc = "Next Mark" })

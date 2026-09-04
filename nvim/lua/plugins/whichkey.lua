@@ -13,6 +13,10 @@ return {
       spacing = 2,
       align = "center",
     },
+    -- 若按键本身为内置命令，需要手动添加作为触发器才会按下后有提示
+    triggers = {
+      { "m", mode = "n" },
+    },
     spec = {
       { "<leader><leader>", "<cmd>WhichKey<cr>", desc = "which-key", icon = "? " },
       -- 分组定义（目录）
@@ -25,11 +29,11 @@ return {
       { "<leader>f", group = "file-picker", icon = " " },
       { "<leader>l", group = "other-picker", icon = " " },
       { "g",         group = "native-goto", icon = "󰋱 " },
-      { "<leader>g", group = "goto-jump", icon = "󱋿 " },
-      { "<leader>m", group = "move",      icon = " " },
+      { "<leader>q", group = "outvim-actions", icon = "󱋿 " },
+      { "<leader>m", group = "jump-move",      icon = " " },
       { "<leader>x", group = "build-run", icon = " " },
       { "<leader>a", group = "ai-avante", icon = " " },
-      { "<leader>q", group = "git-hunk",  icon = " " },
+      { "<leader>g", group = "git-actions", icon = " " },
       { "<leader>h", group = "lint-hint",  icon = "󰴑 " },
       { "<leader>u", group = "tiny-func", icon = "󰊕 " },
       { "<leader>c", group = "content", icon = "󰆐 " },
@@ -52,6 +56,7 @@ return {
       { "<leader>ws", "<C-w>s", desc = "split-below" },
       { "<leader>wv", "<C-w>v", desc = "split-right" },
       { "<leader>wm", "<C-w>m", desc = "zoom" },
+      { "<leader>wq", ":cclose", desc = "qfix-close" },
 
       -- 特殊窗口导航
       { "<M-H>", "<C-w>h", desc = "window-left" },
@@ -77,6 +82,9 @@ return {
       -- 杂项（tiny-func）
       { "<leader>us", ":source $MYVIMRC<cr>", desc = "reload-config" },
       { "<leader>uq", function() vim.fn.setqflist({}) end, desc = "clean-qf" },
+      { "<leader>mq", "<cmd>cprev<cr>", desc = "qfix-prev" },  -- Quickfix 跳转
+      { "<leader>mz", "<cmd>cnext<cr>", desc = "qfix-next" },
+      { "<leader>mm", "`m", desc = "jump-mark-m" },  -- 跳转到使用 `mm` 设置的标记处，`'m` 则只跳转精确至行
 
       -- GClip 复制、粘贴
       { "<leader>cp", "\"+p", desc = "paste from +" },

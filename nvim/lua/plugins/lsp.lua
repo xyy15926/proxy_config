@@ -1,7 +1,10 @@
--- ============================================================
--- lsp.lua
---   nvim-lspconfig         LSP 配置
--- ============================================================
+-- ==========================================================================
+-- File    : lsp.lua
+-- Author  : xyy15926
+-- Created : 2026-09-03 09:53:52
+-- Updated : 2026-09-04 09:08:23
+-- Desc    : nvim-lspconfig
+-- ==========================================================================
 
 return {
   "neovim/nvim-lspconfig",
@@ -55,8 +58,8 @@ return {
         -- =============================================================
 
         -- 跳转
-        vim.keymap.set("n", "<leader>mj", function() vim.diagnostic.jump( { count = 1 }) end, opts("Next Diagnostic"))
-        vim.keymap.set("n", "<leader>mk", function() vim.diagnostic.jump( { count = -1 }) end, opts("Prev Diagnostic"))
+        vim.keymap.set("n", "<leader>mr", function() vim.diagnostic.jump( { count = -1 }) end, opts("Prev Diagnostic"))
+        vim.keymap.set("n", "<leader>mv", function() vim.diagnostic.jump( { count = 1 }) end, opts("Next Diagnostic"))
         vim.keymap.set("n", "gy",   vim.lsp.buf.type_definition, opts("Goto Type Definition"))
         -- vim.keymap.set("n", "gg", function()
         --   vim.cmd("tab split")
@@ -66,9 +69,10 @@ return {
           vim.cmd("rightbelow vsplit")
           vim.lsp.buf.definition()
         end, opts("Goto Definition (Vsplit)"))
-        vim.keymap.set("n", "gn", function() vim.diagnostic.jump({ count = 1 }) end, opts("Next Diagnostic"))
-        vim.keymap.set("n", "gp", function() vim.diagnostic.jump({ count = -1 }) end, opts("Prev Diagnostic"))
+        -- vim.keymap.set("n", "gn", function() vim.diagnostic.jump({ count = 1 }) end, opts("Next Diagnostic"))
+        -- vim.keymap.set("n", "gp", function() vim.diagnostic.jump({ count = -1 }) end, opts("Prev Diagnostic"))
         vim.keymap.set("n", "gf", vim.diagnostic.open_float, opts("Open Diagnostic"))
+        vim.keymap.set("n", "gq", vim.diagnostic.setqflist, opts("Diagnostic SetQFix"))
 
         -- 信息
         -- `vim.lsp.buf.signature_help` 包含 doc 且无法 toggle
@@ -86,20 +90,31 @@ return {
     -- =================================================================
     -- `vim.lsp.config`、`vim.lsp.enable` 是 neovim 0.11 的新增机制
     --
-    -- 1. `vim.lsp.config(<lang>, ...)` 为语言 lang 配置 LSP
-    -- 2. `vim.lsp.enable(<lang>)` 为语言 lang 启用 LSP 后，neovim 会自动将
-    --   `vim.lsp.config`、各 `runtimepath` 下 `lsp/<lang>.lua` 合并
+    -- 1. `vim.lsp.config(<lang_server>, ...)` 为语言 lang 配置 LSP
+    -- 2. `vim.lsp.enable(<lang_server>)` 为语言 lang 启用 LSP 后，neovim 会
+    --    自动将 `vim.lsp.config`、各 `runtimepath` 下 `lsp/<lang_server>.lua`
+    --    合并
     -- 3. 各语言 `vim.lsp.config` 配置已被分散至对应 lua 文件中，同时已配置
     --   `mason-lspconfig` 自动为相应语言调用 `vim.lsp.enable` 启用 LSP
     -- =================================================================
-    -- 一次性设置默认 capabilities，后续所有 LSP server 自动继承
     local lspconfig = require('lspconfig')
     local capabilities = require('blink.cmp').get_lsp_capabilities()
     -- local capabilities = require("cmp_nvim_lsp").default_capabilities(),
     lspconfig.util.default_config = vim.tbl_deep_extend(
       'force',
       lspconfig.util.default_config,
-      { capabilities = capabilities }
+      {
+        -- 一次性设置默认 capabilities，后续所有 LSP server 自动继承
+        capabilities = capabilities,
+        -- 但设置 `root_markers`、`root_dir` 无效，只能在各 <lang_server>.lua
+        -- 中分别设置
+        -- root_markers = require("users.rooter").opts.root_flags,
+        -- root_dir = function(bufnr, on_dir)
+        --   local root_flags = require("users.rooter").opts.root_flags
+        --   local root = vim.fs.root(bufnr, root_flags)
+        --   on_dir(root)
+        -- end,
+      }
     )
 
   end,

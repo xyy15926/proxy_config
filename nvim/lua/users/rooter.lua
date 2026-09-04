@@ -16,7 +16,7 @@ M.opts = vim.deepcopy(M.defaults)
 --- 向上搜索找到项目根目录
 function M.find_project_root()
   -- vim.fs.root 自动向上查找，返回第一个匹配的目录
-  return vim.fs.root(0, M.opts.root_flags) or ""
+  return vim.fs.root(0, M.opts.root_flags) or vim.fn.getcwd()
 end
 
 function M.setup(opts)

@@ -2,7 +2,7 @@
 -- File    : colorscheme_switch.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 10:51:21
--- Updated : 2026-08-28 20:15:44
+-- Updated : 2026-09-04 09:22:22
 -- Desc    : Switch colorscheme.
 -- ==========================================================================
 
@@ -66,9 +66,6 @@ end
 
 --- 设置其他模块的额外高亮配置
 local function set_other_hls()
-  -- 设置 vim-slime Cells 分割线
-  vim.api.nvim_set_hl(0, "CellBoundary", { underline = true, sp = "#E8A043" })
-
   -- 设置 rainbow-delimiters 括号颜色循环
   vim.api.nvim_set_hl(0, "RainbowDelimiterRed",    { fg = "#E06C75" })
   vim.api.nvim_set_hl(0, "RainbowDelimiterYellow",  { fg = "#E5C07B" })
@@ -78,8 +75,11 @@ local function set_other_hls()
   vim.api.nvim_set_hl(0, "RainbowDelimiterViolet", { fg = "#C678DD" })
   vim.api.nvim_set_hl(0, "RainbowDelimiterCyan",   { fg = "#56B6C2" })
 
+  -- 设置 vim-slime Cells 分割线
+  -- vim.api.nvim_set_hl(0, "CellBoundary", { underline = true, sp = "#E8A043" })
   -- 设置 user.utils.flashhl 高亮
   require("users.utils.flashhl").setup_highlight()
+  require("users.mark_jump").setup_highlight()
 end
 
 --- 切换透明背景

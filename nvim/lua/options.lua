@@ -2,7 +2,7 @@
 -- File    : options.lua
 -- Author  : xyy1926
 -- Created : 2026-08-28 19:35:09
--- Updated : 2026-08-28 19:37:36
+-- Updated : 2026-09-02 15:51:56
 -- Desc    : Options
 -- ==========================================================================
 
@@ -125,5 +125,6 @@ vim.g.maplocalleader = ","
 vim.keymap.set("",  "<Esc>", "<Esc>:silent! nohls<CR>", { silent = true })
 vim.keymap.set("i", "KK", "<Esc>", { desc = "to-normal" })
 vim.keymap.set("n", "K", "<Nop>", { desc = "mask-K" })
+vim.keymap.set("i", "uu", "<Esc>A", { silent = true })
 -- 终端模式无法通过 `<Esc>` 返回 normal 模式
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "to-normal" })

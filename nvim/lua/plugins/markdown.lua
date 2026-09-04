@@ -2,7 +2,7 @@
 -- File    : markdown.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:37:15
--- Updated : 2026-08-30 21:10:47
+-- Updated : 2026-09-04 08:39:23
 -- Desc    : Plugins related to markdown.
 --
 -- Notions:
@@ -12,12 +12,75 @@
 -- 3. 可以考虑 JetBrain Nerd Font、FiraCode Nerd Font
 -- ==========================================================================
 
+local md_fts = { "markdown", "codecompanion" }
+
 return {
-  -- -------------------- markview.nvim（MD 渲染插件）------------------------
+  -- -------------------- render-markdown（MD 渲染插件）---------------------
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    dependencies = {
+        "nvim-treesitter/nvim-treesitter",
+        "nvim-tree/nvim-web-devicons"
+    },
+    -- ft = md_fts,
+    enabled = false,
+    opts = {
+      -- 指定启用的 filetype，未指定时会读取 Lazyvim spec 中 `ft` 字段
+      -- 可参考 `stdpath("data")/nvim/lazy/render-markdown/lua/init.lua`
+      file_types = md_fts,
+      render_modes = { "n", "c", "t" },
+      heading = {
+        sign = false,
+        position = "inline",
+        width = "block",
+        left_pad = 1,
+        right_pad = 1,
+        icons = { "󰲠  ", "󰲢  ", "󰲤  ", "󰲦  ", "󰲨  ", "󰲪  " },
+      },
+      code = {
+        sign = false,
+        language_icon = true,
+        language_name = false,
+        left_pad = 2,
+        right_pad = 2,
+        border = "thin",
+        style = "full",
+      },
+      checkbox = {
+        unchecked = { icon = "󰄱 " },
+        checked = { icon = "󰄵 ", scope_highlight = "@markup.strikethrough" },
+        custom = {
+          todo = { raw = "[-]", rendered = "󰅐 ", highlight = "RenderMarkdownTodo" },
+        },
+      },
+      pipe_table = {
+        style = "full",
+        cell = "padded",
+        border = { "┌", "┬", "┐", "├", "┼", "┤", "└", "┴", "┘", "│", "─" },
+      },
+      link = { hyperlink = "" },
+      sign = { enabled = false },
+      latex = { enabled = false },
+      overrides = {
+        buftype = {
+          nofile = {
+            code = { border = "hide", style = "normal", left_pad = 0, right_pad = 0 },
+            heading = { icons = { "", "", "", "", "", "" } },
+          },
+        },
+      },
+    },
+    keys = {
+      { "<leader>ru", "<cmd>RenderMarkdown toggle<cr>", desc = "Toggle Markdown Render" },
+    },
+  },
+
+  ------------------ markview.nvim（MD 渲染插件）------------------------
   -- 渲染效果、对齐、语法高亮优于 render-markdown
   {
     "OXY2DEV/markview.nvim",
-    ft = "markdown",
+    -- ft = md_fts,
+    enabled = true,
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     keys = {
       { "<leader>rv", "<cmd>Markview Toggle<cr>", buffer = true, desc = "Render Markdown" },
@@ -28,6 +91,14 @@ return {
         enable_hybrid_mode = true,
         hybrid_modes = { "n" },  -- 在 Normal 模式启用 hybrid
         linewise_hybrid_mode = false,  -- true 则切换为行级模式
+        -- 控制插件是否对缓冲区真正启用
+        preview = {
+          -- filetypes = { "markdown", "quarto", "rmd", "typst", "codecompanion" },
+          filetypes = md_fts,
+          ignore_buftypes = {},
+          -- 接受 buffer 作为参数的回调函数，控制插件是否对缓冲区启用
+          condition = nil,
+        },
       })
     end,
   },
