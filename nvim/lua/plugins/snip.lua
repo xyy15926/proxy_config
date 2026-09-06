@@ -34,7 +34,7 @@ return {
       -- require("luasnip.loaders.from_vscode").lazy_load() -- 加载 friendly-snippets 的 vscode 格式片段
       -- 1. `lazy_load` 将根据文件类型加载对应类型文件：可搭配命令式、或声明式配置
       -- 2. `load` 将加载目录下所有文件：此时不应搭配声明式配置，否则所有配置对所有文件均生效
-      require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/lua/snippets/" })
+      require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/lua/plugins/snippets/" })
     end,
   }
 }

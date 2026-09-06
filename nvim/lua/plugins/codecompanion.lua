@@ -34,7 +34,7 @@ return {
     { "<leader>a+", "<cmd>CodeCompanionCodeReview Start<cr>", mode = "n", desc = "Review: Set Baseline" },
     { "<leader>ar", "<cmd>CodeCompanionCodeReview<cr>", mode = "n", desc = "Review: Start" },
     { "<leader>al", "<cmd>CodeCompanionCodeReview All<cr>", mode = "n", desc = "Review: Start with All" },
-    { "<leader>ac", "<cmd>CodeCompanionCodeReview Comment<cr>", mode = "n", desc = "Review: Comment" },
+    { "<leader>am", "<cmd>CodeCompanionCodeReview Comment<cr>", mode = "n", desc = "Review: Comment" },
     { "<leader>as", "<cmd>CodeCompanionCodeReview Share<cr>", mode = "n", desc = "Review: Share" },
     -- Inline Prompt
     { "<leader>aa", "<cmd>CodeCompanion<cr>", mode = { "n", "x" }, desc = "Prompt" },

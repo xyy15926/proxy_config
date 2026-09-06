@@ -2,7 +2,7 @@
 -- File    : daily_todo.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 10:29:33
--- Updated : 2026-08-28 17:25:23
+-- Updated : 2026-09-06 15:46:34
 -- Desc    : Determine the todo file.
 -- ==========================================================================
 
@@ -55,16 +55,21 @@ function M.str2timestamp(date)
   return ts
 end
 
+
 ---获取某日所属周的 `no` 指定的那日
----@param no number 1-Monday, 7-Sunday
----@param date string 
+---@param date string|table|number?
+---@param no number? 1-Monday, 7-Sunday
 ---@return integer From os.time
-function M.get_week_date(no, date)
+function M.get_week_date(date, no)
   local today
   if date == nil then
     today = os.date("*t")
-  else
+  elseif type(date) == "string" then
     today = os.date("*t", M.str2timestamp(date))
+  elseif type(date) == "number" then
+    today = os.date("*t", date)
+  elseif type(date) == "table" then
+      today = os.date("*t", os.time(date))
   end
   local wday = today.wday         -- 1=周日, 2=周一, ..., 7=周六
 
@@ -82,27 +87,19 @@ function M.get_week_date(no, date)
   return monday + (no - 1) * 86400
 end
 
----获取当日所属的周日期范围
----@param date string 
----@return {first:integer, last: integer} date_range
-function M.get_week_range(date)
-  local monday = M.get_week_date(1, date)
-  -- 本周日 = 周一 + 6 天
-  local sunday = monday + 6 * 86400
-
-  return { first = monday, last = sunday, }
-end
-
 
 -- %% =======================================================================
 --  Buffer 创建、打开
 -- ==========================================================================
 ---当前日期所属周 markdown 文件
----@param date string
+---@param date string|table|integer?
+---@param offset integer Offset of number of weeks.
 ---@return string file_path
-function M.weekly_todo(date)
-  local date_range = M.get_week_range(date)
-  local date_str = os.date("%Y%m%d", date_range.first) .. "_" .. os.date("%m%d", date_range.last)
+function M.weekly_todo(date, offset)
+  offset = offset or 0
+  local monday = M.get_week_date(date, 1) + offset * 86400 * 7
+  local sunday = monday + 6 * 86400
+  local date_str = os.date("%Y%m%d", monday) .. "_" .. os.date("%m%d", sunday)
 
   -- local pattern = base .. "/" .. date_str .. "_*.md"
   -- local files = vim.fn.glob(pattern, false, true)       -- glob 匹配返回路径列表
@@ -119,6 +116,19 @@ end
 -- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
+  vim.api.nvim_create_user_command(
+    "WeeklyTodo",
+    -- opts.args 字符串形式参数
+    -- opts.fargs 参数列表
+    -- opts.bang 是否使用 `!`
+    -- opts.line1、opts.line2 范围起止行号
+    -- opts.range 范围数量
+    -- opts.count 范围计数（range 命令）
+    -- opts.reg 寄存器名
+    function(opts)
+      local offset = tonumber(opts.fargs[1]) or 0
+      vim.cmd("tabnew " .. M.weekly_todo(nil, offset))
+    end, { nargs = "*" } )
 end
 
 return M

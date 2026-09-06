@@ -24,12 +24,13 @@ return {
     -- 快捷按键列表（按这里定义的顺序显示）
     keys = {
       { icon = " ", key = "f", desc = "Find File",       action = ":lua Snacks.dashboard.pick('files')" },
-      { icon = " ", key = "t", desc = "Today",           action = ":edit" .. require("users.daily_todo").weekly_todo() },
-      { icon = " ", key = "a", desc = "AI Chat",         action = ":CodeCompanionChat" },
+      { icon = " ", key = "t", desc = "Today",           action = ":edit " .. require("users.daily_todo").weekly_todo(nil, 0) },
       { icon = " ", key = "n", desc = "New File",        action = ":ene | startinsert" },
       { icon = " ", key = "r", desc = "Recent Files",    action = ":lua Snacks.dashboard.pick('recent')" },
       { icon = " ", key = "g", desc = "Find Text",       action = ":lua Snacks.dashboard.pick('grep')" },
       { icon = " ", key = "c", desc = "Config",          action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
+      { icon = " ", key = "a", desc = "AI Chat",         action = ":CodeCompanionChat" },
+      { icon = " ", key = "d", desc = "Diffview",        action = ":DiffviewOpen" },
       { icon = " ", key = "s", desc = "Restore Session", section = "session" },
       { icon = "󰒲 ", key = "L", desc = "Lazy",            action = ":Lazy", enabled = package.loaded.lazy ~= nil },
       { icon = " ", key = "q", desc = "Quit",            action = ":qa" },

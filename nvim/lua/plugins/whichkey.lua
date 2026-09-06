@@ -15,13 +15,15 @@ return {
     },
     -- 若按键本身为内置命令，需要手动添加作为触发器才会按下后有提示
     triggers = {
-      { "m", mode = "n" },
+      { "<auto>", mode = "nixsotc" },  -- `<auto>`：自动监测已有注册的子映射，弹出提示框
+      { "m", mode = "n" },  -- `m` 按键被 vim 内置命令抢占，需要手动声明
     },
     spec = {
       { "<leader><leader>", "<cmd>WhichKey<cr>", desc = "which-key", icon = "? " },
       -- 分组定义（目录）
       { "<leader>w", group = "windows", icon = " " },
       { "<leader>b", group = "buffer", icon = " " },
+      { "z",         group = "fold", icon = "z " },
 
       { "<leader>n", group = "sidebar", icon = " " },
       { "<leader>s", group = "format", icon = "󱇂 " },
@@ -56,7 +58,7 @@ return {
       { "<leader>ws", "<C-w>s", desc = "split-below" },
       { "<leader>wv", "<C-w>v", desc = "split-right" },
       { "<leader>wm", "<C-w>m", desc = "zoom" },
-      { "<leader>wq", ":cclose", desc = "qfix-close" },
+      { "<leader>wq", "<cmd>cclose<cr>", desc = "qfix-close" },
 
       -- 特殊窗口导航
       { "<M-H>", "<C-w>h", desc = "window-left" },
@@ -85,6 +87,19 @@ return {
       { "<leader>mq", "<cmd>cprev<cr>", desc = "qfix-prev" },  -- Quickfix 跳转
       { "<leader>mz", "<cmd>cnext<cr>", desc = "qfix-next" },
       { "<leader>mm", "`m", desc = "jump-mark-m" },  -- 跳转到使用 `mm` 设置的标记处，`'m` 则只跳转精确至行
+      { "<leader>mc", "]c", desc = "diff-next" },
+      { "<leader>me", "[c", desc = "diff-prev" },
+
+      -- fold
+      { "z1", ":set foldlevel=1<cr>", desc = "fold-1" },
+      { "z2", ":set foldlevel=2<cr>", desc = "fold-2" },
+      { "z3", ":set foldlevel=3<cr>", desc = "fold-3" },
+      { "z4", ":set foldlevel=4<cr>", desc = "fold-4" },
+      { "z5", ":set foldlevel=5<cr>", desc = "fold-5" },
+      { "z6", ":set foldlevel=6<cr>", desc = "fold-6" },
+      { "z7", ":set foldlevel=7<cr>", desc = "fold-7" },
+      { "z8", ":set foldlevel=8<cr>", desc = "fold-8" },
+      { "z-", ":set foldlevel=999<cr>", desc = "unfold" },
 
       -- GClip 复制、粘贴
       { "<leader>cp", "\"+p", desc = "paste from +" },

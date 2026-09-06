@@ -2,7 +2,7 @@
 -- File    : mark_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-08-25 22:04:08
--- Updated : 2026-09-04 09:22:15
+-- Updated : 2026-09-04 15:53:59
 -- Desc    : Jump to the line with mark string.
 -- ==========================================================================
 
@@ -45,6 +45,7 @@ local ft_marks = {
   c = { "^%s*// %%%%", "^%s*// MARK:" },
   cpp = { "^%s*// %%%%", "^%s*// MARK:" },
   java = { "^%s*// %%%%", "^%s*// MARK:" },
+  codecompanion = { "^## ", "^### ", "^#### ", "^##### " },
 }
 local current_marks = {}  -- 缓存当前缓冲区的标记位置
 

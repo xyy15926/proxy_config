@@ -15,7 +15,7 @@ local f = ls.function_node
 local now      = function() return os.date("%Y-%m-%d %H:%M:%S") end
 local author   = os.getenv("USER") or "Author"
 local basename = function() return vim.fn.expand("%:t:r") end
-local monday   = daily.get_week_date(1)
+local monday   = daily.get_week_date(nil, 1)
 
 -- ls.add_snippets("markdown",  {})     -- 命令式风格配置
 return {                              -- 声明式风格配置

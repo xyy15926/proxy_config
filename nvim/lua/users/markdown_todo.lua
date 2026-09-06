@@ -2,7 +2,7 @@
 -- File    : markdown_todo.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 10:42:21
--- Updated : 2026-08-28 17:28:10
+-- Updated : 2026-09-06 15:49:38
 -- Desc    : Convert and toggle todo items.
 -- ==========================================================================
 
@@ -92,7 +92,8 @@ function M.setup(opts)
   )
 
   if M.opts.set_keymap then
-    vim.keymap.set( { "n", "v" }, "<leader>cd", ":ToggleTodo<cr>", { silent = true, desc = "Toggle Markdown Todo" })
+    vim.keymap.set( { "n", "v" }, "<leader>cd", ":ToggleTodo<cr>", { desc = "Toggle Todo" })
+    vim.keymap.set( { "n", "v" }, "<leader>cz", ":Convert2Todo<cr>", { desc = "Convert2Todo" })
   end
 end
 
