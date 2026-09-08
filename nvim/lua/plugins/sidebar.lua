@@ -2,7 +2,7 @@
 -- File    : sidebar.lua
 -- Author  : xyy15926
 -- Created : 2026-08-30 15:20:25
--- Updated : 2026-08-30 15:20:54
+-- Updated : 2026-09-08 11:25:17
 -- Desc    : Plugins related to sidebars.
 -- ==========================================================================
 
@@ -18,16 +18,29 @@ return {
     keys = {
       { "<leader>nt", "<cmd>AerialToggle<CR>", desc = "Toggle Tag List" },
     },
-    config = function()
-      require("aerial").setup({
-        backends = { "lsp", "treesitter" },
-        layout = {
-          default_direction = "right",
-          min_width = 25,
-        },
-        filter_kind = false,  -- 显示所有符号类型（对应 tagbar_sort=1, foldlevel=2）
-      })
-    end,
+    opts = {
+      -- LSP 返回更细粒度符号，忽略
+      backends = { "lsp", "treesitter" },
+      layout = {
+        default_direction = "right",
+        min_width = 25,
+      },
+      -- 接管 neovim 默认折叠行为
+      manage_folds = true,
+      -- buffer 折叠、符号树折叠相互影响
+      link_folds_to_tree = true,
+      link_tree_to_folds = true,
+      filter_kind = {
+        "Class",
+        "Constructor",
+        "Enum",
+        "Function",
+        "Interface",
+        "Method",
+        "Module",
+        "Struct",
+      },
+    }
   },
 
   -- -------------------- mundo --------------------

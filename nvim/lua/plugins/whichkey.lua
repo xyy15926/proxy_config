@@ -99,6 +99,7 @@ return {
       { "z6", ":set foldlevel=6<cr>", desc = "fold-6" },
       { "z7", ":set foldlevel=7<cr>", desc = "fold-7" },
       { "z8", ":set foldlevel=8<cr>", desc = "fold-8" },
+      { "z0", ":set foldlevel=0<cr>", desc = "fold-0" },
       { "z-", ":set foldlevel=999<cr>", desc = "unfold" },
 
       -- GClip 复制、粘贴

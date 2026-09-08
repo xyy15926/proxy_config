@@ -2,7 +2,7 @@
 -- File    : heading_file.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 10:39:09
--- Updated : 2026-08-28 17:26:53
+-- Updated : 2026-09-08 14:40:27
 -- Desc    : Add and update heading for scripts.
 -- ==========================================================================
 
@@ -17,6 +17,7 @@ M.defaults = {
     "*.c", "*.cpp", "*.h",
     "*.sh",
   },
+  auto_update_timestamp = false,
 }
 M.opts = vim.deepcopy(M.defaults)
 
@@ -37,7 +38,17 @@ function M.update_timestamp(lineno)
   for i, line in ipairs(lines) do
     if line:match("[Uu]pdated") and line:match(ts_pattern) then
       local new_line = line:gsub(ts_pattern, now, 1)
-      vim.api.nvim_buf_set_lines(buf, i - 1, i, false, { new_line })
+
+      -- 若在 git 仓库内，仅在有 unstaged 变更时，更新时间戳
+      -- 通过 gitsign 设置缓冲区变量判断是否有 unstaged 变更
+      local status = vim.b.gitsigns_status_dict
+      if status then
+        if status.added > 0 or status.changed > 0 or status.removed > 0 then
+          vim.api.nvim_buf_set_lines(buf, i - 1, i, false, { new_line })
+        end
+      else
+          vim.api.nvim_buf_set_lines(buf, i - 1, i, false, { new_line })
+      end
       break
     end
   end
@@ -66,11 +77,13 @@ function M.setup(opts)
     end,
   })
 
-  vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
-    group = header_group,
-    pattern = M.opts.auto_file_ptns,
-    callback = function() M.update_timestamp(30) end,
-  })
+  if M.opts.auto_update_timestamp then
+    vim.api.nvim_create_autocmd({ "BufWritePost", "FileWritePost" }, {
+      group = header_group,
+      pattern = M.opts.auto_file_ptns,
+      callback = function() M.update_timestamp(30) end,
+    })
+  end
 
 end
 

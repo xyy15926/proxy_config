@@ -2,7 +2,7 @@
 -- File    : terminal.lua
 -- Author  : xyy15926
 -- Created : 2026-08-30 15:34:38
--- Updated : 2026-09-01 13:39:21
+-- Updated : 2026-09-07 10:20:52
 -- Desc    : Plugins for vim-terminal.
 -- Plugins : 
 --   vim-slime              文件、终端桥接
@@ -23,13 +23,13 @@ return {
       -- 后续，可以自由再将其他按键绑定到 `<Plug>xxxx`
       -- 故此时必须设置 `remap = true`？
       -- 但，事实上此处设置 `remap = false` 依然工作，之前在 Vim 中也是如此
-      { "<leader>rr", "<Plug>SlimeLineSend", desc = "Send Line", remap = true },
-      { "<leader>rr", "<Plug>SlimeRegionSend", desc = "Send Region", mode = "x", remap = true },
-      { "<leader>rc", "<Plug>SlimeSendCell", desc = "Send Cell", mode = "n", remap = true },
+      { "<leader>rs", "<Plug>SlimeLineSend", desc = "Slime: Send Line", remap = true },
+      { "<leader>rs", "<Plug>SlimeRegionSend", desc = "Slime: Send Region", mode = "x", remap = true },
+      { "<leader>rc", "<Plug>SlimeSendCell", desc = "Slime: Send Cell", mode = "n", remap = true },
       { "<leader>rm", function()
         vim.fn["slime#send_cell"]()
         require("users.mark_jump").next_mark()
-      end, desc = "Send Cell & Move", mode = "n" },
+      end, desc = "Sime: Send&Move", mode = "n" },
     },
     config = function()
       vim.g.slime_target = "neovim"

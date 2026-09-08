@@ -2,13 +2,22 @@
 -- File    : init.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 22:28:31
--- Updated : 2026-08-28 19:33:36
+-- Updated : 2026-09-08 14:43:35
 -- Desc    : Init user mods.
 -- ==========================================================================
 
 require("users.rooter").setup({
   root_flags = { ".root", ".svn", ".git", ".hg", ".project", "Makefile" },
   file_ptns = "*",
+  web_browser = {
+    "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+    "--inprivate",
+  },
+  find_path = {
+    vim.fn.stdpath("config"),
+    vim.fn.stdpath("data"),
+    vim.fn.expand("~/code/pproxy"),
+  }
 })
 require("users.daily_todo").setup({
   todo_base = vim.fn.expand("~/files.md/gtd"),
@@ -22,6 +31,7 @@ require("users.heading_file").setup({
     "*.c", "*.cpp", "*.h",
     "*.sh",
   },
+  auto_update_timestamp = true,
 })
 require("users.pyenv").setup()
 require("users.markdown_todo").setup({

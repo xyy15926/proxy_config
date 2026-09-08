@@ -2,7 +2,7 @@
 -- File    : ui.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 19:46:23
--- Updated : 2026-08-27 19:46:23
+-- Updated : 2026-09-07 19:53:30
 -- Desc    : Plugins to provide more information while prettify the UI.
 -- ==========================================================================
 
@@ -82,5 +82,15 @@ return {
         },
       })
     end,
+  },
+
+  -- %%------------------------- ascii arts ---------------------------------
+  {
+    "MaximilianLloyd/ascii.nvim",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+    },
+    lazy = false,
+    enabled = true,
   },
 }

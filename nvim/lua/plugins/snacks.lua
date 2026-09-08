@@ -4,6 +4,9 @@
 
 return {
   "folke/snacks.nvim",
+  dependecies = {
+    "MaximilianLloyd/ascii.nvim",
+  },
   priority = 1000,
   lazy = false,
   opts = {

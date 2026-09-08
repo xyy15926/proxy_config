@@ -2,7 +2,7 @@
 -- File    : usercmd.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 14:56:19
--- Updated : 2026-08-28 18:38:11
+-- Updated : 2026-09-07 17:59:27
 -- Desc    : Register user command helper.
 -- ==========================================================================
 
@@ -21,6 +21,7 @@ M.opts = vim.deepcopy(M.defaults)
 --- @param end_line number 终止行号，索引从 0 开始
 --- @param func function 将被逐行应用的函数
 --- @param msg? string 执行完成后的提示信息
+--- @return integer 修改的行数
 function M.apply_on_0range_lines(start_line, end_line, func, msg)
   if start_line > end_line then
     start_line, end_line = end_line, start_line
@@ -42,6 +43,8 @@ function M.apply_on_0range_lines(start_line, end_line, func, msg)
     vim.api.nvim_buf_set_lines(0, start_line, end_line + 1, false, lines)
     vim.notify(changed .. " lines hased been " .. msg .. ".")
   end
+
+  return changed
 end
 
 --- 此函数接受索引从 1 开始的行范围，逐行应用函数 `func` 修改行内容
@@ -50,6 +53,7 @@ end
 --- @param end_line number 终止行号，索引从 1 开始
 --- @param func function 将被逐行应用的函数
 --- @param msg? string 执行完成后的提示信息
+--- @return integer 修改的行数
 function M.apply_on_1range_lines(start_line, end_line, func, msg)
   -- Range 范围是 1-based，内部手动处理
   return M.apply_on_0range_lines(start_line - 1, end_line - 1, func, msg)

@@ -2,10 +2,11 @@
 -- File    : utils.lua
 -- Author  : xyy15926
 -- Created : 2026-08-26 15:34:07
--- Updated : 2026-08-28 17:21:33
+-- Updated : 2026-09-07 22:07:35
 -- Desc    : Utils for lua scripts.
 -- ==========================================================================
 
+require("users.utils.dev").setup()
 local usercmd = require("users.utils.usercmd").setup()
 local flashhl = require("users.utils.flashhl").setup()
 

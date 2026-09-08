@@ -2,7 +2,7 @@
 -- File    : git.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:23:45
--- Updated : 2026-09-05 22:24:13
+-- Updated : 2026-09-08 15:27:06
 -- Desc    : Plugins related to git.
 -- ==========================================================================
 
@@ -57,10 +57,10 @@ return {
     lazy = true,
     cmd = { "DiffviewOpen", "DiffviewFileHistory" },
     keys = {
-      { "<leader>gd", "<cmd>DiffviewOpen --<cr>", desc = "Diffview Stage" },
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diff Stage" },
+      { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Diff Close" },
       { "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", desc = "Diff Hist File" },
       { "<leader>gF", "<cmd>DiffviewFileHistory<cr>", desc = "Diff Hist Repo" },
-      { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Diff Close" },
     },
     opts = {
       enhanced_diff_hl = true,
@@ -77,7 +77,7 @@ return {
         },
         -- 查看提交历史场合
         file_history = {
-          layout = "diff2_vertical",
+          layout = "diff2_horizontal",
         },
       },
       -- diff 文件导航栏
@@ -114,10 +114,14 @@ return {
       keymaps = {
         -- Diffview 导航栏内快捷键
         view = {
+          { "n", "q", "<cmd>DiffviewToggleFiles<cr>", { desc = "Toggle Files" } },
+          { "n", "<leader>nn", "<cmd>DiffviewToggleFiles<cr>", { desc = "Toggle Files" } },
         },
         file_panel = {
+          { "n", "<leader>nn", "<cmd>DiffviewToggleFiles<cr>", { desc = "Toggle Files" } },
         },
         file_history_panel = {
+          { "n", "<leader>nn", "<cmd>DiffviewToggleFiles<cr>", { desc = "Toggle Files" } },
         },
       },
     },

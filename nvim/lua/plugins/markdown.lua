@@ -2,7 +2,7 @@
 -- File    : markdown.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:37:15
--- Updated : 2026-09-05 16:15:35
+-- Updated : 2026-09-07 19:25:07
 -- Desc    : Plugins related to markdown.
 --
 -- Notions:
@@ -142,21 +142,23 @@ return {
       vim.g.table_mode_update_time = 100
       vim.g.table_mode_disable_mappings = 1
       vim.g.table_mode_disable_tableize_mappings = 1
+      vim.g.table_mode_corner = "|"
+      vim.g.table_mode_corner_corner = "|"
       -- 必须显式手动解绑
       pcall(vim.keymap.del, "n", "<leader>tt")
       pcall(vim.keymap.del, "n", "<leader>tm")
       pcall(vim.keymap.del, "v", "<leader>T")
       -- 进入插入模式自动禁用 TableMode
-      vim.api.nvim_create_autocmd("InsertEnter", {
-        group = vim.api.nvim_create_augroup("DisableTableMode", { clear = true }),
-        pattern = "*.md",
-        callback = function()
-          -- 未激活过 TableMode 前高亮组不存在，直接 `TableModeDisable` 会报错
-          if vim.fn.hlexists("Table") > 0 then
-            vim.cmd("TableModeDisable")
-          end
-        end,
-      })
+      -- vim.api.nvim_create_autocmd("InsertEnter", {
+      --   group = vim.api.nvim_create_augroup("DisableTableMode", { clear = true }),
+      --   pattern = "*.md",
+      --   callback = function()
+      --     -- 未激活过 TableMode 前高亮组不存在，直接 `TableModeDisable` 会报错
+      --     if vim.fn.hlexists("Table") > 0 then
+      --       vim.cmd("TableModeDisable")
+      --     end
+      --   end,
+      -- })
     end
   },
 }
