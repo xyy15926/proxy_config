@@ -2,7 +2,7 @@
 -- File    : python.lua
 -- Author  : xyy15926
 -- Created : 2026-09-09 11:12:18
--- Updated : 2026-09-10 09:58:48
+-- Updated : 2026-09-10 14:44:57
 -- Desc    : Overseer task templates for python project.
 --
 -- Ref:
@@ -67,7 +67,24 @@ return {
         builder = function()
           return {
             cmd = pyenv.pixify({ "pytest", "--tb=short", "-q", "--color=no", target }, root),
-            components = { "default", "diagnostics", },
+            components = {
+              "default",
+              -- 同名组件仅首个被应用
+              { "on_output_parse", parser = function(line)
+                  local fname, lnum, msg = line:match("^(.*):(%d+): (.*)$")
+                  -- Return a table in the format of :help setqflist-what
+                  -- or return nil if no match
+                  if fname then
+                    return {
+                      filename = fname,
+                      lnum = tonumber(lnum),
+                      text = "pytest: error " .. msg
+                    }
+                  end
+                end
+              },
+              "diagnostics",
+            },
           }
         end,
       })

@@ -21,7 +21,15 @@ return {
     scope = { enabled = true },       -- 范围高亮，高亮当前函数、代码块
     quickfile = { enabled = false },  -- 快速打开文件，自动打开上次编辑位置
     words = { enabled = true },       -- 单词高亮跳转，类似跨文件 `*`
-    scratch = { enabled = true },     -- 临时缓冲区、草稿版
+    -- ref: lazy/snacks.nvim/docs/scratch.md
+    -- scratch 有个 bug：如果首个 scratch 是具名 scratch，那么会错误的归属在
+    --   其 root 目录下，且在其他工作目录打开同名 scratch 也能可能会错误打开，
+    --   但，只要创建过其他 scratch 就不会有问题
+    scratch = {  -- 临时缓冲区、草稿版
+      enabled = true,
+      root = vim.fn.stdpath("data") .. "/scratch",
+      autowrite = true,
+    },
     gitbrowse = { enabled = true },   -- 浏览器中打开当前代码对应的 Github 链接
     lazygit = { enabled = true },     -- 集成 lazygit（Git TUI 客户端）
     bufdelete = { enabled = true },   -- 安全删除缓冲区，保留窗口布局

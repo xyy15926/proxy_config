@@ -39,6 +39,7 @@ return {
       { "<leader>h", group = "lint-hint",  icon = "󰴑 " },
       { "<leader>u", group = "tiny-func", icon = "󰊕 " },
       { "<leader>c", group = "content", icon = "󰆐 " },
+      { "<leader>m", group = "msg-scratch", icon = "󱖩 " },
 
       -- %% 原生 Window 操作（无插件依赖，留在这里）
       { "<leader>ww", "<C-w>w", desc = "other-window" },

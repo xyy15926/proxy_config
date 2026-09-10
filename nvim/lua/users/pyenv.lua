@@ -2,7 +2,7 @@
 -- File    : pyenv.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 17:28:54
--- Updated : 2026-09-09 20:00:49
+-- Updated : 2026-09-10 15:51:01
 -- Desc    : Settings for python env.
 -- ==========================================================================
 
@@ -31,6 +31,19 @@ function M.pixify(cmd, root)
     local new_cmd = { "pixi", "run" }
     for _, v in ipairs(cmd) do table.insert(new_cmd, v) end
     return new_cmd
+  end
+  return cmd
+end
+
+
+--- 给命令加上 pixi run 前缀
+--- @param cmd string
+--- @param root string?
+--- @return string
+function M.venv_cmd(cmd, root)
+  root = root or require("users.rooter").find_project_root()
+  if M.has_pixi(root) then
+    return root .. "/.pixi/envs/default/bin/" .. cmd
   end
   return cmd
 end

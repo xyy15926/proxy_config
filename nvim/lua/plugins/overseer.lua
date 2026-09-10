@@ -2,7 +2,7 @@
 -- File    : overseer.lua
 -- Author  : xyy15926
 -- Created : 2026-09-09 10:14:05
--- Updated : 2026-09-10 10:56:49
+-- Updated : 2026-09-10 14:52:47
 -- Desc    : Configs for overseer to run predefined tasks.
 --
 -- Ref:
@@ -35,6 +35,7 @@
 -- Component 组件：挂载到 task 上的功能模块，监听 task 生命周期各阶段事件、
 --   并执行动作
 -- 1. task 本质上就是 cmd + 一组监听 components
+-- 1.1. 若 template(task) 中包含同名组件，仅首个同名组件生效
 -- 2. 内置组件包括任务标准输出解析、结果解析、清理等
 -- 3. component aliases 即多个组件的打包，内置有 `default` 别名
 --
@@ -58,11 +59,34 @@
 -- - lazy/overseer.nvim/doc/guides.md#parsing-output
 --
 -- --------------------------------------------------------------------------
--- 注册组件
--- 1. 手动注册：`require("overseer").register_component({})`
+-- 注册组件、组件别名
+-- 1. 手动注册：`require("overseer").register_component()`
 -- 2. 自动发现：位于 $RTP/lua/overseer/component 目录下文件将被自动加载
+-- 3. 组件别名直接通过 `component_aliases` 添加即可
 --
--- 组件别名直接通过 `component_aliases` 添加即可
+-- --------------------------------------------------------------------------
+-- `on_output_parse` Parser
+-- 1. `on_output_parse` 即用于解析 output 的核心组件
+-- 1.1. 其中，`errorformat`、`parser`、`problem_matcher` 仅能有单个参数被设置
+-- 2. `errorformat` 即 vim scanf 内置的从 output 从获取 diagnostics 信息
+--   规范（可 `:help errorformat` 查看）
+-- 2.1. 若仅仅需设置 quickfix，可直接使用 `on_output_quickfix`，而无需组合
+--   `on_output_quickfix`、`on_result_diagnostics_quickfix`
+-- 3. `parser` 可为逐行处理 output 的函数、或更复杂的类
+-- 3.1. 逐行处理函数时，应返回满足 `:help setqflist-what`、至少包含
+--   `filename`、`lnum`、`text` 字段的表，被作为 `task.result.diagnostics` 
+--   中元素
+-- 3.2. 处理复杂的类时，类需包含 `parse`、`get_result`、`reset` 方法，
+--   `get_result` 返回表即 `task.result`，即可任意设置 `task.result`，而
+--   不仅仅是设置 `task.result.diagnostics`
+--
+-- PS:
+-- 可通过 `=require("overseer").list_task()[1]` 查看某 task 细节
+-- - `.result` 查看 task.result 内容
+-- - `.components` 查看关联组件
+--
+-- Ref:
+-- - lazy/overseer.nvim/doc/parsers.md
 -- ==========================================================================
 
 --- keymap 注册工厂函数
@@ -75,7 +99,7 @@ local tmpl_map = function(lhs, template_name, desc, args)
   local bufnr = args and args.buf or 0
   desc = desc or template_name
   vim.keymap.set("n", lhs, function()
-    overseer.run_task({ name = template_name })
+    require("overseer").run_task({ name = template_name })
   end, { buffer = bufnr, desc = desc })
 end
 

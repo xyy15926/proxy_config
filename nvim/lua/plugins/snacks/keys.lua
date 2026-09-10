@@ -2,7 +2,7 @@
 -- File    : keys.lua
 -- Author  : xyy15926
 -- Created : 2026-09-08 22:01:25
--- Updated : 2026-09-09 10:04:32
+-- Updated : 2026-09-10 17:31:33
 -- Desc    : Snacks keymaps
 -- ==========================================================================
 
@@ -110,10 +110,18 @@ return {
   { "<leader>nc", function() require("snacks").explorer({ cwd = vim.fn.expand("%:p:h") }) end, desc = "Explorer Sidebar (Current File)" },
 
   -- ===================================================================
+  -- Scratch
+  -- ref: lazy/snacks.nvim/docs/scratch.md
+  -- ===================================================================
+  { "<leader>ml", function() require("snacks").scratch.select() end, desc = "Scratch: List" },
+  { "<leader>mz", function() require("snacks").scratch.open() end, desc = "Scratch: BrandNew" },
+  { "<leader>mm", function() require("snacks").scratch.open({ ft = "markdown", name = "todo" }) end, desc = "Scratch: Todo" },
+  { "<leader>mg", function() require("snacks").scratch.open({ ft = "gitcommit", name = "commit-draft" }) end, desc = "Scratch: Commit" },
+
+  -- ===================================================================
   -- 其他组件
   -- ===================================================================
   { "<leader>un", function() require("snacks").notifier.show_history() end, desc = "Notification History" },
-  { "<leader>ub", function() require("snacks").scratch() end, desc = "Scratch Buffer" },
   { "<leader>uz", function() require("snacks").dashboard() end, desc = "Dashboard" },
   { "<leader>bd", function() require("snacks").bufdelete() end, desc = "Delete Buffer" },
   { "<leader>qB", function() require("snacks").gitbrowse() end, desc = "Git Browse" },

@@ -2,7 +2,7 @@
 -- File    : lsp.lua
 -- Author  : xyy15926
 -- Created : 2026-09-03 09:53:52
--- Updated : 2026-09-10 09:49:18
+-- Updated : 2026-09-10 16:14:39
 -- Desc    : nvim-lspconfig
 -- ==========================================================================
 
@@ -24,7 +24,18 @@ return {
           [vim.diagnostic.severity.HINT]  = "💡",
         },
       },
-      float = { border = "rounded", source = "if_many" },
+      float = {
+        border = "rounded",
+        source = "if_many",
+        -- 可通过 `=vim.diagnostic.get(0, lnum={vim.fn.line(".") - 1})` 查看
+        -- 当前行 diagnostic 表信息，即以下函数参数
+        format = function(diagnostic)
+          return string.format("[%s] %s",
+            diagnostic.source or "?",
+            diagnostic.message
+          )
+        end,
+      },
       update_in_insert = false,
     })
 
