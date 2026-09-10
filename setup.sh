@@ -97,6 +97,7 @@ fi
 # >>>>>>>>>>>>>>>>>>>>>>>>> neovim >>>>>>>>>>>>>>>>>>>>>>>>>>>
 sudo add-apt-repository ppa:neovim-ppa/stable
 sudo add-apt-repository ppa:neovim-ppa/unstable
+sudo apt install neovim
 
 # >>>>>>>>>>>>>>>>>>>>> Vim dev environment >>>>>>>>>>>>>>>>>>>>>
 if [ -d "$ROOT/vim" ] && ! [ -e "$HOME/.vim" ] && hash vim 2>/dev/null; then

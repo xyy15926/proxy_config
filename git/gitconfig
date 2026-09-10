@@ -1,6 +1,6 @@
 [core]
 	filemode = false
-	editor = vim
+	editor = nvim
 	autocrlf = input
 	safecrlf = true
 	quotepath = false
@@ -20,3 +20,5 @@
 	tool = vimdiff
 [difftool]
 	prompt = false
+[url "https://gh-proxy.org/https://github.com/"]
+	insteadof = https://github.com/
