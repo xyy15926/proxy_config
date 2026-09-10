@@ -1,10 +1,16 @@
--- ===================================================
--- Snacks keymap
--- ===================================================
--- =============================================================
--- 预计算排除参数（启动时检测一次，运行时零开销）
--- =============================================================
+-- ==========================================================================
+-- File    : keys.lua
+-- Author  : xyy15926
+-- Created : 2026-09-08 22:01:25
+-- Updated : 2026-09-09 10:04:32
+-- Desc    : Snacks keymaps
+-- ==========================================================================
 
+-- %% ===========================================================
+--  为 grep 工具预计算排除参数（启动时检测一次，运行时零开销）
+-- 用 fd 参数排除文件（比 Lua 过滤更高效）
+-- 如果系统没有 fd，snacks 会自动 fallback 到 rg 或 vim 内置
+-- =============================================================
 local EXCLUDE_PATTERNS = {
   "*.pyc", "*.so", "*.o", "*.bin", "*.exe", "*.dll",
   "*.class", "*.jar",
@@ -56,40 +62,29 @@ end
 FILE_ARGS = PRECOMPUTED[FILE_TOOL] or {}
 GREP_ARGS = PRECOMPUTED.rg  -- grep 始终用 rg
 
+
+-- %% =======================================================================
+--  Keymaps
+-- ==========================================================================
+-- 获取当前 buffer 对应的根目录，作为文件查询起始点
+local gcwd = require("users.rooter").find_project_root
+
 return {
   -- ===================================================================
   -- snack.picker
   -- ===================================================================
   -- 文件名搜索结果
-  {
-    "<leader>ff",
-    function()
-      require("snacks").picker.files({
-        hidden = true,
-        -- 用 fd 参数排除文件（比 Lua 过滤更高效）
-        -- 如果系统没有 fd，snacks 会自动 fallback 到 rg 或 vim 内置
-        args = FILE_ARGS,
-      })
-    end,
-    desc = "Find Files",
-  },
+  { "<leader>ff", function() require("snacks").picker.files({ hidden = true, args = FILE_ARGS, cwd = gcwd(), }) end, desc = "Find Files", },
+  { "<leader>fF", function() require("snacks").picker.files({ hidden = true, args = FILE_ARGS, }) end, desc = "Find Files (WorkSpace)", },
   { "<leader>fs", function() require("snacks").picker.smart() end, desc = "Find Smart" },
   { "<leader>fb", function() require("snacks").picker.buffers() end, desc = "Buffers" },
   { "<leader>fe", function() require("snacks").picker.recent() end, desc = "Recent Files" },
 
   -- 文件内容搜索结果
-  {
-    "<leader>fg",
-    function()
-      require("snacks").picker.grep({
-        hidden = true,
-        -- rg 的 glob 排除语法
-        args = GREP_ARGS
-      })
-    end,
-    desc = "Live Grep",
-  },
-  { "<leader>fw", function() require("snacks").picker.grep({ search = vim.fn.expand("<cword>") }) end, desc = "Grep Word Under Cursor" },
+  { "<leader>fg", function() require("snacks").picker.grep({ hidden = true, args = GREP_ARGS, cwd = gcwd(), }) end, desc = "Live Grep", },
+  { "<leader>fG", function() require("snacks").picker.grep({ hidden = true, args = GREP_ARGS }) end, desc = "Live Grep (WorkSpace)", },
+  { "<leader>fw", function() require("snacks").picker.grep({ cwd = gcwd(), search = vim.fn.expand("<cword>") }) end, desc = "Grep Word Under Cursor" },
+  { "<leader>fW", function() require("snacks").picker.grep({ search = vim.fn.expand("<cword>") }) end, desc = "Grep Word Under Cursor (WorkSpace)" },
   { "<leader>f/", function() require("snacks").picker.grep({ buffers = { vim.api.nvim_get_current_buf() } }) end, desc = "Grep in Current Buffer" },
   { "<leader>fl", function() require("snacks").picker.lines() end, desc = "Search in Current Buffer" },
 
@@ -109,12 +104,10 @@ return {
   -- snack.explorer
   -- snack.picker.explorer() 也可以
   -- ===================================================================
-  { "<leader>nn", function() require("snacks").explorer() end, desc = "Explorer Sidebar" },
-  -- 在当前文件所在目录打开
-  { "<leader>nc", function()
-    require("snacks").explorer({ cwd = vim.fn.expand("%:p:h") })
-    end, desc = "Explorer (Current File)"
-  },
+  -- 打开当前文件所在根目录、所在目录（缺省为当前工作目录）
+  { "<leader>nn", function() require("snacks").explorer({ cwd = gcwd() }) end, desc = "Explorer Sidebar" },
+  { "<leader>nN", function() require("snacks").explorer() end, desc = "Explorer Sidebar (WorkSpace)" },
+  { "<leader>nc", function() require("snacks").explorer({ cwd = vim.fn.expand("%:p:h") }) end, desc = "Explorer Sidebar (Current File)" },
 
   -- ===================================================================
   -- 其他组件

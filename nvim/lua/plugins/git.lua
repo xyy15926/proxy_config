@@ -2,7 +2,7 @@
 -- File    : git.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:23:45
--- Updated : 2026-09-08 15:27:06
+-- Updated : 2026-09-10 09:48:49
 -- Desc    : Plugins related to git.
 -- ==========================================================================
 
@@ -29,8 +29,8 @@ return {
         end
 
         -- 跳转 hunk
-        vim.keymap.set("n", "<leader>mu", gs.prev_hunk,     opts("Prev Hunk"))
-        vim.keymap.set("n", "<leader>mg", gs.next_hunk,     opts("Next Hunk"))
+        vim.keymap.set("n", "<leader>je", gs.prev_hunk,     opts("Prev Hunk"))
+        vim.keymap.set("n", "<leader>jd", gs.next_hunk,     opts("Next Hunk"))
 
         -- 操作
         vim.keymap.set("n", "<leader>gp", gs.preview_hunk,  opts("Preview Hunk"))

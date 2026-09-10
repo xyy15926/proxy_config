@@ -2,7 +2,7 @@
 -- File    : ui.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 19:46:23
--- Updated : 2026-09-07 19:53:30
+-- Updated : 2026-09-08 22:14:48
 -- Desc    : Plugins to provide more information while prettify the UI.
 -- ==========================================================================
 
@@ -92,5 +92,8 @@ return {
     },
     lazy = false,
     enabled = true,
+    keys = {
+      { "<leader>up", function() require("ascii").preview() end, desc = "Preview Ascii Arts" },
+    },
   },
 }

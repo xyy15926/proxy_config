@@ -2,7 +2,7 @@
 -- File    : treesitter.lua
 -- Author  : xyy15926
 -- Created : 2026-09-01 09:59:44
--- Updated : 2026-09-08 14:01:25
+-- Updated : 2026-09-08 19:57:57
 -- Desc    : Treesitter configs.
 --
 -- --------------------------------------------------------------------------
@@ -53,6 +53,7 @@ return {
       "lua", "python", "c", "cpp", "rust",
       "bash", "markdown", "markdown_inline",
       "json", "yaml", "toml", "vim", "vimdoc",
+      "query",
     },
     auto_install = true,
     highlight = {
@@ -91,7 +92,11 @@ return {
           vim.wo[0][0].foldmethod = 'expr'
           vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 
-          -- vim.notify("Set buffer " .. args.file .. " with treesitter parser.")
+          vim.notify(
+            "Set highlight, foldexpr and foldmethod for buffer "
+            .. args.file .. " with treesitter parser.",
+            vim.log.levels.TRACE
+          )
         end
       end,
     })

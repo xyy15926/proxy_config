@@ -2,7 +2,7 @@
 -- File    : lsp.lua
 -- Author  : xyy15926
 -- Created : 2026-09-03 09:53:52
--- Updated : 2026-09-04 09:08:23
+-- Updated : 2026-09-10 09:49:18
 -- Desc    : nvim-lspconfig
 -- ==========================================================================
 
@@ -58,8 +58,8 @@ return {
         -- =============================================================
 
         -- 跳转
-        vim.keymap.set("n", "<leader>mr", function() vim.diagnostic.jump( { count = -1 }) end, opts("Prev Diagnostic"))
-        vim.keymap.set("n", "<leader>mv", function() vim.diagnostic.jump( { count = 1 }) end, opts("Next Diagnostic"))
+        vim.keymap.set("n", "<leader>jr", function() vim.diagnostic.jump( { count = -1 }) end, opts("Prev Diagnostic"))
+        vim.keymap.set("n", "<leader>jf", function() vim.diagnostic.jump( { count = 1 }) end, opts("Next Diagnostic"))
         vim.keymap.set("n", "gy",   vim.lsp.buf.type_definition, opts("Goto Type Definition"))
         -- vim.keymap.set("n", "gg", function()
         --   vim.cmd("tab split")

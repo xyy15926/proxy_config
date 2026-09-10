@@ -20,7 +20,7 @@ return {
     },
     spec = {
       { "<leader><leader>", "<cmd>WhichKey<cr>", desc = "which-key", icon = "? " },
-      -- 分组定义（目录）
+      -- %% 分组定义（目录）
       { "<leader>w", group = "windows", icon = " " },
       { "<leader>b", group = "buffer", icon = " " },
       { "z",         group = "fold", icon = "z " },
@@ -32,7 +32,7 @@ return {
       { "<leader>l", group = "other-picker", icon = " " },
       { "g",         group = "native-goto", icon = "󰋱 " },
       { "<leader>q", group = "outvim-actions", icon = "󱋿 " },
-      { "<leader>m", group = "jump-move",      icon = " " },
+      { "<leader>j", group = "jump", icon = " " },
       { "<leader>x", group = "build-run", icon = " " },
       { "<leader>a", group = "ai-avante", icon = " " },
       { "<leader>g", group = "git-actions", icon = " " },
@@ -40,7 +40,7 @@ return {
       { "<leader>u", group = "tiny-func", icon = "󰊕 " },
       { "<leader>c", group = "content", icon = "󰆐 " },
 
-      -- 原生 Window 操作（无插件依赖，留在这里）
+      -- %% 原生 Window 操作（无插件依赖，留在这里）
       { "<leader>ww", "<C-w>w", desc = "other-window" },
       { "<leader>wd", "<C-w>c", desc = "delete-window" },
       { "<leader>w-", "<C-w>s", desc = "split-below" },
@@ -60,7 +60,7 @@ return {
       { "<leader>wm", "<C-w>m", desc = "zoom" },
       { "<leader>wq", "<cmd>cclose<cr>", desc = "qfix-close" },
 
-      -- 特殊窗口导航
+      -- %% 特殊窗口导航
       { "<M-H>", "<C-w>h", desc = "window-left" },
       { "<M-L>", "<C-w>l", desc = "window-right" },
       { "<M-J>", "<C-w>j", desc = "window-down" },
@@ -71,7 +71,7 @@ return {
       { "<M-K>", "<Esc><C-w>k", mode = "i", desc = "window-up" },
       -- { "<Esc>", "<C-\\><C-n>", mode = "t", desc = "to-normal" },
 
-      -- 原生 Buffer 操作
+      -- %% 原生 Buffer 操作
       { "<leader>b1", ":b1<cr>", desc = "buffer 1" },
       { "<leader>b2", ":b2<cr>", desc = "buffer 2" },
       -- { "<leader>bd", ":bd<cr>", desc = "delete-buffer" },   -- 使用 snacks.bufdelete 替代，更安全
@@ -81,16 +81,19 @@ return {
       { "<leader>bp", ":bprevious<cr>", desc = "previous-buffer" },
       { "<leader>bo", ":only<cr>", desc = "only" },
 
-      -- 杂项（tiny-func）
+      -- %% 杂项（tiny-func）
       { "<leader>us", ":source $MYVIMRC<cr>", desc = "reload-config" },
       { "<leader>uq", function() vim.fn.setqflist({}) end, desc = "clean-qf" },
-      { "<leader>mq", "<cmd>cprev<cr>", desc = "qfix-prev" },  -- Quickfix 跳转
-      { "<leader>mz", "<cmd>cnext<cr>", desc = "qfix-next" },
-      { "<leader>mm", "`m", desc = "jump-mark-m" },  -- 跳转到使用 `mm` 设置的标记处，`'m` 则只跳转精确至行
-      { "<leader>mc", "]c", desc = "diff-next" },
-      { "<leader>me", "[c", desc = "diff-prev" },
 
-      -- fold
+      -- %%jump
+      { "<leader>jm", "`m", desc = "jump-mark-m" },  -- 跳转到使用 `mm` 设置的标记处，`'m` 则只跳转精确至行
+      { "<leader>jq", "<cmd>cprev<cr>", desc = "prev-qfix" },
+      { "<leader>ja", "<cmd>cnext<cr>", desc = "next-qfix" },
+      { "<leader>jz", "<cmd>cc<cr>", desc = "curr-qfix" },
+      { "<leader>jw", "[c", desc = "diff-prev" },
+      { "<leader>js", "]c", desc = "diff-next" },
+
+      -- %% fold
       { "z1", ":set foldlevel=1<cr>", desc = "fold-1" },
       { "z2", ":set foldlevel=2<cr>", desc = "fold-2" },
       { "z3", ":set foldlevel=3<cr>", desc = "fold-3" },
@@ -102,7 +105,7 @@ return {
       { "z0", ":set foldlevel=0<cr>", desc = "fold-0" },
       { "z-", ":set foldlevel=999<cr>", desc = "unfold" },
 
-      -- GClip 复制、粘贴
+      -- %% GClip 复制、粘贴
       { "<leader>cp", "\"+p", desc = "paste from +" },
       { "<leader>co", "o<esc>\"+p", desc = "newline paste" },
       { "<leader>cyy", "\"+yy", desc = "copy curline into +" },

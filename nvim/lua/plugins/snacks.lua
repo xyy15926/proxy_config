@@ -14,7 +14,10 @@ return {
     bigfile = { enabled = true },     -- 大文件性能优化，禁用 treesitter、语法高亮
     indent = { enabled = true },      -- 缩进线、范围高亮
     input = { enabled = true },       -- 美化 vim.ui.input
-    notifier = { enabled = true },    -- 通知系统，替代 nvim-notify
+    notifier = {  -- 通知系统，替代 nvim-notify
+      enabled = true,
+      level = vim.log.levels.INFO,
+    },
     scope = { enabled = true },       -- 范围高亮，高亮当前函数、代码块
     quickfile = { enabled = false },  -- 快速打开文件，自动打开上次编辑位置
     words = { enabled = true },       -- 单词高亮跳转，类似跨文件 `*`

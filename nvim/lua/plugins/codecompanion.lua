@@ -2,7 +2,7 @@
 -- File    : codecompanion.lua
 -- Author  : xyy15926
 -- Created : 2026-08-31 11:22:47
--- Updated : 2026-09-04 10:40:51
+-- Updated : 2026-09-09 14:51:42
 -- Desc    : Config of CodeCompanion.
 --
 -- Ref:
@@ -27,17 +27,17 @@ return {
   keys = {
     { "<leader>al", "<cmd>CodeCompanionAction<cr>", mode = { "n", "x" }, desc = "Actions" },
     -- Chat
-    { "<leader>an", "<cmd>CodeCompanionChat<cr>", mode = { "n", "x" }, desc = "New Chat" },
-    { "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "x" }, desc = "Toggle Chat" },
-    { "<leader>ad", "<cmd>CodeCompanionChat Add<cr>", mode = "x", desc = "Add Code" },
+    { "<leader>an", "<cmd>CodeCompanionChat<cr>", mode = { "n", "x" }, desc = "Chat: New" },
+    { "<leader>as", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "x" }, desc = "Chat: Toggle" },
+    { "<leader>ad", "<cmd>CodeCompanionChat Add<cr>", mode = "x", desc = "Chat: Add Code" },
     -- Code Review
     { "<leader>a+", "<cmd>CodeCompanionCodeReview Start<cr>", mode = "n", desc = "Review: Set Baseline" },
     { "<leader>ar", "<cmd>CodeCompanionCodeReview<cr>", mode = "n", desc = "Review: Start" },
-    { "<leader>al", "<cmd>CodeCompanionCodeReview All<cr>", mode = "n", desc = "Review: Start with All" },
+    { "<leader>aR", "<cmd>CodeCompanionCodeReview All<cr>", mode = "n", desc = "Review: Start with All" },
     { "<leader>am", "<cmd>CodeCompanionCodeReview Comment<cr>", mode = "n", desc = "Review: Comment" },
-    { "<leader>as", "<cmd>CodeCompanionCodeReview Share<cr>", mode = "n", desc = "Review: Share" },
+    { "<leader>aS", "<cmd>CodeCompanionCodeReview Share<cr>", mode = "n", desc = "Review: Share" },
     -- Inline Prompt
-    { "<leader>aa", "<cmd>CodeCompanion<cr>", mode = { "n", "x" }, desc = "Prompt" },
+    { "<leader>aa", "<cmd>CodeCompanion<cr>", mode = { "n", "x" }, desc = "Inline: Prompt" },
     -- { "<leader>ae", "<cmd>CodeCompanion /explain<cr>", mode = "x", desc = "Explain Code" },
     -- { "<leader>ar", "<cmd>CodeCompanion /review<cr>", mode = "x", desc = "Review Code" },
   },

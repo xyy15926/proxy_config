@@ -2,7 +2,7 @@
 -- File    : markdown.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:37:15
--- Updated : 2026-09-07 19:25:07
+-- Updated : 2026-09-08 18:31:52
 -- Desc    : Plugins related to markdown.
 --
 -- Notions:
@@ -98,30 +98,36 @@ return {
   {
     "OXY2DEV/markview.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
-    -- ft = md_fts,
+    ft = md_fts,
     enabled = true,
-    lazy = true,
+    -- 延迟加载会出很多问题，似乎整个 `opts` 都不生效
+    lazy = false,
     keys = {
       { "<leader>rv", "<cmd>Markview Toggle<cr>", desc = "Render Markdown" },
     },
     opts = {
-      -- 在编辑器里直接渲染 Markdown（标题、代码块、表格等）
-      enable_hybrid_mode = true,
-      hybrid_modes = { "n" },  -- 在 Normal 模式启用 hybrid
-      linewise_hybrid_mode = false,  -- true 则切换为行级模式
-      -- 控制插件是否对缓冲区真正启用
+      -- Ref
+      -- - lazy/markview.nvim/markview.nvim.wiki/Configuration.md
+      -- - lazy/markview.nvim/markview.nvim.wiki/Preview.md
+      -- - https://github.com/OXY2DEV/markview.nvim/wiki/Preview
       preview = {
+        enable = false,  -- 默认不启用
+        map_gx = false,  -- 禁用内置的 `gx` 映射，逻辑完全无用
+
+        -- 控制插件是否对缓冲区真正启用
         -- filetypes = { "markdown", "quarto", "rmd", "typst", "codecompanion" },
         filetypes = md_fts,
-        ignore_buftypes = {},
-        -- 接受 buffer 作为参数的回调函数，控制插件是否对缓冲区启用
-        condition = nil,
+        ignore_buftypes = { "nofile" },
+
+        -- hybrid_modes：渲染、plain txt 共存模式
+        enable_hybrid_mode = false,  -- 默认不启用
+        hybrid_modes = { "n" },  -- 在 Normal 模式启用 hybrid
+        linewise_hybrid_mode = false,  -- true 则切换为行级模式
+
+        max_buf_lines = 100,
       },
+      markdown = {},
     },
-    config = function(_, opts)
-      require("markview").setup(opts)
-      require("markview").commands.clear()  -- 手动默认不渲染
-    end,
   },
 
   -- -------------------- table-mode（表格模式）------------------------------

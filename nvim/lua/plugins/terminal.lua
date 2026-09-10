@@ -2,7 +2,7 @@
 -- File    : terminal.lua
 -- Author  : xyy15926
 -- Created : 2026-08-30 15:34:38
--- Updated : 2026-09-07 10:20:52
+-- Updated : 2026-09-08 20:01:33
 -- Desc    : Plugins for vim-terminal.
 -- Plugins : 
 --   vim-slime              文件、终端桥接
@@ -40,11 +40,13 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("SetSlimeCellDelimiter", { clear = true }),
         pattern = { "python", "sh", "lua" },
-        callback = function()
+        callback = function(args)
           local escaped = require("users.mark_jump").get_patterns()[1]
           -- 将 lua 已转义的匹配模式转换为普通字符串
           local plain = escaped:gsub("%%(.)", "%1")
-          -- vim.notify("Set cell delimiter: " .. plain)
+          vim.notify(
+            "Set cell delimiter: " .. plain .. " for " .. args.file,
+            vim.log.levels.TRACE)
           vim.b.slime_cell_delimiter = plain
         end,
       })

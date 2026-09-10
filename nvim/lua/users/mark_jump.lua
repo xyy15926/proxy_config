@@ -2,7 +2,7 @@
 -- File    : mark_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-08-25 22:04:08
--- Updated : 2026-09-04 15:53:59
+-- Updated : 2026-09-10 09:49:48
 -- Desc    : Jump to the line with mark string.
 -- ==========================================================================
 
@@ -146,7 +146,7 @@ end
 function M.next_mark()
   local marks = scan_marks()
   if #marks == 0 then
-    vim.notify("未找到标记", vim.log.levels.WARN)
+    vim.notify("未找到标记", vim.log.levels.INFO)
     return
   end
 
@@ -178,7 +178,7 @@ end
 function M.prev_mark()
   local marks = scan_marks()
   if #marks == 0 then
-    vim.notify("未找到标记", vim.log.levels.WARN)
+    vim.notify("未找到标记", vim.log.levels.INFO)
     return
   end
 
@@ -210,7 +210,7 @@ end
 function M.list_marks()
   local marks = scan_marks()
   if #marks == 0 then
-    vim.notify("未找到标记", vim.log.levels.WARN)
+    vim.notify("未找到标记", vim.log.levels.INFO)
     return
   end
 
@@ -258,8 +258,8 @@ function M.setup(opts)
   })
 
   if M.opts.set_keymap then
-    vim.keymap.set("n", "<leader>mn", M.next_mark, { desc = "Next Mark"})
-    vim.keymap.set("n", "<leader>mp", M.prev_mark, { desc = "Prev Mark"})
+    vim.keymap.set("n", "<leader>jj", M.next_mark, { desc = "Next Mark"})
+    vim.keymap.set("n", "<leader>ju", M.prev_mark, { desc = "Prev Mark"})
   end
 end
 

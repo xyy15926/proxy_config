@@ -2,7 +2,7 @@
 -- File    : heading_file.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 10:39:09
--- Updated : 2026-09-08 14:40:27
+-- Updated : 2026-09-08 16:45:34
 -- Desc    : Add and update heading for scripts.
 -- ==========================================================================
 
@@ -43,7 +43,9 @@ function M.update_timestamp(lineno)
       -- 通过 gitsign 设置缓冲区变量判断是否有 unstaged 变更
       local status = vim.b.gitsigns_status_dict
       if status then
-        if status.added > 0 or status.changed > 0 or status.removed > 0 then
+        if (status.added or 0)
+          + (status.changed or 0)
+          + (status.removed or 0) > 0 then
           vim.api.nvim_buf_set_lines(buf, i - 1, i, false, { new_line })
         end
       else
