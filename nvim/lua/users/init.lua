@@ -2,13 +2,16 @@
 -- File    : init.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 22:28:31
--- Updated : 2026-09-08 14:43:35
+-- Updated : 2026-09-11 19:11:40
 -- Desc    : Init user mods.
 -- ==========================================================================
 
 require("users.rooter").setup({
   root_flags = { ".root", ".svn", ".git", ".hg", ".project", "Makefile" },
+})
+require("users.link_jump").setup({
   file_ptns = "*",
+  wsl_prefix = "file://wsl.localhost/ubuntu2404",
   web_browser = {
     "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
     "--inprivate",

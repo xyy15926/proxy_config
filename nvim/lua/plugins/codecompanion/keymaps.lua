@@ -18,7 +18,7 @@ return {
     _btw = { modes = { n = "gm" } },  -- 在流式输出过程中插入消息（doc 中是 `btw` 错的）
     stop = { modes = { n = "q" } },  -- 停止请求
     change_adapter = { modes = { n = "ga" } },
-    clear = { modes = { n = "gq" } },  -- 清空聊天历史
+    clear = { modes = { n = "gQ" } },  -- 清空聊天历史
   },
   inline = {
     accept_change = {

@@ -2,12 +2,14 @@
 -- File    : utils.lua
 -- Author  : xyy15926
 -- Created : 2026-09-03 17:07:41
--- Updated : 2026-09-03 22:15:21
+-- Updated : 2026-09-11 19:34:27
 -- Desc    : Utils for CodeCompanion.
 -- ==========================================================================
 
 local M = {}
-M.defaults = { }
+M.defaults = {
+  set_keymap = true,
+}
 M.opts = vim.deepcopy(M.defaults)
 
 
@@ -49,6 +51,9 @@ end
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
   vim.api.nvim_create_user_command("CodeCompanionListChats", list_chats, {})
+  if M.opts.set_keymap then
+    vim.keymap.set("n", "<leader>ac", "<cmd>CodeCompanionListChats<cr>", { desc = "Chat: List" })
+  end
 end
 
 return M

@@ -99,6 +99,7 @@ return {
   { "<leader>lq", function() require("snacks").picker.qflist() end, desc = "Quickfix List" },
   { "<leader>lr", function() require("snacks").picker.registers() end, desc = "Register List" },
   { "<leader>lc", function() require("snacks").picker.colorschemes() end, desc = "ColorSchemes" },
+  { "<leader>lb", function() require("snacks").picker.buffers() end, desc = "Buffers" },
 
   -- ===================================================================
   -- snack.explorer

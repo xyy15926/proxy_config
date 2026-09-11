@@ -9,7 +9,7 @@
 -- - codecompanion.nvim/lua/codecompanion/config.lua
 -- ==========================================================================
 
-require("plugins.codecompanion.addons").setup()
+require("plugins.codecompanion.addons").setup({ set_keymap = true })
 
 return {
   "olimorris/codecompanion.nvim",

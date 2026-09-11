@@ -2,7 +2,7 @@
 -- File    : adapters_http.lua
 -- Author  : xyy15926
 -- Created : 2026-09-01 20:05:50
--- Updated : 2026-09-03 16:29:23
+-- Updated : 2026-09-10 13:40:28
 -- Desc    : HTTP adapters.
 --
 -- 1. `adapter` 适配器：调用、参数控制、报文解析等配置
@@ -68,8 +68,8 @@ return {
         preset = { default = nil, },  -- openrouter 网站上预置的 schema，启用将覆盖本地设置
         provider = { default = nil, },
         model = {
-          -- default = "z-ai/glm-5.2:free",
-          default = "minimax/minimax-m3:free",
+          default = "openrouter/free",
+          -- default = "nvidia/nemotron-3-ultra-550b-a55b:free",
         },
         -- 以下参数在 openrouter 适配器中 `enabled` 是根据模型情况确定是否支持
         -- 若未手动 `enabled`，则在首次启动对话时，以下参数不启用
