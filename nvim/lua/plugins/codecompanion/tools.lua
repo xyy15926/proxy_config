@@ -2,8 +2,12 @@
 -- File    : tools.lua
 -- Author  : xyy15926
 -- Created : 2026-09-02 11:42:06
--- Updated : 2026-09-02 18:51:24
+-- Updated : 2026-09-10
 -- Desc    : Tools
+--
+-- Ref:
+-- - lazy/codecompanion.nvim/doc/extending/tools.md
+-- - lazy/codecompanion.nvim/doc/usage/chat-buffer/agents-tools.md
 --
 -- Tools：工具、工具组
 --
@@ -59,8 +63,7 @@ return {
   --  以下为预定义工具组
   -- ==============================================================
   groups = {
-    -- CodeCompanion 的 agent 模式，包含大量工具、独立的
---   system prompt
+    -- CodeCompanion 的 agent 模式，包含大量工具、独立的 system prompt
     agent = {
       tools = nil,
       opts = {
@@ -147,7 +150,6 @@ return {
     opts = {
       max_files = 100,
       respect_gitignore = true,
-
       require_approval_before = true,
       require_cmd_approval = true,
       allowed_in_yolo_mode = true,

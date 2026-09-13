@@ -2,7 +2,7 @@
 -- File    : yank2gclip.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 11:31:39
--- Updated : 2026-08-28 15:36:40
+-- Updated : 2026-09-11 19:59:36
 -- Desc    : Yank to and paste from GClip.
 --
 -- 通过 win32yank.exe 与 Win 实现通信
@@ -160,6 +160,12 @@ function M.setup(opts)
     vim.opt.opfunc = "v:lua.yank_smart"
     return "g@"
   end, { expr = true, silent = true, desc = "Yank To GClip" })
+  vim.keymap.set({ "n" }, "<leader>cm", function()
+    local msg = vim.api.nvim_exec2("1messages", { output = true }).output
+    -- 去掉开头多余换行
+    msg = msg:gsub("^\n", "")
+    vim.fn.setreg("+", msg)
+  end, { desc = "GYank Last Msg" })
 end
 
 return M

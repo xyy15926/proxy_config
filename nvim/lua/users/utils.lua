@@ -2,7 +2,7 @@
 -- File    : utils.lua
 -- Author  : xyy15926
 -- Created : 2026-08-26 15:34:07
--- Updated : 2026-09-11 19:05:55
+-- Updated : 2026-09-13 22:08:03
 -- Desc    : Utils for lua scripts.
 -- ==========================================================================
 
@@ -24,4 +24,6 @@ return {
   set_gx_pattern = file_link.set_gx_pattern,
   web_url = file_link.web_url,
   file_url = file_link.file_url,
+  scan_directory = file_link.scan_directory,
+  scan_directories = file_link.scan_directories,
 }

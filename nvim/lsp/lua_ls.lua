@@ -2,7 +2,7 @@
 -- File    : lsp/lua_ls.lua
 -- Author  : xyy15927
 -- Created : 2026-09-03 09:44:53
--- Updated : 2026-09-05 15:41:39
+-- Updated : 2026-09-12 15:17:25
 -- Desc    : Config for lua lspconfig client, lua_ls.
 --
 -- --------------------------------------------------------------------------
@@ -35,6 +35,7 @@
 --   或 `:lua =vim.lsp.get_clients()[1].config` 查看生效的 lsp 配置
 -- 2. `:lua local params = vim.lsp.util.make_position_params(0, 'utf-16'); vim.lsp.buf_request(0, 'textDocument/definition', params, function(err, result) print(vim.inspect(result)) end)`
 --   可用于查找 `vim.lsp.buf.definition()` 时 LSP 服务器返回结果
+-- 3. 配置修改后，可直接 `:LspRestart` 重启以加载配置
 -- ==========================================================================
 
 return {
@@ -60,7 +61,15 @@ return {
         preloadFileSize = 10000,
       },
       telemetry = { enable = false },
-      diagnostics = { globals = { "vim" } },
+      diagnostics = {
+        globals = { },
+        unusedLocalExclude = { "_*" },  -- 以 `_` 开头变量不报警，`unusedLocalExclude` 对函数无效，也没有对应函数版本
+        disable = { "unused-function" },  -- 配合禁用 `unused-function`，则若函数名未 `_` 开头则报 `unused-local`
+        severity = {  -- 以下为默认取值
+          ["unused-function"] = "Hint",
+          ["unused-local"]    = "Hint",
+        },
+      },
     },
   },
   -- 在服务器初始化时动态注入
@@ -83,7 +92,7 @@ return {
           path = { "?.lua", "?/init.lua" },
         },
         diagnostics = {
-          globals = { "vim" },
+          globals = { "vim" },  -- 将 `vim` 视为全局变量
         },
         workspace = {
           checkThirdParty = false,
@@ -93,6 +102,7 @@ return {
             -- `vim.uv.fs_realpath` 解析真实路径，同一目录将被添加两次，
             --  并导致 `vim.lsp.buf.definition()` 会返回两条记录
             vim.uv.fs_realpath(vim.fn.stdpath("config")),
+            vim.fn.stdpath("data") .. "/lazy/blink.cmp/lua",
           },
         },
         telemetry = { enable = false },

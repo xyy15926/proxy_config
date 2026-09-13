@@ -2,7 +2,7 @@
 -- File    : init.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 22:28:31
--- Updated : 2026-09-11 19:11:40
+-- Updated : 2026-09-13 14:11:57
 -- Desc    : Init user mods.
 -- ==========================================================================
 
@@ -17,6 +17,8 @@ require("users.link_jump").setup({
     "--inprivate",
   },
   find_path = {
+    ".",
+    "",
     vim.fn.stdpath("config"),
     vim.fn.stdpath("data"),
     vim.fn.expand("~/code/pproxy"),

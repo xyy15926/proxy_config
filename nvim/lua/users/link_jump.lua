@@ -2,7 +2,7 @@
 -- File    : link_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-09-11 19:02:32
--- Updated : 2026-09-11 19:02:32
+-- Updated : 2026-09-13 13:40:08
 -- Desc    : Jump to the link.
 -- ==========================================================================
 
@@ -16,6 +16,8 @@ M.defaults = {
   },
   open_cmd = { "cmd.exe", "/c", "start" },
   find_path = {
+    ".",
+    "",
     vim.fn.stdpath("config"),
     vim.fn.stdpath("data"),
     vim.fn.expand("~/code/pproxy"),
@@ -91,7 +93,7 @@ function M.open_web(url, forced)
   -- 若强制要求使用 web 打开，则尝试获取 win 可用文件地址
   local parsed_tag = nil
   if parsed_url == nil and forced then
-    parsed_url, parsed_tag = file_url(url, nil, false)
+    parsed_url, parsed_tag = file_url(url, nil, M.opts.find_path)
     if parsed_url ~= nil then
       parsed_url = parsed_tag and parsed_url .. "#" .. parsed_tag or parsed_url
       parsed_url = wsl_file_url(parsed_url)
@@ -117,6 +119,10 @@ end
 local function try_open_local(url)
   -- 若当前 buffer 即为目标目录则不新建窗口
   if url ~= vim.fn.expand("%:p") then
+    vim.notify(
+      "Try to open: " .. tostring(url) .. " in newtab",
+      vim.log.levels.TRACE
+    )
     vim.cmd.tabnew(url)
   end
   local bufnr = vim.api.nvim_get_current_buf()
@@ -134,7 +140,7 @@ function M.open_local(url, tag)
     return "#" .. tag
   else
     -- 检查并补全文件路径
-    local parsed_url, parsed_tag = file_url(url, tag, false)
+    local parsed_url, parsed_tag = file_url(url, tag, M.opts.find_path)
     if parsed_url then
       local bufnr = try_open_local(parsed_url)
       if parsed_tag then
