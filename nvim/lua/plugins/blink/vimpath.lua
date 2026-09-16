@@ -2,7 +2,7 @@
 -- File    : vimpath.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 22:24:29
--- Updated : 2026-09-13 22:08:27
+-- Updated : 2026-09-15 16:31:28
 -- Desc    : Path compeletion sources for path with only ASCII chars.
 --
 -- Ref:
@@ -65,8 +65,8 @@ end
 ---@return string dir_part   目录部分
 ---@return string name_part  待匹配的文件名部分
 local function split_prefix(prefix)
-  local dir_part  = prefix:match('^(.+)/') or ''
-  local name_part = prefix:match('([^/]+)$') or ''
+  local dir_part  = prefix:match("^(.+)/") or ""
+  local name_part = prefix:match("([^/]+)$") or ""
   return dir_part, name_part
 end
 

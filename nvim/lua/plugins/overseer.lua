@@ -2,7 +2,7 @@
 -- File    : overseer.lua
 -- Author  : xyy15926
 -- Created : 2026-09-09 10:14:05
--- Updated : 2026-09-10 14:52:47
+-- Updated : 2026-09-15 11:20:16
 -- Desc    : Configs for overseer to run predefined tasks.
 --
 -- Ref:
@@ -105,7 +105,7 @@ end
 
 return {
   "stevearc/overseer.nvim",
-  lazy = false,
+  lazy = true,
   cmd = {
     "OverseerOpen",
     "OverseerClose",

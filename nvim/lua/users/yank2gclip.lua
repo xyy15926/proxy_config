@@ -2,7 +2,7 @@
 -- File    : yank2gclip.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 11:31:39
--- Updated : 2026-09-11 19:59:36
+-- Updated : 2026-09-16 10:24:48
 -- Desc    : Yank to and paste from GClip.
 --
 -- 通过 win32yank.exe 与 Win 实现通信
@@ -56,7 +56,7 @@
 local M = {}
 
 M.defaults = {
-  win32yank = nil,
+  win32yank = "win32yank.exe"
 }
 M.opts = vim.deepcopy(M.defaults)
 
@@ -124,29 +124,24 @@ end
 -- %% =======================================================================
 --  配置 GClip
 -- ==========================================================================
---- 设置 `vim.g.clipboard`
+--- 设置 `vim.g.clipboard`，将 `+`, `*` 寄存器绑定至 win32yank.exe
 local function set_gclip()
-  local yank
-  if M.opts.win32yank then
-    yank = M.opts.win32yank
-  else
-    yank = "win32yank.exe"
+  local yank = vim.fn.exepath(M.opts.win32yank)
+  if yank ~= "" then
+    vim.g.clipboard = {
+      name = "win32yank",
+      -- `*` X11 为鼠标中间粘贴内容；Win/MacOS 下同 `+`，似乎会与 `+` 自动同步
+      copy = {
+        ["+"] = yank .. " -i --crlf",
+        ["*"] = yank .. " -i --crlf",
+      },
+      paste = {
+        ["+"] = yank .. " -o --lf",
+        ["*"] = yank .. " -o --lf",
+      },
+      cache_enabled = 0,
+    }
   end
-
-  -- 将寄存器绑定至 win32yank.exe
-  vim.g.clipboard = {
-    name = "win32yank",
-    -- `*` X11 为鼠标中间粘贴内容；Win/MacOS 下同 `+`，似乎会与 `+` 自动同步
-    copy = {
-      ["+"] = yank .. " -i --crlf",
-      ["*"] = yank .. " -i --crlf",
-    },
-    paste = {
-      ["+"] = yank .. " -o --lf",
-      ["*"] = yank .. " -o --lf",
-    },
-    cache_enabled = 0,
-  }
 end
 
 
@@ -160,6 +155,7 @@ function M.setup(opts)
     vim.opt.opfunc = "v:lua.yank_smart"
     return "g@"
   end, { expr = true, silent = true, desc = "Yank To GClip" })
+
   vim.keymap.set({ "n" }, "<leader>cm", function()
     local msg = vim.api.nvim_exec2("1messages", { output = true }).output
     -- 去掉开头多余换行

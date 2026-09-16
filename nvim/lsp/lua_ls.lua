@@ -2,9 +2,11 @@
 -- File    : lsp/lua_ls.lua
 -- Author  : xyy15927
 -- Created : 2026-09-03 09:44:53
--- Updated : 2026-09-12 15:17:25
+-- Updated : 2026-09-16 11:10:20
 -- Desc    : Config for lua lspconfig client, lua_ls.
 --
+-- Ref:
+-- - lazy/nvim-lspconfig/lsp/lua_ls.lua 中默认值？
 -- --------------------------------------------------------------------------
 -- Lua_ls Notions:
 --
@@ -40,10 +42,11 @@
 
 return {
   -- capabilities = require("cmp_nvim_lsp").default_capabilities(),
-  -- `root_markers` 在 `lsp/lua_ls.lua` 中设置无效，无法覆盖默认值
-  -- 可能仅在在 `after/lsp/lua_ls.lua` 才可生效
+  -- 1. `root_markers` 在 `lsp/lua_ls.lua` 中设置无效，无法覆盖
+  --   lazy/nvim-lspconfig/lsp/lua_ls.lua 中默认值？
+  --   可能需在 `after/lsp/lua_ls.lua` 才可生效
+  -- 2. 但 nvim-lspconfig 中无 `root_dir` 配置，`root_dir` 设置有效
   -- root_markers = require("users.rooter").opts.root_flags,
-  -- 但，`root_dir` 设置有效
   root_dir = function(bufnr, on_dir)
     local root_flags = require("users.rooter").opts.root_flags
     local root = vim.fs.root(bufnr, root_flags) or vim.fn.getcwd()

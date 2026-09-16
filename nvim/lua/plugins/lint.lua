@@ -2,9 +2,14 @@
 -- File    : lint.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 18:47:00
--- Updated : 2026-09-10 16:22:15
+-- Updated : 2026-09-16 09:56:15
 -- Desc    : Plugins for linting.
 --
+-- Ref:
+-- - lazy/nvim-lint/lua/lint/linters/mypy.lua
+-- - lazy/nvim-lint/lua/lint/linters/ruff.lua
+--
+-- --------------------------------------------------------------------------
 -- Linters:
 -- pip install ruff
 -- npm install -g eslint_d
@@ -31,8 +36,8 @@ return {
     config = function()
       local lint = require("lint")
       lint.linters_by_ft = {
-        -- python = { "ruff", "mypy" },
-        python = { "ruff" },
+        python = { "ruff", "mypy" },
+        -- python = { "ruff" },
         c      = { "clang" },
         cpp    = { "clang" },
         rust   = { "cargo" },
@@ -56,9 +61,16 @@ return {
           -- Ref:
           -- - lazy/nvim-lint/lua/lint/linters/mypy.lua
           -- - lazy/nvim-lint/lua/lint/linters/ruff.lua
+          local pyenv = require("users.pyenv")
           -- 此处不能使用 `pixify` 通过 `pixi run` 运行，会检查 cmd 整体是否存在
-          lint.linters.mypy.cmd = require("users.pyenv").venv_cmd("mypy")
-          lint.linters.ruff.cmd = require("users.pyenv").venv_cmd("ruff")
+          -- 而是修改参数，指定 mypy 使用其他环境查找包
+          lint.linters.mypy.cmd = pyenv.venv_cmd("mypy")
+          lint.linters.mypy.args = vim.tbl_extend(
+            "force",
+            lint.linters.mypy.args,
+            { "--python-executable", pyenv.venv_cmd("python"), }
+          )
+          lint.linters.ruff.cmd = pyenv.venv_cmd("ruff")
         end,
       })
     end,

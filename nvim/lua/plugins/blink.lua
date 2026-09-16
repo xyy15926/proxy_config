@@ -2,9 +2,8 @@
 -- File    : blink.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 13:24:08
--- Updated : 2026-09-13 22:18:57
+-- Updated : 2026-09-14 19:14:22
 -- Desc    : Blink configs.
--- :?gitcomm
 -- ==========================================================================
 
 return {
@@ -39,33 +38,7 @@ return {
         preset = "luasnip",               -- 用 LuaSnip 而不是内置的 mini.snippets
       },
       -- 补全来源
-      -- Ref:
-      -- - lazy/blink.cmp/doc/configuration/sources.md
-      -- - lazy/blink.cmp/doc/recipes.md#sources
-      sources = {
-        -- 默认 { "lsp", "path", "snippets", "buffer" } 常量（可为函数）
-        default = function(_ctx)
-          local path = vim.bo.filetype == "lua" and "vimpath_lua" or "vimpath"
-          local success, node = pcall(vim.treesitter.get_node)
-          if success and node then
-            local ntype = node:type()
-            if ntype:find("comment") or ntype:find("string") or ntype:find("chunk")
-            then
-              return { "nerdfont", "buffer", path }
-            end
-          end
-          return { "lsp", "snippets", "buffer", "nerdfont" }
-        end,
-        per_filetype = {
-          -- `inherit_defaults = true`：先继承 default
-          gitcommit = { inherit_defaults = true, "conventional_commits" },
-          markdown = { inherit_defaults = true, "vimpath" },
-        },
-        min_keyword_length = function()
-          return vim.bo.filetype == "markdown" and 2 or 0
-        end,
-        providers = require("plugins.blink.sources_providers"),
-      },
+      sources = require("plugins.blink.sources"),
       completion = {                      -- 补全菜单行为
         list = {
           selection = {

@@ -2,7 +2,7 @@
 -- File    : pyenv.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 17:28:54
--- Updated : 2026-09-10 15:51:01
+-- Updated : 2026-09-16 09:10:49
 -- Desc    : Settings for python env.
 -- ==========================================================================
 
@@ -42,10 +42,11 @@ end
 --- @return string
 function M.venv_cmd(cmd, root)
   root = root or require("users.rooter").find_project_root()
-  if M.has_pixi(root) then
-    return root .. "/.pixi/envs/default/bin/" .. cmd
-  end
-  return cmd
+  local pixi_cmd = root .. "/.pixi/envs/default/bin/" .. cmd
+  local venv_cmd = root .. "/.venv/bin/" .. cmd
+  return vim.fn.filereadable(pixi_cmd) > 0 and pixi_cmd
+    or vim.fn.filereadable(venv_cmd) > 0 and venv_cmd
+    or vim.fn.exepath(cmd)
 end
 
 
