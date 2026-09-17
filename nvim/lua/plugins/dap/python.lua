@@ -2,7 +2,7 @@
 -- File    : python.lua
 -- Author  : xyy15926
 -- Created : 2026-09-14 19:52:06
--- Updated : 2026-09-14 19:52:06
+-- Updated : 2026-09-17 22:10:39
 -- Desc    : Python DAP config.
 --
 -- Ref:
@@ -85,101 +85,152 @@
 -- ${env:HOME}                  读取环境变量
 -- ==========================================================================
 
+--- @class Configuration
+--- @field name string
+--- @field type string
+--- @field request string
+
+local M = {}
 local pyenv = require("users.pyenv")
 
-return {
-  -- 启动 DAP server 的配置，其中 command, args 即指定如何启动 debugpy
-  -- 即，其中 command 应为 debugpy 所属的 python 环境
-  -- Ref:
-  -- - lazy/mason-nvim-dap.nvim/lua/mason-nvim-dap/mappings/adapters/python.lua
-  adapters = {
-    type = "executable",
-    -- 新版 debugpy 会直接注册 debugpy-adapter 命令
-    command = pyenv.venv_cmd("debugpy-adapter"),
-    -- 无需通过 command, args 分别指定
-	  -- command = vim.fn.exepath("python"),
-	  -- args = { "-m", "debugpy.adapters" },
+
+-- %% =======================================================================
+--  自动添加任务以测试函数
+-- ==========================================================================
+--- 获取文件或对应测试文件中所有测试函数
+--- @param filepath string? 源文件、或测试文件路径
+--- @param keep boolean 保留默认 configurations
+--- @return Configuration[]?
+function M.get_configurations(filepath, keep)
+  filepath = filepath or vim.fn.expand("%:p")
+  local tests, test_file = pyenv.get_all_test_functions(filepath)
+  if tests == nil then return nil end
+  local test_confs = keep and vim.deepcopy(M.configurations) or {}
+  for _, test_func in ipairs(tests) do
+    local target = test_file .. "::" .. test_func
+    test_confs[#test_confs + 1] = {
+      name = "Pytest: Test " .. test_func,
+      type = "python",
+      request = "launch",
+      module = "pytest",
+      args = { target , "-v", "--no-header", "--tb=short" },
+      pythonPath = pyenv.venv_cmd("python3"),
+      justMyCode = false,
+      console = "integratedTerminal",
+    }
+  end
+  return test_confs
+end
+
+
+-- %% =======================================================================
+--  Debugpy configurations
+-- ==========================================================================
+-- 启动 DAP server 的配置，其中 command, args 即指定如何启动 debugpy
+-- 即，其中 command 应为 debugpy 所属的 python 环境
+-- Ref:
+-- - lazy/mason-nvim-dap.nvim/lua/mason-nvim-dap/mappings/adapters/python.lua
+M.adapters = {
+  type = "executable",
+  -- 新版 debugpy 会直接注册 debugpy-adapter 命令
+  command = pyenv.venv_cmd("debugpy-adapter"),
+  -- 无需通过 command, args 分别指定
+  -- command = vim.fn.exepath("python"),
+  -- args = { "-m", "debugpy.adapters" },
+}
+
+
+-- %% =======================================================================
+--  Debugpy configurations
+-- ==========================================================================
+-- debugpy 启动调试任务的配置
+-- 即，其中 pythonPath 应为待执行文件所需的 python 环境
+-- 大部分情况下可与 debugpy 所在 python 环境不同
+-- Ref:
+-- - lazy/mason-nvim-dap.nvim/lua/mason-nvim-dap/mappings/configurations.lua
+M.configurations = {
+  {
+    name = "Python: Current File",
+    type = "python",
+    request = "launch",
+    program = "${file}",
+    args = function()                               -- 支持运行时输入参数
+      local args = vim.fn.input("Args: ")
+      return vim.split(args, " ")
+    end,
+    cwd = "${workspaceFolder}",
+    env = { PYTHONDONTWRITEBYTECODE = "1" },
+    pythonPath = pyenv.venv_cmd("python3"),
+    justMyCode = true,
+    stopOnEntry = false,
+    subProcess = false,
+    console = "integratedTerminal",
   },
-  -- debugpy 启动调试任务的配置
-  -- 即，其中 pythonPath 应为待执行文件所需的 python 环境
-  -- 大部分情况下可与 debugpy 所在 python 环境不同
-  -- Ref:
-  -- - lazy/mason-nvim-dap.nvim/lua/mason-nvim-dap/mappings/configurations.lua
-  configurations = {
-    {
-      name = "Python: Current File",
-      type = "python",
-      request = "launch",
-      program = "${file}",
-      args = function()                               -- 支持运行时输入参数
-        local args = vim.fn.input("Args: ")
-        return vim.split(args, " ")
-      end,
-      cwd = "${workspaceFolder}",
-      env = { PYTHONDONTWRITEBYTECODE = "1" },
-      pythonPath = pyenv.venv_cmd("python3"),
-      justMyCode = true,
-      stopOnEntry = false,
-      subProcess = false,
-      console = "integratedTerminal",
+  {
+    name = "Pytest: Test Current File",
+    type = "python",
+    request = "launch",
+    module = "pytest",
+    args = function()
+      local abspath = vim.fn.expand("%:p")
+      local filename = vim.fn.expand("%:t")
+      local target = filename:match("^test_") and abspath
+        or pyenv.find_test_file(abspath)
+      return { target, "-v", "--no-header", "--tb=short" }
+    end,
+    cwd = "${workspaceFolder}",
+    pythonPath = pyenv.venv_cmd("python3"),
+    justMyCode = false,
+    console = "integratedTerminal",
+  },
+  {
+    name = "Pytest: Test Current Function",
+    type = "python",
+    request = "launch",
+    module = "pytest",
+    args = function()
+      local filename = vim.fn.expand("%:p:t")
+      local target = filename:match("^test_")
+        and pyenv.concat_test_function()
+        or pyenv.find_test_function_for_src()
+      if target == nil then error("Cancelled: Fail to find test cases.") end
+      return { target, "-v", "--no-header", "--tb=short" }
+    end,
+    pythonPath = pyenv.venv_cmd("python3"),
+    justMyCode = false,
+    console = "integratedTerminal",
+  },
+  {
+    name = "Attach: Remote (5678)",
+    type = "python",
+    request = "attach",
+    connect = { host = "127.0.0.1", port = 5678 },
+    pathMappings = {
+      { localRoot = "${workspaceFolder}", remoteRoot = "/app" },
     },
-    {
-      name = "Pytest: Current Test File",
-      type = "python",
-      request = "launch",
-      module = "pytest",
-      args = function()
-        local abspath = vim.fn.expand("%:p")
-        local filename = vim.fn.expand("%:t")
-        local target = filename:match("^test_") and abspath
-          or pyenv.find_test_file(abspath)
-        return { target, "-v", "--no-header", "--tb=short" }
-      end,
-      cwd = "${workspaceFolder}",
-      pythonPath = pyenv.venv_cmd("python3"),
-      justMyCode = false,
-      console = "integratedTerminal",
-    },
-    {
-      name = "Pytest: Current Function",
-      type = "python",
-      request = "launch",
-      module = "pytest",
-      -- #TODO
-      args = { "${file}::${funcName}", "-v" },
-      pythonPath = pyenv.venv_cmd("python3"),
-      justMyCode = false,
-      console = "integratedTerminal",
-    },
-    {
-      name = "Attach: Remote (5678)",
-      type = "python",
-      request = "attach",
-      connect = { host = "127.0.0.1", port = 5678 },
-      pathMappings = {
-        { localRoot = "${workspaceFolder}", remoteRoot = "/app" },
-      },
-      justMyCode = false,
-    },
-    {
-      name = "Attach: Remote",
-      type = "python",
-      request = "attach",
-      connect = function()
-        local host = vim.fn.input("Host: ", "127.0.0.1")
-        local port = tonumber(vim.fn.input("Port: ", "5678"))
-        return { host = host, port = port }
-      end,
-      pathMappings =  function()
-        local localRoot = vim.fn.input("Local root: ", vim.fn.getcwd())
-        local remoteRoot = vim.fn.input("Remote root: ", "/app")
-        return {
-          { localRoot = localRoot, remoteRoot = remoteRoot }
-        }
-      end,
-      justMyCode = function()
-        return vim.fn.input("Just my code? (y/n): ", "y") == "y"
-      end,
-    },
+    justMyCode = false,
+  },
+  {
+    name = "Attach: Remote",
+    type = "python",
+    request = "attach",
+    connect = function()
+      local host = vim.fn.input("Host: ", "127.0.0.1")
+      local port = tonumber(vim.fn.input("Port: ", "5678"))
+      return { host = host, port = port }
+    end,
+    pathMappings =  function()
+      local localRoot = vim.fn.input("Local root: ", vim.fn.getcwd())
+      local remoteRoot = vim.fn.input("Remote root: ", "/app")
+      return {
+        { localRoot = localRoot, remoteRoot = remoteRoot }
+      }
+    end,
+    justMyCode = function()
+      return vim.fn.input("Just my code? (y/n): ", "y") == "y"
+    end,
   },
 }
+
+
+return M

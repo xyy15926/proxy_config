@@ -2,7 +2,7 @@
 -- File    : attached_keymaps.lua
 -- Author  : xyy15926
 -- Created : 2026-09-15 13:45:40
--- Updated : 2026-09-15 13:45:40
+-- Updated : 2026-09-16 19:59:45
 -- Desc    : LSP keymaps.
 -- ==========================================================================
 
@@ -47,7 +47,8 @@ return function(args)
   -- vim.keymap.set("n", "gn", function() vim.diagnostic.jump({ count = 1 }) end, opts("Next Diagnostic"))
   -- vim.keymap.set("n", "gp", function() vim.diagnostic.jump({ count = -1 }) end, opts("Prev Diagnostic"))
   vim.keymap.set("n", "gf", vim.diagnostic.open_float, opts("Open Diagnostic"))
-  vim.keymap.set("n", "gq", vim.diagnostic.setqflist, opts("Diagnostic SetQFix"))
+  -- 正好覆盖 gQ 进入 Ex mode
+  vim.keymap.set("n", "gQ", vim.diagnostic.setqflist, opts("Diagnostic SetQFix"))
 
   -- 信息
   -- `vim.lsp.buf.signature_help` 包含 doc 且无法 toggle

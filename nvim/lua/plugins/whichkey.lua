@@ -2,7 +2,7 @@
 -- File    : whichkey.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 16:44:01
--- Updated : 2026-09-12 20:11:59
+-- Updated : 2026-09-16 22:22:51
 -- Desc    : WhichKey configs and some ft-related keymaps.
 -- ==========================================================================
 
@@ -61,7 +61,7 @@ return {
       { "<leader>u", group = "tiny-func", icon = "󰊕 " },
       { "<leader>c", group = "content", icon = "󰆐 " },
       { "<leader>m", group = "msg-scratch", icon = "󱖩 " },
-      { "<leader>b", group = "debug", icon = " " },
+      { "<leader>d", group = "debug", icon = " " },
 
       -- %% 原生 Window 操作（无插件依赖，留在这里）
       { "<leader>ww", "<C-w>w", desc = "other-window" },

@@ -2,11 +2,12 @@
 -- File    : dap.lua
 -- Author  : xyy15926
 -- Created : 2026-09-14 18:41:06
--- Updated : 2026-09-14 18:41:06
+-- Updated : 2026-09-17 22:18:45
 -- Desc    : Nvim-dap configs.
 --
 -- Ref:
 -- - lazy/nvim-dap/README.md
+-- - lazy/nvim-dap/lua/dap.lua
 -- ==========================================================================
 
 return {
@@ -22,7 +23,17 @@ return {
     },
     -- 避免过多触发按键
     keys = {
-      { "<leader>dc",  function() require("dap").continue() end,          desc = "Debug: Continue" },
+      {
+        "<leader>dC",
+        function()
+          local dap = require("dap")
+          if vim.bo.filetype == "python" then
+            dap.configurations.python = require("plugins.dap.python").get_configurations(nil, true)
+          end
+          dap.continue()
+        end,
+        desc = "Debug: Update&Start"
+      },
       { "<leader>db",  function() require("dap").toggle_breakpoint() end, desc = "Debug: Toggle Breakpoint" },
       -- { "<leader>do",  function() require("dap").step_over() end,         desc = "Debug: Step Over" },
       -- { "<leader>di",  function() require("dap").step_into() end,         desc = "Debug: Step Into" },
@@ -42,15 +53,17 @@ return {
       local dapui = require("dapui")
       local widgets = require("dap.ui.widgets")
 
+      -- `dap.continue()` 在没有会话时会默认启动，此处禁止
+      vim.keymap.set("n", "<leader>dc", function() if dap.session() then dap.continue() end end, { desc = "Debug: Continue" })
       vim.keymap.set("n", "<leader>dB", function() dap.set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, { desc = "Debug: Conditional BP" })
       vim.keymap.set("n", "<leader>dl", function() dap.set_breakpoint(nil, nil, vim.fn.input("Log point message: ")) end, { desc = "Debug: Log Point" })
       vim.keymap.set("n", "<leader>dn", dap.step_over,                  { desc = "Debug: Step Over" })
       vim.keymap.set("n", "<leader>di", dap.step_into,                  { desc = "Debug: Step Into" })
       vim.keymap.set("n", "<leader>do", dap.step_out,                   { desc = "Debug: Step Out" })
       vim.keymap.set("n", "<leader>dr", dap.run_to_cursor,              { desc = "Debug: Run to Cursor" })
-      vim.keymap.set("n", "<leader>dp", dap.run_last,                   { desc = "Debug: Run Last" })
-      vim.keymap.set("n", "<leader>dx", dap.terminate,                  { desc = "Debug: Terminate" })
+      vim.keymap.set("n", "<leader>dq", dap.terminate,                  { desc = "Debug: Terminate" })
       vim.keymap.set("n", "<leader>dk", dap.repl.open,                  { desc = "Debug: REPL" })
+      vim.keymap.set("n", "<leader>dp", dap.run_last,                   { desc = "Debug: Run Last Task" })
       vim.keymap.set("n", "<leader>df", function() widgets.centered_float(widgets.frames) end, {desc = "Debug: Frames" })
       vim.keymap.set("n", "<leader>ds", function() widgets.centered_float(widgets.scopes) end, {desc = "Debug: Scopes" })
       vim.keymap.set({ "n", "v" }, "<leader>dh", function() widgets.hover() end, { desc = "Debug: Hover Variable" })

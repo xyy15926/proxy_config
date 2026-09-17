@@ -2,7 +2,7 @@
 -- File    : file_link.lua
 -- Author  : xyy15926
 -- Created : 2026-09-11 18:48:49
--- Updated : 2026-09-13 20:48:02
+-- Updated : 2026-09-17 22:29:22
 -- Desc    : Tools to construct and file link.
 --
 -- -------------------------------------------------------------------------
@@ -93,30 +93,17 @@ end
 --- 配置路径补全模式：路径前缀、文件后缀
 --- 需先选择是 global 还是 buffer local 的模式
 function M.set_gx_pattern()
-  local default_file_ptn = vim.b.gx_file_ptn
-    or vim.gx_file_ptn
+  -- 在 `M.opts.gx_patterns` 中用当前工作目录作键存储 pattern
+  local default_file_ptn = M.opts.gx_patterns[vim.fn.getcwd()]
     or vim.fn.expand("%:p:h") .. "/{{}}"
 
-  -- 先选择是 global 还是 buffer local 的模式
+  -- 配置路径补全模式：路径前缀、文件后缀
   vim.ui.input({
-    prompt = "Scope (g)lobal or (b)uffer local: ",
-    default = "g",
-  }, function(scope_input)
-    if not scope_input then return end
-    local scope = scope_input:sub(1, 1):lower()
-
-    -- 配置路径补全模式：路径前缀、文件后缀
-    vim.ui.input({
-      prompt = "File pattern: {{}} will be replaced: ",
-      default = default_file_ptn
-    }, function(ptn_input)
-      if not ptn_input then return end
-      if scope == "g" then
-        vim.g.gx_file_ptn = ptn_input
-      else
-        vim.b.gx_file_ptn = ptn_input
-      end
-    end)
+    prompt = "File pattern: {{}} will be replaced: ",
+    default = default_file_ptn
+  }, function(ptn_input)
+    if not ptn_input then return end
+    M.opts.gx_patterns[vim.fn.getcwd()] = ptn_input
   end)
 end
 
@@ -124,7 +111,7 @@ end
 --- 根据已配置模式补全路径
 --- @param url string
 local function modify_url(url)
-  local file_ptn = vim.b.gx_file_ptn or vim.g.gx_file_ptn
+  local file_ptn = M.opts.gx_patterns[vim.fn.getcwd()]
   if file_ptn then
     url = file_ptn:gsub("{{}}", url):gsub("//", "/", nil)
   end
@@ -279,6 +266,7 @@ end
 -- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
+  M.opts.gx_patterns = {}
   return M
 end
 
