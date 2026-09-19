@@ -2,9 +2,26 @@
 -- File    : blink.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 13:24:08
--- Updated : 2026-09-14 19:14:22
+-- Updated : 2026-09-18 16:50:07
 -- Desc    : Blink configs.
 -- ==========================================================================
+
+-- 使用 blink.cmp 替代内置 wildmenu，为审慎关闭
+vim.opt.wildmenu = false
+vim.opt.wildmode = ""
+
+-- Bug:
+-- `opts.keymap` 中 `<C-n>` 绑定的 show 对 Cmdline 不生效，
+-- 依然只能通过 Tab 触发显示候选菜单
+-- 此处即在 cmdline 中强制绑定、触发展示候选菜单
+vim.keymap.set("c", "<C-n>", function()
+  if require("blink.cmp").is_visible() then
+    require("blink.cmp").select_next()
+  else
+    require("blink.cmp").show()
+  end
+end, { silent = true, desc = "select_next" })
+
 
 return {
   {
@@ -16,11 +33,20 @@ return {
       "MahanRahmati/blink-nerdfont.nvim",
     },
     opts = {
+      cmdline = {
+        enabled = true,                   -- 应该默认是生效
+        completion = {
+          menu = {
+            auto_show = false,
+          },
+        },
+      },
       keymap = {
         preset = "default",               -- 按键预设："super-tab" | "enter" | "default"
         ["<C-n>"] = {
           "show",                         -- 默认 <C-Space> 会被终端吞，将 show 拆给 <C-n>
           "select_next",
+          "fallback",
         },
         ["<C-h>"] = {
           "show_documentation",           -- 将 toggle-doc 拆给 <C-h>

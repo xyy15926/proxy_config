@@ -2,13 +2,25 @@
 -- File    : dev.lua
 -- Author  : xyy15926
 -- Created : 2026-09-07 22:00:20
--- Updated : 2026-09-07 22:07:20
+-- Updated : 2026-09-18 14:38:19
 -- Desc    : Dev tools.
 -- ==========================================================================
 
 local M = {}
 M.defaults = { }
 M.opts = vim.deepcopy(M.defaults)
+
+
+-- %% =======================================================================
+--  按键模拟
+-- ==========================================================================
+function M.feedkeys(keys)
+  vim.api.nvim_feedkeys(
+    vim.api.nvim_replace_termcodes(keys, true, false, true),
+    "n",
+    false
+  )
+end
 
 
 -- %% =======================================================================
@@ -63,7 +75,7 @@ end
 --- 将 Lua 值格式化后输出到居中浮动窗口
 --- @param expr   any    要查看的 Lua 值
 --- @param label? string 可选标题，显示在输出顶部
-function P(expr, label)
+function M.float_inspect(expr, label)
   local lines = {}
   if label then
     lines[#lines + 1] = "-- " .. label
@@ -99,10 +111,45 @@ end
 
 
 -- %% =======================================================================
+--  文件、内容读取
+-- ==========================================================================
+--- 获取指定文件内容字符串或 buffer 号
+--- @param filepath string
+function M.read_source(filepath)
+  -- 当前 buffer，优先级最高，直接返回 buffer number
+  if vim.fn.expand("%:p") == vim.fn.fnamemodify(filepath, ":p") then
+    return 0
+  end
+  -- 文件在其他窗口/标签页的 buffer 里，也返回 buffer number
+  local buf = vim.fn.bufnr(filepath)
+  if buf ~= -1 and vim.api.nvim_buf_is_loaded(buf) then
+    return buf
+  end
+  -- 否则，从磁盘读取，返回文件内容字符串
+  return table.concat(vim.fn.readfile(filepath), "\n")
+end
+
+
+--- 获取当前行或 visual 选区中多行
+--- @param keep_mode boolean?
+--- @return string | string[]
+function M.get_content(keep_mode)
+  local sp = vim.fn.getpos(".")
+  local ep = vim.fn.getpos("v")
+  local content = sp[2] == ep[2] and sp[3] == ep[3]
+    and vim.api.nvim_get_current_line()
+    or vim.fn.getregion(sp, ep, { type = vim.fn.mode() })
+  if not keep_mode then M.feedkeys("<Esc>") end
+  return content
+end
+
+
+-- %% =======================================================================
 --  模块初始化
 -- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
+  return M
 end
 
 return M

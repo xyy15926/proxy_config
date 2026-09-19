@@ -2,12 +2,16 @@
 -- File    : dap.lua
 -- Author  : xyy15926
 -- Created : 2026-09-14 18:41:06
--- Updated : 2026-09-17 22:18:45
+-- Updated : 2026-09-18 15:34:24
 -- Desc    : Nvim-dap configs.
 --
 -- Ref:
 -- - lazy/nvim-dap/README.md
 -- - lazy/nvim-dap/lua/dap.lua
+--
+-- P.S.
+-- 按 lua_ls 配置，会优先应用项目内 .luarc.json 配置，但是 nvim-dap 项目
+-- .luarc.json 中没有 `Lua.diagnostics.globals: [ "vim" ]`，导致报错
 -- ==========================================================================
 
 return {
@@ -53,8 +57,7 @@ return {
       local dapui = require("dapui")
       local widgets = require("dap.ui.widgets")
 
-      -- `dap.continue()` 在没有会话时会默认启动，此处禁止
-      vim.keymap.set("n", "<leader>dc", function() if dap.session() then dap.continue() end end, { desc = "Debug: Continue" })
+      vim.keymap.set("n", "<leader>dc", dap.continue, { desc = "Debug: Continue" })
       vim.keymap.set("n", "<leader>dB", function() dap.set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, { desc = "Debug: Conditional BP" })
       vim.keymap.set("n", "<leader>dl", function() dap.set_breakpoint(nil, nil, vim.fn.input("Log point message: ")) end, { desc = "Debug: Log Point" })
       vim.keymap.set("n", "<leader>dn", dap.step_over,                  { desc = "Debug: Step Over" })

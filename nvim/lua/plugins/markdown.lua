@@ -2,7 +2,7 @@
 -- File    : markdown.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:37:15
--- Updated : 2026-09-08 18:31:52
+-- Updated : 2026-09-19 12:34:41
 -- Desc    : Plugins related to markdown.
 --
 -- Notions:
@@ -117,7 +117,7 @@ return {
         -- 控制插件是否对缓冲区真正启用
         -- filetypes = { "markdown", "quarto", "rmd", "typst", "codecompanion" },
         filetypes = md_fts,
-        ignore_buftypes = { "nofile" },
+        -- ignore_buftypes = { "nofile" },
 
         -- hybrid_modes：渲染、plain txt 共存模式
         enable_hybrid_mode = false,  -- 默认不启用

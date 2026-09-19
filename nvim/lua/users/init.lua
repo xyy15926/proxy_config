@@ -2,12 +2,12 @@
 -- File    : init.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 22:28:31
--- Updated : 2026-09-16 10:15:50
+-- Updated : 2026-09-18 17:55:25
 -- Desc    : Init user mods.
 -- ==========================================================================
 
 require("users.im_switch").setup({
-  im_select = "/mnt/d/win32yank/im-select.exe",
+  im_select = vim.fn.stdpath("config") .. "/bins/im-select.exe",
 })
 require("users.rooter").setup({
   root_flags = { ".root", ".svn", ".git", ".hg", ".project", "Makefile" },
@@ -47,7 +47,7 @@ require("users.markdown_todo").setup({
   auto_file_ptns = { "*.md", },
 })
 require("users.yank2gclip").setup({
-  win32yank = "/mnt/d/win32yank/win32yank.exe",
+  win32yank = vim.fn.stdpath("config") .. "/bins/win32yank.exe"
 })
 require("users.mark_jump").setup({ set_keymap = true })
 require("users.alignment").setup({

@@ -2,39 +2,45 @@
 -- File    : sniprun.lua
 -- Author  : xyy15926
 -- Created : 2026-09-06 21:24:46
--- Updated : 2026-09-13 13:50:49
+-- Updated : 2026-09-18 14:57:16
 -- Desc    : Config for sniprun.
 --
 -- Ref:
 -- - lazy/sniprun/doc/sources/README.md
+-- - lazy/sniprun/lua/sniprun/api.lua
 --
 -- TODO:
 -- 1. 兼容 `>>>`, `$` 等代码前导符，注意：markdown 文档中 sniprun 会载入整个
 --   代码块
 -- ==========================================================================
 
+
 --- Extract, run the inspect the result of the expression.
 --- @param whole boolean?
 local function sniprun_expr(whole)
-  local line = vim.api.nvim_get_current_line()
+  local content = require("users.utils").get_content(false)
+  local line
   if vim.bo.filetype == "lua" then
-    if not whole then
-      line = line:gsub("^.*%s*=%s*", ""):gsub("%s*,?%s*%-%-.*$", ""):gsub("%s*,%s*$", "")
+    if type(content) == "string" then
+      line = whole and content
+        or content:gsub("^.*%s*=%s*", ""):gsub("%s*,?%s*%-%-.*$", ""):gsub("%s*,%s*$", "")
+    else
+      line = table.concat(content, "\n")
     end
     vim.notify(
       "Expression: " .. line .. ", will be run and inspected",
       vim.log.levels.TRACE
     )
-    require("sniprun.api").run_string(
-      "print(vim.inspect(" .. line .. "))",
-      {
-        -- 禁用 VirtualText，行号会乱跳
-        display = {
-          "Api",          -- 自定义函数输出
-          "Classic",      -- 命令行输出结果
-        },
-      }
-    )
+    local cmd = "print(vim.inspect(" .. line .. "))"
+    -- 源码 api.lua 中，执行选项被整体替换，故此处需要包含大部分所需配置
+    local opts = {
+      selected_interpreters = { "Lua_nvim", },
+      repl_enable = { "Lua_nvim", },
+      display = { "Api", "Classic" },  -- 剔除 VirtualText，会乱飞
+    }
+    -- local config_values = require("sniprun").config_values
+    -- local bak_display = config_values.display
+    require("sniprun.api").run_string(cmd, "lua", opts)
   end
 end
 
@@ -47,10 +53,10 @@ return {
   lazy = true,
   enabled = true,
   cmd = { "SnipRun", "SnipInfo" },
-  keys = {
+  keys ={
     { "<leader>rr", ":SnipRun<cr>", mode = { "n", "v" }, desc = "Snip: Run", silent = true },
     { "<leader>rE", function() sniprun_expr(true) end, mode = "n", desc = "Snip: Inspect(whole line)" },
-    { "<leader>re", sniprun_expr, mode = "n", desc = "Snip: Inspect" },
+    { "<leader>re", sniprun_expr, mode = { "n", "v" }, desc = "Snip: Inspect" },
     { "<leader>rm", "<Plug>SnipRunOperator", mode = "n", desc = "Snip: Run Range" },
     { "<leader>rq", "<cmd>SnipClose<cr>", mode = "n", desc = "Snip: Clear Extmark" },
     { "<leader>rQ", "<cmd>SnipReplMemoryClean<cr>", mode = "n", desc = "Snip: Clear Memory" },

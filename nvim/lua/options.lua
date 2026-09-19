@@ -2,7 +2,7 @@
 -- File    : options.lua
 -- Author  : xyy1926
 -- Created : 2026-08-28 19:35:09
--- Updated : 2026-09-02 15:51:56
+-- Updated : 2026-09-18 16:47:30
 -- Desc    : Options
 -- ==========================================================================
 
@@ -62,6 +62,15 @@ vim.opt.breakindent = true
 vim.opt.showbreak = "››››"
 vim.opt.wrap = true
 vim.opt.colorcolumn = "80"
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("options.softjk", { clear = true }),
+  pattern = "markdown",
+  callback = function(args)
+    local buf = args.buf
+    vim.keymap.set("n", "j", "gj", { buffer = buf })
+    vim.keymap.set("n", "k", "gk", { buffer = buf })
+  end,
+})
 
 -- Character display
 vim.opt.list = true
