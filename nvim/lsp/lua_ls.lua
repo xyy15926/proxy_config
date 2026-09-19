@@ -106,6 +106,8 @@ return {
             --  并导致 `vim.lsp.buf.definition()` 会返回两条记录
             vim.uv.fs_realpath(vim.fn.stdpath("config")),
             vim.fn.stdpath("data") .. "/lazy/blink.cmp/lua",
+            vim.fn.stdpath("data") .. "/lazy/snacks.nvim/lua",
+            vim.fn.stdpath("data") .. "/lazy/codecompanion.nvim/lua",
           },
         },
         telemetry = { enable = false },

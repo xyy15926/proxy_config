@@ -2,7 +2,7 @@
 -- File    : overseer.lua
 -- Author  : xyy15926
 -- Created : 2026-09-09 10:14:05
--- Updated : 2026-09-15 11:20:16
+-- Updated : 2026-09-19 20:50:28
 -- Desc    : Configs for overseer to run predefined tasks.
 --
 -- Ref:
@@ -115,9 +115,9 @@ return {
     "OverseerShell",
   },
   keys = {
-    { "<leader>nx", "<cmd>OverseerToggle<cr>", desc = "Task: Task List" },
-    { "<leader>xx", "<cmd>OverseerRun<cr>", desc = "Task: Choose&Run Task" },
-    { "<leader>xl", "<cmd>OverseerTaskAction<cr>", desc = "Task: Check Task" },
+    { "<leader>nx", "<cmd>OverseerToggle<cr>", desc = "Overseer: Task List" },
+    { "<leader>xx", "<cmd>OverseerRun<cr>", desc = "Overseer: Choose&Run Task" },
+    { "<leader>xa", "<cmd>OverseerTaskAction<cr>", desc = "Overseer: Check Task" },
   },
   opts = {
     template_dirs = {},  -- 额外模板文件目录

@@ -2,7 +2,7 @@
 -- File    : mark_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-08-25 22:04:08
--- Updated : 2026-09-10 09:49:48
+-- Updated : 2026-09-19 21:17:34
 -- Desc    : Jump to the line with mark string.
 -- ==========================================================================
 
@@ -258,8 +258,8 @@ function M.setup(opts)
   })
 
   if M.opts.set_keymap then
-    vim.keymap.set("n", "<leader>jj", M.next_mark, { desc = "Next Mark"})
-    vim.keymap.set("n", "<leader>ju", M.prev_mark, { desc = "Prev Mark"})
+    vim.keymap.set("n", "<leader>jj", M.next_mark, { desc = "Mark: Next Mark"})
+    vim.keymap.set("n", "<leader>ju", M.prev_mark, { desc = "Mark: Prev Mark"})
   end
 end
 

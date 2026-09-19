@@ -2,7 +2,7 @@
 -- File    : options.lua
 -- Author  : xyy1926
 -- Created : 2026-08-28 19:35:09
--- Updated : 2026-09-18 16:47:30
+-- Updated : 2026-09-19 22:39:24
 -- Desc    : Options
 -- ==========================================================================
 
@@ -137,3 +137,6 @@ vim.keymap.set("n", "K", "<Nop>", { desc = "mask-K" })
 vim.keymap.set("i", "uu", "<Esc>A", { silent = true })
 -- 终端模式无法通过 `<Esc>` 返回 normal 模式
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "to-normal" })
+-- `q` 的宏录制容易误触，绑定给 `Q`，顺便把 `Q` 进入 Ex 模式也禁用
+vim.keymap.set({ "n", "v"}, "q", "<Nop>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v"}, "Q", "q", { noremap = true, silent = true })

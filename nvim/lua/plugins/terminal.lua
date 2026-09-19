@@ -2,7 +2,7 @@
 -- File    : terminal.lua
 -- Author  : xyy15926
 -- Created : 2026-08-30 15:34:38
--- Updated : 2026-09-08 20:01:33
+-- Updated : 2026-09-19 14:58:38
 -- Desc    : Plugins for vim-terminal.
 -- Plugins : 
 --   vim-slime              文件、终端桥接
@@ -16,6 +16,8 @@ return {
     "jpalardy/vim-slime",
     -- `ft`、`cmd`、`event` 等字段只用于告知 lazyvim 加载插件的时点
     -- `keys` 除告知 lazyvim 相应快捷键按下后应加载此插件外，还会配置对应映射
+    enable = true,
+    lazy = true,
     ft = { "python", "sh", "lua" },
     cmd = { "SlimeConfig" },
     keys = {
@@ -66,8 +68,9 @@ return {
     requires = {
       { "jpalardy/vim-slime", opt = true }
     },
-    ft = { "python", "sh" },
     enabled = false,
+    lazy = true,
+    ft = { "python", "sh" },
     -- cells 全局分隔符、keymapping 已在 vim-slime 中配置，此处仅保留局部
     keys = {
       { "<leader>rm", "<Plug>SlimeCellsSendAndGoToNext", desc = "Send Cell & Move", remap = true },
@@ -91,7 +94,8 @@ return {
   -- -------------------- vim-terminal-help ---------------------------------
   {
     "xyy15926/vim-terminal-help",
-    lazy = false,
+    lazy = true,
+    enabled = false,
     config = function()
       vim.g.terminal_rootmarkers = require("users.rooter").opts.root_flags
       vim.g.terminal_key = "<m-=>"

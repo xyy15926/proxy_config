@@ -2,8 +2,14 @@
 -- File    : keys.lua
 -- Author  : xyy15926
 -- Created : 2026-09-08 22:01:25
--- Updated : 2026-09-10 17:31:33
+-- Updated : 2026-09-19 22:30:45
 -- Desc    : Snacks keymaps
+--
+-- Ref:
+-- - lazy/snacks.nvim/docs/picker.md
+-- - lazy/snacks.nvim/lua/snacks/picker/config/sources.lua
+-- - lazy/snacks.nvim/lua/snacks/picker/config/defaults.lua
+-- - lazy/snacks.nvim/docs/scratch.md
 -- ==========================================================================
 
 -- %% ===========================================================
@@ -17,6 +23,7 @@ local EXCLUDE_PATTERNS = {
   "*.png", "*.jpg", "*.pdf",
   "*.docx", "*.doc", "*.xlsx", "*.xls", "*.ppt", "*.pptx",
   "node_modules", ".git", "__pycache__",
+  "*.ttf",
 }
 
 -- 检测系统上实际可用的文件搜索工具
@@ -69,63 +76,75 @@ GREP_ARGS = PRECOMPUTED.rg  -- grep 始终用 rg
 -- 获取当前 buffer 对应的根目录，作为文件查询起始点
 local gcwd = require("users.rooter").find_project_root
 
+--- @diagnostic disable: undefined-field
 return {
-  -- ===================================================================
-  -- snack.picker
-  -- ===================================================================
-  -- 文件名搜索结果
-  { "<leader>ff", function() require("snacks").picker.files({ hidden = true, args = FILE_ARGS, cwd = gcwd(), }) end, desc = "Find Files", },
-  { "<leader>fF", function() require("snacks").picker.files({ hidden = true, args = FILE_ARGS, }) end, desc = "Find Files (WorkSpace)", },
-  { "<leader>fs", function() require("snacks").picker.smart() end, desc = "Find Smart" },
-  { "<leader>fb", function() require("snacks").picker.buffers() end, desc = "Buffers" },
-  { "<leader>fe", function() require("snacks").picker.recent() end, desc = "Recent Files" },
+  -- %% Filename and buffer-name ============================================
+  { "<leader>fs", function() require("snacks").picker.smart({ multi = { "buffers", "recent", "files" }, } ) end, desc = "Find: Smart" },
+  { "<leader>ff", function() require("snacks").picker.files({ hidden = true, args = FILE_ARGS, cwd = gcwd(), }) end, desc = "Find: Files(Cwd)", },
+  { "<leader>fF", function() require("snacks").picker.files({ hidden = true, args = FILE_ARGS, }) end, desc = "Find: Files(WorkSpace)", },
+  { "<leader>fr", function() require("snacks").picker.recent() end, desc = "Find: Recent Files" },
+  { "<leader>fb", function() require("snacks").picker.buffers() end, desc = "Find: Buffers" },
+  { "<leader>ft", function() require("snacks").picker.buffers({ filter = { filter = function(item,_filter) return item.buftype == "terminal" end, } }) end, desc = "Find: Terminals" },
 
-  -- 文件内容搜索结果
-  { "<leader>fg", function() require("snacks").picker.grep({ hidden = true, args = GREP_ARGS, cwd = gcwd(), }) end, desc = "Live Grep", },
-  { "<leader>fG", function() require("snacks").picker.grep({ hidden = true, args = GREP_ARGS }) end, desc = "Live Grep (WorkSpace)", },
-  { "<leader>fw", function() require("snacks").picker.grep({ cwd = gcwd(), search = vim.fn.expand("<cword>") }) end, desc = "Grep Word Under Cursor" },
-  { "<leader>fW", function() require("snacks").picker.grep({ search = vim.fn.expand("<cword>") }) end, desc = "Grep Word Under Cursor (WorkSpace)" },
-  { "<leader>f/", function() require("snacks").picker.grep({ buffers = { vim.api.nvim_get_current_buf() } }) end, desc = "Grep in Current Buffer" },
-  { "<leader>fl", function() require("snacks").picker.lines() end, desc = "Search in Current Buffer" },
+  -- %% File or buffer Content ==============================================
+  { "<leader>fg", function() require("snacks").picker.grep({ hidden = true, args = GREP_ARGS, cwd = gcwd(), }) end, desc = "Grep: Live(Cwd)", },
+  { "<leader>fG", function() require("snacks").picker.grep({ hidden = true, args = GREP_ARGS }) end, desc = "Grep: Live(WorkSpace)", },
+  { "<leader>fw", function() require("snacks").picker.grep({ cwd = gcwd(), search = vim.fn.expand("<cword>") }) end, desc = "Grep: Word(Cwd)" },
+  { "<leader>fW", function() require("snacks").picker.grep({ search = vim.fn.expand("<cword>") }) end, desc = "Grep: Word(WorkSpace)" },
+  { "<leader>f/", function() require("snacks").picker.grep({ buffers = { vim.api.nvim_get_current_buf() } }) end, desc = "Grep: In Cur Buffer" },
+  { "<leader>fl", function() require("snacks").picker.lines() end, desc = "Grep: Line in Cur Buffer" },
 
-  -- LSP 相关文件列表
-  { "<leader>fd", function() require("snacks").picker.lsp_definitions() end, desc = "LSP Definitions" },
-  { "<leader>fr", function() require("snacks").picker.lsp_references() end, desc = "LSP References" },
-  { "<leader>ft", function() require("snacks").picker.lsp_symbols() end, desc = "LSP Symbols" },
+  -- %% LSP 信息相关 ========================================================
+  { "<leader>hd", function() require("snacks").picker.lsp_definitions() end, desc = "Lsp: Definitions" },
+  { "<leader>hr", function() require("snacks").picker.lsp_references() end, desc = "Lsp: References" },
+  { "<leader>hs", function() require("snacks").picker.lsp_symbols() end, desc = "Lsp: Symbols" },
+  { "<leader>hg", function() require("snacks").picker.diagnostics_buffer() end, desc = "Lsp: Diagnostics" },
+  { "<leader>hG", function() require("snacks").picker.diagnostics() end, desc = "Lsp: Diagnostics(Repo)" },
 
+  -- %% Resume, Pickers =====================================================
   { "<leader>fj", function() require("snacks").picker.resume() end, desc = "Resume Last Picker" },
+  { "<leader>ll", function() require("snacks").picker.pickers() end, desc = "Picker Picker" },
 
-  -- 其他杂项 picker
-  { "<leader>lq", function() require("snacks").picker.qflist() end, desc = "Quickfix List" },
-  { "<leader>lr", function() require("snacks").picker.registers() end, desc = "Register List" },
-  { "<leader>lc", function() require("snacks").picker.colorschemes() end, desc = "ColorSchemes" },
-  { "<leader>lb", function() require("snacks").picker.buffers() end, desc = "Buffers" },
-
-  -- ===================================================================
-  -- snack.explorer
-  -- snack.picker.explorer() 也可以
-  -- ===================================================================
+  -- %% File explorer and preview ===========================================
+  -- `snack.explorer()` 与 `snack.picker.explorer()` 等价
   -- 打开当前文件所在根目录、所在目录（缺省为当前工作目录）
-  { "<leader>nn", function() require("snacks").explorer({ cwd = gcwd() }) end, desc = "Explorer Sidebar" },
-  { "<leader>nN", function() require("snacks").explorer() end, desc = "Explorer Sidebar (WorkSpace)" },
-  { "<leader>nc", function() require("snacks").explorer({ cwd = vim.fn.expand("%:p:h") }) end, desc = "Explorer Sidebar (Current File)" },
+  { "<leader>nn", function() require("snacks").explorer({ cwd = gcwd() }) end, desc = "FileTree: Cwd" },
+  { "<leader>nN", function() require("snacks").explorer() end, desc = "FileTree: WorkSpace" },
+  { "<leader>nc", function() require("snacks").explorer({ cwd = vim.fn.expand("%:p:h") }) end, desc = "FileTree: Parent Dir" },
 
-  -- ===================================================================
-  -- Scratch
-  -- ref: lazy/snacks.nvim/docs/scratch.md
-  -- ===================================================================
-  { "<leader>ml", function() require("snacks").scratch.select() end, desc = "Scratch: List" },
-  { "<leader>mz", function() require("snacks").scratch.open() end, desc = "Scratch: BrandNew" },
-  { "<leader>mm", function() require("snacks").scratch.open({ ft = "markdown", name = "todo" }) end, desc = "Scratch: Todo" },
-  { "<leader>mg", function() require("snacks").scratch.open({ ft = "gitcommit", name = "commit-draft" }) end, desc = "Scratch: Commit" },
+  { "<leader>nu", function() require("snacks").picker.undo() end, desc = "Preview: Undo" },
+  { "<leader>nj", function() require("snacks").picker.jumps() end, desc = "Preview: Jumps" },
+  { "<leader>nm", function() require("snacks").picker.marks() end, desc = "Preview: Marks" },
 
-  -- ===================================================================
-  -- 其他组件
-  -- ===================================================================
+  -- Bug: 默认 markdown = true，但是无法显示标题
+  { "<leader>nT", function() require("snacks").picker.treesitter() end, desc = "Tags: Preview" },
+
+  -- %% Git preivew =========================================================
+  { "<leader>gA", function() require("snacks").picker.git_diff() end, desc = "Preview: Git Diffs(Repo)" },
+  { "<leader>gl", function() require("snacks").picker.git_log_file() end, desc = "Preview: Git Log(File)" },
+  { "<leader>gL", function() require("snacks").picker.git_log() end, desc = "Preview: Git Log(Repo)" },
+  { "<leader>gB", function() require("snacks").picker.git_log_line() end, desc = "Preview: Git Log(Line)" },
+
+  { "<leader>gm", function() require("snacks").scratch.open({ ft = "gitcommit", name = "commit-draft" }) end, desc = "Commit Msg Scratch" },
+
+  -- %% 其他杂项 picker =====================================================
+  { "<leader>lc", function() require("snacks").picker.colorschemes() end, desc = "ColorSchemes" },
+  { "<leader>lq", function() require("snacks").picker.qflist() end, desc = "Quickfix" },
+  { "<leader>lz", function() require("snacks").picker.loclist() end, desc = "Loclist" },
+  { "<leader>lr", function() require("snacks").picker.registers() end, desc = "Registers" },
+  { "<leader>lm", function() require("snacks").scratch.select() end, desc = "Scratchs" },
+  { "<leader>lp", function() require("snacks").picker.projects() end, desc = "Projects" },
+  { "<leader>l/", function() require("snacks").picker.search_history() end, desc = "Search Hist" },
+
+  -- %% 其他组件 ============================================================
   { "<leader>un", function() require("snacks").notifier.show_history() end, desc = "Notification History" },
   { "<leader>uz", function() require("snacks").dashboard() end, desc = "Dashboard" },
+  { "<leader>um", function() require("snacks").scratch.open() end, desc = "Scratch" },
+  { "<leader>uM", function() require("snacks").scratch.open({ ft = "markdown", name = "markdown" }) end, desc = "Scratch(Markdown)" },
+
   { "<leader>bd", function() require("snacks").bufdelete() end, desc = "Delete Buffer" },
+
   { "<leader>qB", function() require("snacks").gitbrowse() end, desc = "Git Browse" },
   { "<leader>qg", function() require("snacks").lazygit() end, desc = "Lazygit" },
 }
-
+--- @diagnostic enable: undefined-field

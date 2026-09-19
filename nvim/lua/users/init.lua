@@ -2,7 +2,7 @@
 -- File    : init.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 22:28:31
--- Updated : 2026-09-18 17:55:25
+-- Updated : 2026-09-19 16:26:56
 -- Desc    : Init user mods.
 -- ==========================================================================
 
@@ -62,6 +62,12 @@ require("users.alignment").setup({
     "*.sh",
   }
 })
+require("users.terminal").setup({
+  position = "vertical botright",
+  size = nil,
+  set_keys = true,
+})
+require("users.qfix").setup({})
 require("users.colorscheme_switch").setup({
   transparent_enabled = true,
 })

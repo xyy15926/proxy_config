@@ -2,23 +2,9 @@
 -- File    : whichkey.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 16:44:01
--- Updated : 2026-09-16 22:22:51
+-- Updated : 2026-09-19 21:18:06
 -- Desc    : WhichKey configs and some ft-related keymaps.
 -- ==========================================================================
-
--- %% =======================================================================
---  其他与 filetype 相关 keymap 设置
--- ==========================================================================
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "qf",
-  callback = function()
-    -- <C-W> — 进入窗口操作前缀
-    -- <CR> — 在 quickfix 窗口的上下文中，等价于按回车，即打开当前行对应的文件条目
-    -- <C-W> — 又是窗口操作前缀
-    -- T — 大写 T，Vim 的内置命令：把当前窗口拆出来，放到一个全新的 tab 里
-    vim.keymap.set("n", "t", "<C-W><CR><C-W>T", { buffer = true, desc = "tabnew-open" })
-  end,
-})
 
 
 -- %% =======================================================================
@@ -57,31 +43,35 @@ return {
       { "<leader>x", group = "build-run", icon = " " },
       { "<leader>a", group = "ai-avante", icon = " " },
       { "<leader>g", group = "git-actions", icon = " " },
-      { "<leader>h", group = "lint-hint",  icon = "󰴑 " },
+      { "<leader>h", group = "lint-lsp-info",  icon = "󰴑 " },
       { "<leader>u", group = "tiny-func", icon = "󰊕 " },
       { "<leader>c", group = "content", icon = "󰆐 " },
       { "<leader>m", group = "msg-scratch", icon = "󱖩 " },
       { "<leader>d", group = "debug", icon = " " },
 
       -- %% 原生 Window 操作（无插件依赖，留在这里）
+      -- 切换
       { "<leader>ww", "<C-w>w", desc = "other-window" },
-      { "<leader>wd", "<C-w>c", desc = "delete-window" },
-      { "<leader>w-", "<C-w>s", desc = "split-below" },
-      { "<leader>w|", "<C-w>v", desc = "split-right" },
-      { "<leader>w2", "<C-w>v", desc = "double-columns" },
       { "<leader>wh", "<C-w>h", desc = "window-left" },
       { "<leader>wj", "<C-w>j", desc = "window-below" },
       { "<leader>wl", "<C-w>l", desc = "window-right" },
       { "<leader>wk", "<C-w>k", desc = "window-up" },
+      -- 拆分
+      { "<leader>ws", "<C-w>s", desc = "split-below" },
+      { "<leader>wv", "<C-w>v", desc = "split-right" },
+      -- 关闭
+      { "<leader>wd", "<C-w>c", desc = "close-window" },
+      { "<leader>wo", "<C-w>o", desc = "close-other-window" },
+      -- 移动
+      { "<leader>wr", "<C-w>r", desc = "cycle-window" },
+      { "<leader>wt", "<C-w>T", desc = "newtab-window" },
+      -- 大小调整
       { "<leader>wH", "<C-w>5<", desc = "expand-left" },
       { "<leader>wJ", ":resize +5<cr>", desc = "expand-below" },
       { "<leader>wL", "<C-w>5>", desc = "expand-right" },
       { "<leader>wK", ":resize -5<cr>", desc = "expand-up" },
       { "<leader>w=", "<C-w>=", desc = "balance" },
-      { "<leader>ws", "<C-w>s", desc = "split-below" },
-      { "<leader>wv", "<C-w>v", desc = "split-right" },
       { "<leader>wm", "<C-w>m", desc = "zoom" },
-      { "<leader>wq", "<cmd>cclose<cr>", desc = "qfix-close" },
 
       -- %% 特殊窗口导航
       { "<M-H>", "<C-w>h", desc = "window-left" },
@@ -110,11 +100,11 @@ return {
 
       -- %%jump
       { "<leader>jm", "`m", desc = "jump-mark-m" },  -- 跳转到使用 `mm` 设置的标记处，`'m` 则只跳转精确至行
-      { "<leader>jq", "<cmd>cprev<cr>", desc = "prev-qfix" },
-      { "<leader>ja", "<cmd>cnext<cr>", desc = "next-qfix" },
-      { "<leader>jz", "<cmd>cc<cr>", desc = "curr-qfix" },
-      { "<leader>jw", "[c", desc = "diff-prev" },
-      { "<leader>js", "]c", desc = "diff-next" },
+      { "<leader>jq", "<cmd>cprev<cr>", desc = "qfix: prev qf" },
+      { "<leader>ja", "<cmd>cnext<cr>", desc = "qfix: next qf" },
+      { "<leader>jz", "<cmd>cc<cr>", desc = "qfix: current qf" },
+      { "<leader>jw", "[c", desc = "vimdiff: prev diff" },
+      { "<leader>js", "]c", desc = "vimdiff: next dfff" },
 
       -- %% fold
       { "z1", ":set foldlevel=1<cr>", desc = "fold-1" },

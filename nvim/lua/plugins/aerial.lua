@@ -1,22 +1,26 @@
 -- ==========================================================================
--- File    : sidebar.lua
+-- File    : aerial.lua
 -- Author  : xyy15926
 -- Created : 2026-08-30 15:20:25
--- Updated : 2026-09-08 11:25:17
--- Desc    : Plugins related to sidebars.
+-- Updated : 2026-09-19 22:02:53
+-- Desc    : Aarial display the tags in from syntax parser tree constructed
+--   by treesitter.
 -- ==========================================================================
 
 return {
-  -- -------------------- aerial（替代 tagbar）--------------------
+  -- -------------------- aerial -------------------------------------------
   {
     "stevearc/aerial.nvim",
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
       "nvim-tree/nvim-web-devicons",
     },
+    lazy = true,
+    enabled = true,
     cmd = { "AerialToggle" },
     keys = {
-      { "<leader>nt", "<cmd>AerialToggle<CR>", desc = "Toggle Tag List" },
+      -- `snacks.picker.treesitter()` 也可以列出、预览 tags
+      { "<leader>nt", "<cmd>AerialToggle<CR>", desc = "Tags: Sidebar" },
     },
     opts = {
       -- LSP 返回更细粒度符号，忽略
@@ -35,29 +39,14 @@ return {
         "Constructor",
         "Enum",
         "Function",
+        "Field",
         "Interface",
         "Method",
         "Module",
+        "Namespace",
         "Struct",
+        "Trait",
       },
     }
-  },
-
-  -- -------------------- mundo --------------------
-  { "simnalamburt/vim-mundo",
-    cmd = "MundoToggle",
-    keys = {
-      { "<leader>nh", "<cmd>MundoToggle<CR>", desc = "Toggle Undo Tree" },
-    },
-    config = function()
-      vim.g.mundo_width = 30
-      vim.g.mundo_preview_height = 15
-      vim.g.mundo_right = 1
-      vim.g.mundo_auto_preview = 1
-      vim.g.mundo_auto_preview_delay = 1000
-      vim.g.mundo_verbose_graph = 0
-      vim.g.mundo_close_on_revert = 1
-      vim.g.mundo_return_on_revert = 1
-    end
   },
 }

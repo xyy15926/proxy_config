@@ -2,7 +2,7 @@
 -- File    : git.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:23:45
--- Updated : 2026-09-10 09:48:49
+-- Updated : 2026-09-19 21:24:43
 -- Desc    : Plugins related to git.
 -- ==========================================================================
 
@@ -29,23 +29,27 @@ return {
         end
 
         -- 跳转 hunk
-        vim.keymap.set("n", "<leader>je", gs.prev_hunk,     opts("Prev Hunk"))
-        vim.keymap.set("n", "<leader>jd", gs.next_hunk,     opts("Next Hunk"))
+        vim.keymap.set("n", "<leader>je", gs.prev_hunk,     opts("Git: Prev Hunk"))
+        vim.keymap.set("n", "<leader>jd", gs.next_hunk,     opts("Git: Next Hunk"))
+
+        -- 信息
+        vim.keymap.set("n", "<leader>gp", gs.preview_hunk,  opts("Hover: Hunk"))
+        vim.keymap.set("n", "<leader>gb", gs.blame_line,    opts("Hover: Blame Line"))
 
         -- 操作
-        vim.keymap.set("n", "<leader>gp", gs.preview_hunk,  opts("Preview Hunk"))
-        vim.keymap.set("n", "<leader>gs", gs.stage_hunk,    opts("Stage Hunk"))
-        vim.keymap.set("n", "<leader>gS", gs.stage_buffer,  opts("Stage Buffer"))
-        vim.keymap.set("n", "<leader>gu", gs.undo_stage_hunk, opts("Unstage Hunk"))
-        vim.keymap.set("n", "<leader>gU", function()
-          vim.fn.system("git restore --stage " .. vim.fn.expand("%"))
-          vim.cmd("Gitsigns refresh")
-        end, opts("Unstage Buffer"))
-        vim.keymap.set("n", "<leader>gr", gs.reset_hunk,    opts("Reset Hunk"))
-        vim.keymap.set("n", "<leader>gR", gs.reset_buffer,  opts("Reset Buffer"))
-        vim.keymap.set("n", "<leader>gb", gs.blame_line,    opts("Blame Line"))
-        vim.keymap.set("v", "<leader>gs", function() gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts("Stage Hunk Line"))
-        vim.keymap.set("v", "<leader>gr", function() gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts("Reset Hunk Line"))
+        vim.keymap.set("n", "<leader>gs", gs.stage_hunk,    opts("Stage: Hunk"))
+        vim.keymap.set("n", "<leader>gS", gs.stage_buffer,  opts("Stage: Buffer"))
+        vim.keymap.set("n", "<leader>gu", gs.undo_stage_hunk, opts("Unstage: Hunk"))
+        -- vim.keymap.set("n", "<leader>gU", function()
+        --   vim.fn.system("git restore --stage " .. vim.fn.expand("%"))
+        --   vim.cmd("Gitsigns refresh")
+        -- end, opts("Unstage: Buffer"))
+        vim.keymap.set("n", "<leader>gU", function() gs.undo_stage_hunk({ 0, vim.fn.line("$") }) end, opts("Unstage: Buffer"))
+        vim.keymap.set("n", "<leader>gr", gs.reset_hunk,    opts("Reset: Hunk"))
+        vim.keymap.set("n", "<leader>gR", gs.reset_buffer,  opts("Reset: Buffer"))
+        vim.keymap.set("v", "<leader>gs", function() gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts("Stage: Hunks"))
+        vim.keymap.set("v", "<leader>gu", function() gs.undo_stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts("Unstage: Hunks"))
+        vim.keymap.set("v", "<leader>gr", function() gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, opts("Reset: Hunks"))
       end,
     },
   },
@@ -57,10 +61,10 @@ return {
     lazy = true,
     cmd = { "DiffviewOpen", "DiffviewFileHistory" },
     keys = {
-      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diff Stage" },
-      { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Diff Close" },
-      { "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", desc = "Diff Hist File" },
-      { "<leader>gF", "<cmd>DiffviewFileHistory<cr>", desc = "Diff Hist Repo" },
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diffview: Stage" },
+      { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Diffview: Close" },
+      { "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: Hist File" },
+      { "<leader>gF", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview: Hist Repo" },
     },
     opts = {
       enhanced_diff_hl = true,
