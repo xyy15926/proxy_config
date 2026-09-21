@@ -2,7 +2,7 @@
 -- File    : blink.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 13:24:08
--- Updated : 2026-09-18 16:50:07
+-- Updated : 2026-09-20 18:22:07
 -- Desc    : Blink configs.
 -- ==========================================================================
 
@@ -31,6 +31,7 @@ return {
       "L3MON4D3/LuaSnip",                 -- LusSnip 可选支持，替代内置 `mini.snippets`
       "disrupted/blink-cmp-conventional-commits",
       "MahanRahmati/blink-nerdfont.nvim",
+      "moyiz/blink-emoji.nvim",
     },
     opts = {
       cmdline = {

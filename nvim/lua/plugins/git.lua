@@ -2,8 +2,11 @@
 -- File    : git.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 18:23:45
--- Updated : 2026-09-19 21:24:43
+-- Updated : 2026-09-21 09:33:17
 -- Desc    : Plugins related to git.
+--
+-- Ref:
+-- - lazy/diffview.nvim/README.md
 -- ==========================================================================
 
 return {
@@ -33,7 +36,7 @@ return {
         vim.keymap.set("n", "<leader>jd", gs.next_hunk,     opts("Git: Next Hunk"))
 
         -- 信息
-        vim.keymap.set("n", "<leader>gp", gs.preview_hunk,  opts("Hover: Hunk"))
+        vim.keymap.set("n", "<leader>gd", gs.preview_hunk,  opts("Hover: Hunk Diff"))
         vim.keymap.set("n", "<leader>gb", gs.blame_line,    opts("Hover: Blame Line"))
 
         -- 操作
@@ -61,13 +64,15 @@ return {
     lazy = true,
     cmd = { "DiffviewOpen", "DiffviewFileHistory" },
     keys = {
-      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diffview: Stage" },
-      { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Diffview: Close" },
-      { "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: Hist File" },
-      { "<leader>gF", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview: Hist Repo" },
+      { "<leader>gx", "<cmd>DiffviewOpen<cr>", desc = "Diffview: Working" },
+      { "<leader>gX", "<cmd>DiffviewOpen --staged<cr>", desc = "Diffview: Staged" },
+      { "<leader>gq", "<cmd>DiffviewClose<cr>", desc = "Diffview: Close" },
+      { "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: File Hist(log)" },
+      { "<leader>gt", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview: Repo Hist(log)" },
+      { "<leader>gf", ":DiffviewFileHistory<cr>", mode = "v", desc = "Diffview: Range(log)" },
     },
     opts = {
-      enhanced_diff_hl = true,
+      enhanced_diff_hl = true,  -- 高亮展示行内差异（默认只展示行级变动）
       use_icons = true,  -- 用竖线分隔左右面板
       view = {
         -- 普通 diff 场合

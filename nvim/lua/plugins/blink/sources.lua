@@ -2,7 +2,7 @@
 -- File    : sources_providers.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 22:03:31
--- Updated : 2026-09-14 18:20:22
+-- Updated : 2026-09-20 20:18:39
 -- Desc    : Sources providers.
 --
 -- Ref:
@@ -10,6 +10,8 @@
 -- - https://github.com/disrupted/blink-cmp-conventional-commits
 -- - lazy/blink.cmp/doc/configuration/sources.md
 -- - lazy/blink.cmp/doc/recipes.md#sources
+-- - lazy/blink-nerdfont.nvim/README.md
+-- - lazy/blink-emoji.nvim/README.md
 -- ==========================================================================
 
 return {
@@ -28,7 +30,7 @@ return {
   --   end
   --   return { "lsp", "snippets", "buffer", "nerdfont" }
   -- end,
-  default = { "lsp", "snippets", "buffer", "nerdfont", "path" },
+  default = { "lsp", "snippets", "buffer", "path", "nerdfont", "emoji" },
   per_filetype = {
     -- `inherit_defaults = true`：先继承 default
     gitcommit = { inherit_defaults = true, "conventional_commits" },
@@ -68,7 +70,24 @@ return {
       score_offset = 15,  -- Tune by preference
       opts = {
         insert = true,  -- Insert nerdfont icon (default) or complete its name
-        trigger = ":?"  -- Customize the trigger. Defaults to ":"
+        trigger = ":"  -- Customize the trigger. Defaults to ":"
+      },
+    },
+    -- 插件问题无法设置多字符 trigger
+    -- 1. `opts.trigger` 直接被设置为 blink sources 规范中的
+    --   `get_trigger_characters` 函数，再直接被作为模式匹配元素，则设置多字符
+    --   trigger 时会因为 `get_trigger_characters` 没有将 `opts.trigger` 中
+    --   字符设置为触发字符而无法触发 blink 补全动作
+    -- 2. 更严重的问题是，`keyword_pattern` 函数中 `\?` 只作用于直接前继字符，
+    --   多字符 trigger 时尾部 trigger 不能省略，否则无法匹配
+    emoji = {
+      module = "blink-emoji",
+      name = "Emoji",
+      enabled = true,
+      score_offset = 16,
+      opts = {
+        insert = true,
+        trigger = ":",
       },
     },
     -- 自定义的实现都是实时查询目录，开销比较大，还是都关了吧 :-(

@@ -2,7 +2,7 @@
 -- File    : link_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-09-11 19:02:32
--- Updated : 2026-09-13 13:40:08
+-- Updated : 2026-09-20 11:07:34
 -- Desc    : Jump to the link.
 -- ==========================================================================
 
@@ -38,6 +38,13 @@ local file_url = users_utils.file_url
 
 --- 将 WSL 中本地文件路径转换为 Win GUI 可访问路径
 local function wsl_file_url(url)
+  local win_disks = { "/mnt/c", "/mnt/d", "/mnt/e", "/mnt/f" }
+  if vim.tbl_contains(win_disks, url:sub(1, 6)) then
+    local reped, _rep_count = url:gsub("^/mnt/(%a)/(.*)", function(drive, rest)
+      return "file:///" .. drive:upper() .. ":/" .. rest
+    end)
+    return reped
+  end
   return M.opts.wsl_prefix .. url
 end
 
@@ -140,7 +147,7 @@ function M.open_local(url, tag)
     return "#" .. tag
   else
     -- 检查并补全文件路径
-    local parsed_url, parsed_tag = file_url(url, tag, M.opts.find_path)
+    local parsed_url, parsed_tag = file_url(url, tag, M.opts.find_path, false)
     if parsed_url then
       local bufnr = try_open_local(parsed_url)
       if parsed_tag then

@@ -2,7 +2,7 @@
 -- File    : whichkey.lua
 -- Author  : xyy15926
 -- Created : 2026-09-12 16:44:01
--- Updated : 2026-09-19 21:18:06
+-- Updated : 2026-09-20 08:50:31
 -- Desc    : WhichKey configs and some ft-related keymaps.
 -- ==========================================================================
 
@@ -20,6 +20,7 @@ return {
       spacing = 2,
       align = "center",
     },
+    sort = { "group", "mod", "alphanum", "lower", "unlocal", "order" },
     -- 若按键本身为内置命令，需要手动添加作为触发器才会按下后有提示
     triggers = {
       { "<auto>", mode = "nixsotc" },  -- `<auto>`：自动监测已有注册的子映射，弹出提示框
@@ -41,7 +42,7 @@ return {
       { "<leader>q", group = "outvim-actions", icon = "󱋿 " },
       { "<leader>j", group = "jump", icon = " " },
       { "<leader>x", group = "build-run", icon = " " },
-      { "<leader>a", group = "ai-avante", icon = " " },
+      { "<leader>a", group = "ai-command", icon = " " },
       { "<leader>g", group = "git-actions", icon = " " },
       { "<leader>h", group = "lint-lsp-info",  icon = "󰴑 " },
       { "<leader>u", group = "tiny-func", icon = "󰊕 " },

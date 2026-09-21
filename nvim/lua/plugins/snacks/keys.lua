@@ -2,7 +2,7 @@
 -- File    : keys.lua
 -- Author  : xyy15926
 -- Created : 2026-09-08 22:01:25
--- Updated : 2026-09-19 22:30:45
+-- Updated : 2026-09-21 09:35:49
 -- Desc    : Snacks keymaps
 --
 -- Ref:
@@ -120,10 +120,10 @@ return {
   { "<leader>nT", function() require("snacks").picker.treesitter() end, desc = "Tags: Preview" },
 
   -- %% Git preivew =========================================================
-  { "<leader>gA", function() require("snacks").picker.git_diff() end, desc = "Preview: Git Diffs(Repo)" },
-  { "<leader>gl", function() require("snacks").picker.git_log_file() end, desc = "Preview: Git Log(File)" },
-  { "<leader>gL", function() require("snacks").picker.git_log() end, desc = "Preview: Git Log(Repo)" },
-  { "<leader>gB", function() require("snacks").picker.git_log_line() end, desc = "Preview: Git Log(Line)" },
+  { "<leader>gD", function() require("snacks").picker.git_diff() end, desc = "Preview: Git Diffs(Repo)" },
+  { "<leader>gF", function() require("snacks").picker.git_log_file() end, desc = "Preview: File Hist(log)" },
+  { "<leader>gT", function() require("snacks").picker.git_log() end, desc = "Preview: Repo Hist(log)" },
+  { "<leader>gB", function() require("snacks").picker.git_log_line() end, desc = "Preview: Line Hist(log)" },
 
   { "<leader>gm", function() require("snacks").scratch.open({ ft = "gitcommit", name = "commit-draft" }) end, desc = "Commit Msg Scratch" },
 

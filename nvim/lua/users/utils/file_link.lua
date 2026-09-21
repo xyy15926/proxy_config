@@ -2,7 +2,7 @@
 -- File    : file_link.lua
 -- Author  : xyy15926
 -- Created : 2026-09-11 18:48:49
--- Updated : 2026-09-17 22:29:22
+-- Updated : 2026-09-20 14:18:45
 -- Desc    : Tools to construct and file link.
 --
 -- -------------------------------------------------------------------------
@@ -124,10 +124,11 @@ end
 -- ==========================================================================
 --- 在路径表中寻找指定文件
 --- @param url string
---- @param entrys string[]
+--- @param entrys string[] 待搜索的目录
 --- @param count integer? 最多寻找的数量
+--- @param file_only boolean? 只允许文件
 --- @return string[]
-function M.find_url_in_paths(url, entrys, count)
+function M.find_url_in_paths(url, entrys, count, file_only)
   count = count or 0
   local found = {}
   local candidate = nil
@@ -137,8 +138,8 @@ function M.find_url_in_paths(url, entrys, count)
       or entry
     candidate = url:match("^/") and entry .. url
       or entry .. "/" .. url
-    -- `vim.fn.filereadable` 返回 0, 1，但 0 是 true
-    if vim.fn.filereadable(candidate) > 0 then
+    local stat = vim.uv.fs_stat(candidate)
+    if stat and (stat.type == "file" or (not file_only)) then
       table.insert(found, vim.fn.simplify(candidate))
     end
     -- 找到足够数量候选即返回
@@ -152,9 +153,10 @@ end
 --- `/` 开头绝对路径若不存在，可能被视为相对路径
 --- @param url string
 --- @param tag string?
---- @param entrys string[]?
+--- @param entrys string[] 待搜索的目录
+--- @param file_only boolean? 只允许文件
 --- @return string?, string?
-function M.file_url(url, tag, entrys)
+function M.file_url(url, tag, entrys, file_only)
   -- 本地文件则先尝试切分文件地址、文件内 tag
   if url then
     local parts = vim.split(url, "#")
@@ -164,13 +166,16 @@ function M.file_url(url, tag, entrys)
     end
   end
   url = modify_url(url)
-  -- 尝试直接查找
-  if vim.fn.filereadable(url) > 0 then
-    return vim.uv.fs_realpath(url), tag
-  end
+
   -- 默认在 vim.o.path 中寻找
   entrys = entrys == nil and collect_path_dirs(vim.bo.path) or entrys
-  local found = M.find_url_in_paths(url, entrys, 1)
+
+  -- 总是插入空字符串，以支持绝对路径、相对当前工作目录路径的搜索
+  if not vim.tbl_contains(entrys, "") then
+    table.insert(entrys, "")
+  end
+
+  local found = M.find_url_in_paths(url, entrys, 1, file_only)
   if #found > 0 then
     return found[1], tag
   else
