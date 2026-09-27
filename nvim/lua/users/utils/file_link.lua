@@ -2,7 +2,7 @@
 -- File    : file_link.lua
 -- Author  : xyy15926
 -- Created : 2026-09-11 18:48:49
--- Updated : 2026-09-22 14:03:24
+-- Updated : 2026-09-27 22:09:51
 -- Desc    : Tools to construct and file link.
 --
 -- -------------------------------------------------------------------------
@@ -35,13 +35,16 @@
 
 local M = {}
 
-M.defaults = { }
-M.opts = vim.deepcopy(M.defaults)
+
+--- 按项目目录维护文件地址模式
+--- @type table<string, string>
+M._gx_patterns = {}
 
 
 -- %% =======================================================================
 --  其他杂项
 -- ==========================================================================
+
 --- 检查并返回 web URL
 --- @param url string
 --- @return string?
@@ -90,12 +93,13 @@ end
 -- %% =======================================================================
 --  公共路径模式
 -- ==========================================================================
+
 --- 配置路径补全模式：路径前缀、文件后缀
 --- 需先选择是 global 还是 buffer local 的模式
 function M.set_gx_pattern()
-  -- 在 `M.opts.gx_patterns` 中用文件所在项目根目录作键存储 pattern
+  -- 在 `M._gx_patterns` 中用文件所在项目根目录作键存储 pattern
   local root = require("users.rooter").find_project_root()
-  local default_file_ptn = M.opts.gx_patterns[root]
+  local default_file_ptn = M._gx_patterns[root]
     or vim.fn.expand("%:p:h") .. "/{{}}"
 
   -- 配置路径补全模式：路径前缀、文件后缀
@@ -104,7 +108,7 @@ function M.set_gx_pattern()
     default = default_file_ptn
   }, function(ptn_input)
     if not ptn_input then return end
-    M.opts.gx_patterns[root] = ptn_input
+    M._gx_patterns[root] = ptn_input
   end)
 end
 
@@ -113,7 +117,7 @@ end
 --- @param url string
 local function modify_url(url)
   local root = require("users.rooter").find_project_root()
-  local file_ptn = M.opts.gx_patterns[root]
+  local file_ptn = M._gx_patterns[root]
   if file_ptn then
     url = file_ptn:gsub("{{}}", url):gsub("//", "/", nil)
   end
@@ -124,6 +128,7 @@ end
 -- %% =======================================================================
 --  地址检查、补全
 -- ==========================================================================
+
 --- 在路径表中寻找指定文件
 --- @param url string
 --- @param entrys string[] 待搜索的目录
@@ -190,6 +195,7 @@ end
 -- %% =======================================================================
 --  前缀匹配目录内项
 -- ==========================================================================
+
 --- 扫描单个目录，返回与 name_part 前缀匹配的文件/子目录条目。
 --- @param base_dir string  路径根目录
 --- @param dir_part string  已输入的子目录前缀
@@ -268,14 +274,5 @@ function M.scan_directories(base_dirs, dir_part, name_part, count)
   return items
 end
 
-
--- %% =======================================================================
---  模块初始化
--- ==========================================================================
-function M.setup(opts)
-  M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
-  M.opts.gx_patterns = {}
-  return M
-end
 
 return M

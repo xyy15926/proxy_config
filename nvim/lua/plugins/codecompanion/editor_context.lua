@@ -2,13 +2,18 @@
 -- File    : editor_context.lua
 -- Author  : xyy15926
 -- Created : 2026-09-02 11:39:28
--- Updated : 2026-09-02 21:57:25
+-- Updated : 2026-09-22 19:00:42
 -- Desc    : Editor context subsystem.
 --
--- 编辑器上下文：快速插入 buffer、lsp、clipboard 等编辑器状态相关内容
--- 
--- #### 预定义 editor_context
+-- Ref:
+-- - lazy/codecompanion.nvim/doc/usage/chat-buffer/editor-context.md
+-- - lazy/codecompanion.nvim/lua/codecompanion/interactions/inline/editor_context/clipboard.lua
+-- - lazy/codecompanion.nvim/lua/codecompanion/interactions/shared/editor_context/selection.lua
 --
+-- --------------------------------------------------------------------------
+--  editor_context 编辑器上下文：快速插入 buffer、lsp、clipboard 等编辑器状态
+--    相关内容
+-- 
 -- 1. `#{buffer}` 同步指定 buffer（作为上下文），缺省当前（上个）buffer
 -- 1.1. 指定 buffer：通过 `#{buffer:<ptn>}` 指定包含、是特定 ptn 名称的 buffer
 -- 1.2. buffer 变动之后会自动同步
@@ -41,14 +46,25 @@
 -- ==========================================================================
 
 return {
-  buffer = {
-    opts = {
-      default_params = "diff",  -- `all` 则默认同步整个 buffer
+  shared = {
+    buffer = {
+      opts = {
+        default_params = "diff",  -- `all` 则默认同步整个 buffer
+      },
+    },
+    buffers = {
+      opts = {
+        excluded = {},
+      },
     },
   },
-  buffers = {
-    opts = {
-      excluded = {},
+  inline = {
+    vimclip = {
+      path = "plugins.codecompanion.editor_contexts.vimclip",
+      description = "Share the contents of the vim default register with the LLM",
+      opts = {
+        contains_code = true,
+      },
     },
   },
 }

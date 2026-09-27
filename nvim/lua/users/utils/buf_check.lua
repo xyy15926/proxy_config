@@ -2,16 +2,11 @@
 -- File    : buf_check.lua
 -- Author  : xyy15926
 -- Created : 2026-09-26 10:22:48
--- Updated : 2026-09-26 10:22:48
+-- Updated : 2026-09-27 22:05:18
 -- Desc    : Check before register autocmd to guard.
 -- ==========================================================================
 
 local M = {}
-
-
---- 各 buffer 的支持性状态
---- @type table<string, boolean>
-M._enabled = {}
 
 
 -- %% =======================================================================
@@ -164,12 +159,5 @@ function M.get_content(keep_mode, last_visual)
   return content
 end
 
-
--- %% =======================================================================
---  模块初始化
--- ==========================================================================
-function M.setup(_opts)
-  return M
-end
 
 return M

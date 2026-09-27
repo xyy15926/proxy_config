@@ -20,6 +20,7 @@ return {
     change_adapter = { modes = { n = "ga" } },
     clear = { modes = { n = "gQ" } },  -- 清空聊天历史
   },
+  -- #TODO 好像有问题
   inline = {
     accept_change = {
       modes = { n = "gda" },

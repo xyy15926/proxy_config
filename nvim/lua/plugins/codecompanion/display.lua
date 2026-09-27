@@ -2,11 +2,12 @@
 -- File    : display.lua
 -- Author  : xyy15926
 -- Created : 2026-09-01 21:51:42
--- Updated : 2026-09-04 10:00:36
+-- Updated : 2026-09-21 22:17:53
 -- Desc    : Display config.
 -- ==========================================================================
 
 return {
+  -- ref: lazy/codecompanion.nvim/doc/configuration/chat-buffer.md
   chat = {
     intro_message = "Welcome to CodeCompanion ✨✨✨! Press ? for options",
     show_context = true,
@@ -22,14 +23,14 @@ return {
 
     -- chat 对话窗口
     window = {
-      buflisted = false,  -- 展示在 buffer list 中
+      buflisted = true,  -- 展示在 buffer list 中
       sticky = false,  -- 切换 tabpage 时保持出现
-      pretab = false,  -- tabpage 拥有独立 chat 窗口
+      pretab = true,  -- tabpage 可拥有独立 chat 窗口
 
       layout = "vertical",    -- 垂直分屏（右侧栏）
       full_height = true,
       position = "right",
-      width = 0.4,           -- 窗口宽度占屏幕比例
+      width = 0,  -- 宽度占比，0 则为自动宽度
       height = 0,  -- 自动高度
 
       border = "single",
@@ -83,7 +84,8 @@ return {
     provider = "default",
     opts = {
       show_preset_actions = true,
-      show_preset_prompts = true,
+      show_preset_prompts = false,
+      show_preset_rules = true,
       title = "CodeCompanion Actions",
     },
   },

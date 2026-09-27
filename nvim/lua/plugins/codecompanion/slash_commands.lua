@@ -2,15 +2,24 @@
 -- File    : slash_commands.lua
 -- Author  : xyy15926
 -- Created : 2026-09-02 11:41:04
--- Updated : 2026-09-02 16:14:12
+-- Updated : 2026-09-22 19:19:54
 -- Desc    : Slash commands.
 --
--- Slash commands：快速插入预定义 prompt、添加文件等（除 editor_context 外）
---   作为上下文，包括
---   - `interactions.chat.slash_commands` 表项
---   - `prompt_library` 中 `opts.is_slash_cmd = true` 表项
+-- Ref:
+-- - lazy/codecompanion.nvim/doc/usage/chat-buffer/slash-commands.md
 --
--- #### 预定定义 slash commands
+-- -------------------------------------------------------------------------
+-- Slash commands：快速插入预定义 prompt、添加文件、选项控制等
+--
+-- 1. Slash command 来源包括
+-- 1.1. `interactions.chat.slash_commands` 表项
+-- 1.2. `prompt_library` 中 `opts.is_slash_cmd = true` 表项
+-- 2. prompt 对应的 slash command 即用于快速插入对应 prompt
+-- 3. 非 prompt slash command 触发后往往需要后续操作、参数
+-- 3.1. 典型的 `/buffer` 可以制定任意 buffer，而 `#buffer` 仅指定当前 buffer
+--
+-- -------------------------------------------------------------------------
+-- 内建 slash commands（非 prompt）
 --
 -- - `/buffer` 添加已打开 buffer 至 chat buffer
 --   - 支持 native, telescope, mini.pick, fzf.lua, snacks.nvim 作为 provider，
@@ -51,7 +60,8 @@
 --
 -- - `/share` 通过 Github Gist 分享对话
 --
--- #### 仅适用于 ACP 适配器的 slash commands
+-- -------------------------------------------------------------------------
+-- 仅适用于 ACP 适配器的 slash commands
 --
 -- - `/acp_session_options` 调整 ACP specification 中的配置
 -- - `/command` 切换不同的适配器命令

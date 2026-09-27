@@ -2,7 +2,7 @@
 -- File    : debounce.lua
 -- Author  : xyy15926
 -- Created : 2026-09-24 16:09:27
--- Updated : 2026-09-24 16:09:27
+-- Updated : 2026-09-27 22:05:25
 -- Desc    : Debounce to 
 -- ==========================================================================
 
@@ -100,9 +100,5 @@ function M.register_debounce_au(aug_name, bufnr, fn, events, wait)
   })
 end
 
-
-function M.setup(_opts)
-  return M
-end
 
 return M
