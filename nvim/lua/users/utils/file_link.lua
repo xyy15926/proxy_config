@@ -2,7 +2,7 @@
 -- File    : file_link.lua
 -- Author  : xyy15926
 -- Created : 2026-09-11 18:48:49
--- Updated : 2026-09-20 14:18:45
+-- Updated : 2026-09-22 14:03:24
 -- Desc    : Tools to construct and file link.
 --
 -- -------------------------------------------------------------------------
@@ -93,8 +93,9 @@ end
 --- 配置路径补全模式：路径前缀、文件后缀
 --- 需先选择是 global 还是 buffer local 的模式
 function M.set_gx_pattern()
-  -- 在 `M.opts.gx_patterns` 中用当前工作目录作键存储 pattern
-  local default_file_ptn = M.opts.gx_patterns[vim.fn.getcwd()]
+  -- 在 `M.opts.gx_patterns` 中用文件所在项目根目录作键存储 pattern
+  local root = require("users.rooter").find_project_root()
+  local default_file_ptn = M.opts.gx_patterns[root]
     or vim.fn.expand("%:p:h") .. "/{{}}"
 
   -- 配置路径补全模式：路径前缀、文件后缀
@@ -103,7 +104,7 @@ function M.set_gx_pattern()
     default = default_file_ptn
   }, function(ptn_input)
     if not ptn_input then return end
-    M.opts.gx_patterns[vim.fn.getcwd()] = ptn_input
+    M.opts.gx_patterns[root] = ptn_input
   end)
 end
 
@@ -111,7 +112,8 @@ end
 --- 根据已配置模式补全路径
 --- @param url string
 local function modify_url(url)
-  local file_ptn = M.opts.gx_patterns[vim.fn.getcwd()]
+  local root = require("users.rooter").find_project_root()
+  local file_ptn = M.opts.gx_patterns[root]
   if file_ptn then
     url = file_ptn:gsub("{{}}", url):gsub("//", "/", nil)
   end
@@ -135,6 +137,7 @@ function M.find_url_in_paths(url, entrys, count, file_only)
   for _, entry in ipairs(entrys) do
     entry = entry == "." and vim.fn.expand("%:p:h")
       or entry == "" and vim.fn.getcwd()
+      or entry == "/" and ""
       or entry
     candidate = url:match("^/") and entry .. url
       or entry .. "/" .. url
@@ -170,9 +173,9 @@ function M.file_url(url, tag, entrys, file_only)
   -- 默认在 vim.o.path 中寻找
   entrys = entrys == nil and collect_path_dirs(vim.bo.path) or entrys
 
-  -- 总是插入空字符串，以支持绝对路径、相对当前工作目录路径的搜索
-  if not vim.tbl_contains(entrys, "") then
-    table.insert(entrys, "")
+  -- 总是插入 `/`，以支持绝对路径的搜索
+  if not vim.tbl_contains(entrys, "/") then
+    table.insert(entrys, "/")
   end
 
   local found = M.find_url_in_paths(url, entrys, 1, file_only)

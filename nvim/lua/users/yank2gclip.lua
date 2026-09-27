@@ -2,7 +2,7 @@
 -- File    : yank2gclip.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 11:31:39
--- Updated : 2026-09-16 10:24:48
+-- Updated : 2026-09-27 21:09:03
 -- Desc    : Yank to and paste from GClip.
 --
 -- 通过 win32yank.exe 与 Win 实现通信
@@ -18,15 +18,23 @@
 -- 1. 函数必须定义为全局函数，放入 lua 的全局变量表
 -- 2. opfunc 接收单个参数 `type` 指示当前可视类型，由 Neovim 的 `g@` 机制
 --   自动传入，取值
--- 2.1 line：行模式，对应 "V" 字符流，对应 `vim.fn.getregion` 中 `type = "V"`
--- 2.2 block：块模式，对应 "\22"/"<C-V>" 字符流 `vim.fn.getregion` 中 `type = "\22"`（即 `<C-V>` 转义）
--- 2.3 char：字符模式，对应 "v" 字符流 `vim.fn.getregion` 中 `type = "v"`
--- 3. `vim.fn.getregion`、`vim.setreg` 等函数中 `type` 参数即指定字符流类型
+-- 2.1. line：行模式，对应 "V" 字符流，对应 `vim.fn.getregion` 中 `type = "V"`
+-- 2.2. block：块模式，对应 "\22"/"\<C-V>" 字符流 `vim.fn.getregion` 中
+--   `type = "\22"`（即 `"\<C-V>"` 转义，Lua 中应使用 `"\22`）
+-- 2.3. char：字符模式，对应 "v" 字符流 `vim.fn.getregion` 中 `type = "v"`
+-- 3. `vim.fn.setreg` 函数 opts 参数中 `type` 选项即指定字符流类型
 --   "V"、"\22"、"v"，确定如何处理换行
--- 3.1 "V": lines，粘贴时将自动换行
--- 3.2 "\22"/<C-V>: block，粘贴时保持矩形形状
--- 3.3 "v"：char，按普通字符流粘贴
--- 3.4 读、写字符流类型可以不一致，如 `block` 读、`lines` 写
+-- 3.1. "V": lines，粘贴时将自动换行
+-- 3.2. "\22"/<C-V>: block，粘贴时保持矩形形状
+-- 3.3. "v"：char，按普通字符流粘贴
+-- 3.4. 读、写字符流类型可以不一致，如 `block` 读、`lines` 写
+-- 3.5. 注意，`vim.fn.getregtype` 的寄存器中若为 block 类型，返回结果将为
+--   `\22<width>` 后跟表示块宽的字符
+-- 4. `vim.fn.getregion` 函数 opts 参数中 `type` 用于确定读取内容方式，返回
+--   结果始终为 string[]
+-- 4.1. `V`：lines，忽略列数
+-- 4.2. `v`：char，严格安装行、列读取首尾
+-- 4.3. `\22`：block，按行、列读取矩形块
 --
 -- ------------------------------------------------------------------------
 -- 1. `g@` 是 Vim 内置的一个特殊命令，用于触发用户自定义的操作符
@@ -50,7 +58,7 @@
 -- 4.2. Neovim 执行函数，设置 opfunc，得到返回值 g@
 -- 4.3. Neovim 模拟按下 g@，进入 Operator-pending 模式
 -- 4.4. 你输入 aw
--- 4.5. Neovim 自动调用 yank_smart('char')
+-- 4.5. Neovim 自动调用 yank_smart("char")
 -- ===========================================================================
 
 local M = {}
@@ -60,7 +68,7 @@ M.defaults = {
 }
 M.opts = vim.deepcopy(M.defaults)
 
-local utils = require("users.utils")
+local hlmark = require("users.hlmark")
 
 -- %% =======================================================================
 --  功能函数
@@ -71,21 +79,21 @@ function M.remove_indents(lines)
   -- 计算非空行的最小前导空白
   local min_indent = math.huge
   for _, line in ipairs(lines) do
-    if line:find('%S') then
-      local lead = #(line:match('^%s*') or '')
+    if line:find("%S") then
+      local lead = #(line:match("^%s*") or "")
       min_indent = math.min(min_indent, lead)
     end
   end
 
   local text
   if min_indent == math.huge or min_indent == 0 then
-    text = table.concat(lines, '\n')
+    text = table.concat(lines, "\n")
   else
     local trimmed = {}
     for _, line in ipairs(lines) do
       table.insert(trimmed, line:sub(min_indent + 1))
     end
-    text = table.concat(trimmed, '\n')
+    text = table.concat(trimmed, "\n")
   end
   return text
 end
@@ -99,9 +107,9 @@ function _G.yank_smart(type)
   local end_pos = vim.fn.getpos("']")
 
   -- 按标记和类型取文本（Neovim 0.10+）
-  local region_type = type == 'line' and 'V'
-                    or type == 'block' and '\22'
-                    or 'v'
+  local region_type = type == "line" and "V"
+                    or type == "block" and "\22"
+                    or "v"
   local ok, lines = pcall(
     vim.fn.getregion,
     start_pos,
@@ -117,7 +125,7 @@ function _G.yank_smart(type)
   -- vim.fn.system("win32yank.exe -i --crlf", text)
   vim.fn.setreg("+", text, region_type)
 
-  utils.flash_from_marks(0, start_pos, end_pos, region_type)
+  hlmark.flash_hl(0, start_pos, end_pos, region_type)
 end
 
 
@@ -160,8 +168,17 @@ function M.setup(opts)
     local msg = vim.api.nvim_exec2("1messages", { output = true }).output
     -- 去掉开头多余换行
     msg = msg:gsub("^\n", "")
-    vim.fn.setreg("+", msg)
+    -- 事实上，即使 WSL 与 Windows 因为网络端口限制无法通信，`pcall` 成功
+    local ok, _result = pcall(vim.fn.setreg, "+", msg)
+    if not ok then vim.fn.setreg("\"", msg) end
   end, { desc = "GYank Last Msg" })
+
+  vim.keymap.set({ "n" }, "<leader>cM", function()
+    local msg = vim.api.nvim_exec2("1messages", { output = true }).output
+    msg = msg:gsub("^\n", "")
+    vim.fn.setreg("\"", msg)
+  end, { desc = "Yank Last Msg" })
 end
+
 
 return M

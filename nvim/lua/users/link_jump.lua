@@ -2,7 +2,7 @@
 -- File    : link_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-09-11 19:02:32
--- Updated : 2026-09-20 11:07:34
+-- Updated : 2026-09-27 19:48:30
 -- Desc    : Jump to the link.
 -- ==========================================================================
 
@@ -141,6 +141,11 @@ end
 --- @param tag string?
 --- @return string?
 function M.open_local(url, tag)
+  -- 检查 url 是否为纯 tag
+  if url and url:match("^#") and tag == nil then
+    tag = string.sub(url, 2)
+    url = nil
+  end
   -- 纯 #tag 链接（url 以 # 开头），直接在当前缓冲区跳转
   if url == nil or url == "" then
     tag_jump("#" .. tag)

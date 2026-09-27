@@ -2,31 +2,30 @@
 -- File    : mark_jump.lua
 -- Author  : xyy15926
 -- Created : 2026-08-25 22:04:08
--- Updated : 2026-09-19 21:17:34
+-- Updated : 2026-09-27 14:32:35
 -- Desc    : Jump to the line with mark string.
 -- ==========================================================================
 
+local utils = require("users.utils")
+local hlmark = require("users.hlmark")
+local bufau = require("users.bufau")
+
 local M = {}
+
 M.defaults = {
+  wrap = true,
   set_keymap = true,
-  hl_group    = "MarkUnderline",
-  priority    = 50,
-  hl_opts = {
-    sp        = "#E8A043",
-    underline = true,
+  enabled_filetypes = {
+    "python", "rust", "cpp", "c",
+    "markdown",
+    "lua", "shell",
   },
 }
-M.opts = vim.deepcopy(M.defaults)
 
-local utils = require("users.utils")
-
--- %% =======================================================================
---  标记模式设置
---  可用以下 Ex 命令将 `-- ====` 替换为 `-- %% =`
---  :let i=0 | g/^-- ====$/let i+=1 | if i%2==1 && i > 2 | s/^-- ====$/-- %% =/ | endif
--- ==========================================================================
--- 按文件类型默认标记正则
-local ft_marks = {
+-- 1. 按文件类型默认标记正则
+-- 2. 可用以下 Ex 命令将 `-- ====` 替换为 `-- %% =`
+--  `:let i=0 | g/^-- ====$/let i+=1 | if i%2==1 && i > 2 | s/^-- ====$/-- %% =/ | endif`
+M.defaults.marks = {
   python = { "^%s*# %%%%", "^%s*# MARK:" },
   markdown = { "^## ", "^### ", "^#### ", "^##### " },
   lua = { "^%s*%-%- %%%%", "^%s*%-%- MARK:" },
@@ -47,25 +46,35 @@ local ft_marks = {
   java = { "^%s*// %%%%", "^%s*// MARK:" },
   codecompanion = { "^## ", "^### ", "^#### ", "^##### " },
 }
-local current_marks = {}  -- 缓存当前缓冲区的标记位置
 
---- 更新文件类型对应标记模式
-local function update_marks()
-  if M.opts.marks then
-    for ft, ptn in pairs(ft_marks) do
-      if M.opts.marks[ft] ~= nil then
-        M.opts.marks[ft] = ptn
-      end
-    end
-  else
-    M.opts.marks = ft_marks
-  end
-end
+M.opts = vim.deepcopy(M.defaults)
 
---- 获取当前文件类型的标记模式
-function M.get_patterns()
-  local ft = vim.bo.filetype
+--- @class MarkLine
+--- @field lnum integer
+--- @field line string
+---
+--- 缓存 buffer 结果
+--- @type table<integer, MarkLine[]>
+M._cache = {}
+
+
+--- 维护是否对 buffer 生效标志
+--- @type table<integer, boolean>
+M._enabled = {}
+
+
+-- %% =======================================================================
+--  标记 pattern 设置、获取
+-- ==========================================================================
+
+--- 获取 buffer 对应文件类型的标记模式
+--- @param bufnr integer?
+--- @return string[] patterns
+function M.get_patterns(bufnr)
+  bufnr = utils.bufnr(bufnr)
+  local ft = vim.bo[bufnr].filetype
   local patterns = M.opts.marks[ft]
+
   if not patterns then
     -- 尝试从文件名匹配
     local name = vim.fn.expand("%:t")
@@ -80,61 +89,39 @@ end
 
 
 -- %% =======================================================================
---  高亮
--- ==========================================================================
-function M.setup_highlight()
-  if M.opts.hl_opts.link then
-    vim.api.nvim_set_hl(0, M.opts.hl_group, { link = M.otps.hl_opts.link })
-  else
-    vim.api.nvim_set_hl(0, M.opts.hl_group, M.opts.hl_opts)
-  end
-end
-
---- 对已扫描出的标记行应用高亮
-local function apply_highlights()
-  local ns_id = vim.api.nvim_create_namespace("mark_underline")
-  local buf = vim.api.nvim_get_current_buf() or 0
-  vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
-
-  for _, mark in ipairs(current_marks) do
-    vim.api.nvim_buf_set_extmark(buf, ns_id, mark.lnum - 1, 0, {
-      end_line   = mark.lnum,
-      hl_group   = M.opts.hl_group,
-      hl_eol     = true,
-      priority   = M.opts.priority,
-    })
-  end
-end
-
-
--- %% =======================================================================
 --  扫描缓冲区标记
 -- ==========================================================================
--- 扫描缓冲区中的所有标记
-local function scan_marks()
-  local patterns = M.get_patterns()
-  if #patterns == 0 then
-    current_marks = {}
-    return current_marks
-  end
 
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+--- 扫描缓冲区中的所有标记并记录
+--- @param bufnr integer?
+--- @return table<{lnum: integer, line: string}>
+local function scan_marks(bufnr)
+  bufnr = utils.bufnr(bufnr)
   local marks = {}
 
+  -- 获取标记 patterns
+  local patterns = M.get_patterns(bufnr)
+  if #patterns == 0 then
+    return marks
+  end
+
+  -- 逐行扫描获取标记行
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   for lnum, line in ipairs(lines) do
     for _, pat in ipairs(patterns) do
       if line:match(pat) then
         table.insert(marks, {
           lnum = lnum,
           line = line,
-          col = 0,
         })
+        -- 高亮标记行
+        hlmark.mark_line(bufnr, lnum)
         break
       end
     end
   end
 
-  current_marks = marks
+  M._cache[bufnr] = marks
   return marks
 end
 
@@ -142,14 +129,18 @@ end
 -- %% =======================================================================
 --  标记跳转
 -- ==========================================================================
+
 --- 跳转到下一个标记
-function M.next_mark()
-  local marks = scan_marks()
-  if #marks == 0 then
+--- @param bufnr integer?
+function M.next_mark(bufnr)
+  bufnr = utils.bufnr(bufnr)
+  local marks = M._cache[bufnr]
+  if marks == nil or #marks == 0 then
     vim.notify("未找到标记", vim.log.levels.INFO)
     return
   end
 
+  -- 定位当前光标位置
   local cursor = vim.api.nvim_win_get_cursor(0)
   local current_lnum = cursor[1]
 
@@ -168,20 +159,24 @@ function M.next_mark()
 
   if target then
     vim.api.nvim_win_set_cursor(0, { target.lnum, 0 })
-    utils.flash_line(0, target.lnum)
+    hlmark.flash_line(0, target.lnum)
   else
     vim.notify("已到最后一个标记", vim.log.levels.INFO)
   end
 end
 
+
 --- 跳转到上一个标记
-function M.prev_mark()
-  local marks = scan_marks()
-  if #marks == 0 then
+--- @param bufnr integer?
+function M.prev_mark(bufnr)
+  bufnr = utils.bufnr(bufnr)
+  local marks = M._cache[bufnr]
+  if marks == nil or #marks == 0 then
     vim.notify("未找到标记", vim.log.levels.INFO)
     return
   end
 
+  -- 定位当前光标位置
   local cursor = vim.api.nvim_win_get_cursor(0)
   local current_lnum = cursor[1]
 
@@ -200,22 +195,25 @@ function M.prev_mark()
 
   if target then
     vim.api.nvim_win_set_cursor(0, { target.lnum, 0 })
-    utils.flash_line(0, target.lnum)
+    hlmark.flash_line(0, target.lnum)
   else
     vim.notify("已到第一个标记", vim.log.levels.INFO)
   end
 end
 
+
 --- 列出所有标记并选择跳转
-function M.list_marks()
-  local marks = scan_marks()
-  if #marks == 0 then
+--- @param bufnr integer?
+function M.list_marks(bufnr)
+  bufnr = utils.bufnr(bufnr)
+  local marks = M._cache[bufnr]
+  if marks == nil or #marks == 0 then
     vim.notify("未找到标记", vim.log.levels.INFO)
     return
   end
 
   local items = {}
-  for i, mark in ipairs(marks) do
+  for _, mark in ipairs(marks) do
     local text = mark.line:gsub("^%s*", ""):sub(1, 60)
     table.insert(items, string.format("%3d: %s", mark.lnum, text))
   end
@@ -227,7 +225,7 @@ function M.list_marks()
     if choice and idx then
       local target = marks[idx]
       vim.api.nvim_win_set_cursor(0, { target.lnum, 0 })
-      utils.flash_line(0, target.lnum)
+      hlmark.flash_line(0, target.lnum)
     end
   end)
 end
@@ -238,24 +236,31 @@ end
 -- ==========================================================================
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
-  M.setup_highlight()
-  update_marks()
 
-  -- 创建用户命令
-  vim.api.nvim_create_user_command("MarkJumpNext", M.next_mark, { desc = "Next Mark" })
-  vim.api.nvim_create_user_command("MarkJumpPrev", M.prev_mark, { desc = "Prev Mark" })
-  vim.api.nvim_create_user_command("MarkJumpList", M.list_marks, { desc = "List Marks" })
+  -- 注册自动命令：自动命令将在符合条件 buffer 上注册自动命令，自动更新 marks
+  M.enable, M.disable, M.toggle = bufau.toggle_debounce_au_on_filetypes(
+    "users.mark_line",
+    scan_marks,
+    hlmark.clear_mark,
+    M._enabled,
+    M.opts.enabled_filetypes,
+    { "BufEnter", "TextChanged", "InsertLeave" },
+    1000
+  )
 
-  -- 缓冲区切换/内容改变时刷新标记缓存
-  -- 1. `current_marks` 只存储单个 buffer 中标记
-  -- 2. 但每次切换 buffer 都会执行 `scan_marks` 更新
-  vim.api.nvim_create_autocmd({ "BufEnter", "TextChanged", "TextChangedI" }, {
-    group = vim.api.nvim_create_augroup("MarkJumpRefresh", { clear = true }),
-    callback = function()
-      scan_marks()
-      apply_highlights()
-    end,
-  })
+  -- 创建用户自定义命令
+  utils.register_select_command(
+    "MarkJump",
+    {
+      { subcmd = "enable", func = M.enable },
+      { subcmd = "disable", func = M.disable },
+      { subcmd = "toggle", func = M.toggle },
+      { subcmd = "next", func = M.next_mark },
+      { subcmd = "prev", func = M.prev_mark },
+      { subcmd = "list", func = M.list_marks },
+    },
+    "高亮标记行、跳转"
+  )
 
   if M.opts.set_keymap then
     vim.keymap.set("n", "<leader>jj", M.next_mark, { desc = "Mark: Next Mark"})

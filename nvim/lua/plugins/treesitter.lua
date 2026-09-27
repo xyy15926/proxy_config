@@ -2,7 +2,7 @@
 -- File    : treesitter.lua
 -- Author  : xyy15926
 -- Created : 2026-09-01 09:59:44
--- Updated : 2026-09-08 19:57:57
+-- Updated : 2026-09-21 22:10:11
 -- Desc    : Treesitter configs.
 --
 -- --------------------------------------------------------------------------
@@ -88,8 +88,8 @@ return {
           vim.treesitter.start(args.buf, lang)
 
           -- 启用 treesitter folds、intention
-          vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-          vim.wo[0][0].foldmethod = 'expr'
+          vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+          vim.wo[0][0].foldmethod = "expr"  -- 配合前述，根据 `foldexpr` 表达式计算折叠区域
           vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 
           vim.notify(

@@ -2,7 +2,7 @@
 -- File    : keys.lua
 -- Author  : xyy15926
 -- Created : 2026-09-08 22:01:25
--- Updated : 2026-09-21 09:35:49
+-- Updated : 2026-09-22 08:40:53
 -- Desc    : Snacks keymaps
 --
 -- Ref:
@@ -120,10 +120,13 @@ return {
   { "<leader>nT", function() require("snacks").picker.treesitter() end, desc = "Tags: Preview" },
 
   -- %% Git preivew =========================================================
+  -- 以下 `git_diff` 预览项默认 <Tab> stage, <Ctrl-r> unstage 变动
   { "<leader>gD", function() require("snacks").picker.git_diff() end, desc = "Preview: Git Diffs(Repo)" },
-  { "<leader>gF", function() require("snacks").picker.git_log_file() end, desc = "Preview: File Hist(log)" },
-  { "<leader>gT", function() require("snacks").picker.git_log() end, desc = "Preview: Repo Hist(log)" },
-  { "<leader>gB", function() require("snacks").picker.git_log_line() end, desc = "Preview: Line Hist(log)" },
+  -- 以下 `git_log` 预览项选中默认配置会直接 checkout 文件
+  -- 且文件已经被 staged、无法通过 gitsign undo-stage，只能 `git restore --staged`
+  -- { "<leader>gF", function() require("snacks").picker.git_log_file() end, desc = "Preview: File Hist(log)" },
+  -- { "<leader>gT", function() require("snacks").picker.git_log() end, desc = "Preview: Repo Hist(log)" },
+  -- { "<leader>gB", function() require("snacks").picker.git_log_line() end, desc = "Preview: Line Hist(log)" },
 
   { "<leader>gm", function() require("snacks").scratch.open({ ft = "gitcommit", name = "commit-draft" }) end, desc = "Commit Msg Scratch" },
 
@@ -135,6 +138,7 @@ return {
   { "<leader>lm", function() require("snacks").scratch.select() end, desc = "Scratchs" },
   { "<leader>lp", function() require("snacks").picker.projects() end, desc = "Projects" },
   { "<leader>l/", function() require("snacks").picker.search_history() end, desc = "Search Hist" },
+  { "<leader>lk", function() require("snacks").picker.keymaps() end, desc = "Keymaps" },
 
   -- %% 其他组件 ============================================================
   { "<leader>un", function() require("snacks").notifier.show_history() end, desc = "Notification History" },

@@ -2,13 +2,13 @@
 -- File    : options.lua
 -- Author  : xyy1926
 -- Created : 2026-08-28 19:35:09
--- Updated : 2026-09-19 22:39:24
+-- Updated : 2026-09-27 21:14:28
 -- Desc    : Options
 -- ==========================================================================
 
 -- Appearance -----------------------------------------------
 vim.opt.number = true
-vim.opt.relativenumber = true
+vim.opt.relativenumber = false
 vim.opt.signcolumn = "yes"
 vim.opt.background = "dark"
 vim.opt.termguicolors = true
@@ -35,9 +35,10 @@ vim.opt.guicursor = table.concat({
 
 -- Fold
 vim.opt.foldenable = true
-vim.opt.foldmethod = "indent"
+vim.opt.foldmethod = "indent"  -- indent, syntax, manual, expr
 vim.opt.foldlevel = 99
 vim.opt.foldcolumn = "0"
+vim.opt.foldtext = "getline(v:foldstart) . '···' . (v:foldend - v:foldstart) . ' lines'"
 
 -- Tab & Indent
 vim.opt.smarttab = true

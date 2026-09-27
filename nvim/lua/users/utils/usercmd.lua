@@ -2,7 +2,7 @@
 -- File    : usercmd.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 14:56:19
--- Updated : 2026-09-07 17:59:27
+-- Updated : 2026-09-27 14:26:22
 -- Desc    : Register user command helper.
 -- ==========================================================================
 
@@ -72,6 +72,41 @@ function M.register_range_apply_command(func, cmd, desc, msg)
   vim.api.nvim_create_user_command(cmd, function(args)
     M.apply_on_1range_lines(args.line1, args.line2, func, desc or msg)
   end, { range = true, nargs = 0, desc = desc })
+end
+
+
+--- @class CmdSelect
+--- @field subcmd string 空字符串 `""` 表示默认子命令
+--- @field func function()
+---
+--- 注册仅支持可选项的 user-command
+--- @param user_cmd string
+--- @param cmd_selects CmdSelect[]
+--- @param desc string? 命令描述
+function M.register_select_command(user_cmd, cmd_selects, desc)
+  -- 收集可选项描述
+  local subcmds = {}
+  for _, select in ipairs(cmd_selects) do
+    table.insert(subcmds, select.subcmd)
+  end
+
+  vim.api.nvim_create_user_command(user_cmd, function(cmd)
+    local arg = cmd.args
+    for _, select in ipairs(cmd_selects) do
+      if arg == select.subcmd then
+        select.func()
+        return
+      end
+    end
+    vim.notify(
+      "Usage:" .. user_cmd .. "[" .. table.concat(subcmds, "|") .. "]",
+      vim.log.levels.WARN
+    )
+  end, {
+    nargs = "?",
+    complete = function() return subcmds end,
+    desc = desc,
+  })
 end
 
 

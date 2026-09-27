@@ -4,6 +4,11 @@
 -- Created : 2026-09-01 21:55:38
 -- Updated : 2026-09-01 21:55:38
 -- Desc    : Prompts.
+--
+-- Ref:
+-- - lazy/codecompanion.nvim/doc/configuration/prompt-library.md
+-- - lazy/codecompanion.nvim/lua/codecompanion/prompt_library/builtins/explain.md
+-- - lazy/codecompanion.nvim/lua/codecompanion/prompt_library/builtins/lsp.lua
 -- ==========================================================================
 
 return {

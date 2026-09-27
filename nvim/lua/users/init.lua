@@ -2,7 +2,7 @@
 -- File    : init.lua
 -- Author  : xyy15926
 -- Created : 2026-08-27 22:28:31
--- Updated : 2026-09-19 16:26:56
+-- Updated : 2026-09-27 15:35:40
 -- Desc    : Init user mods.
 -- ==========================================================================
 
@@ -49,7 +49,16 @@ require("users.markdown_todo").setup({
 require("users.yank2gclip").setup({
   win32yank = vim.fn.stdpath("config") .. "/bins/win32yank.exe"
 })
-require("users.mark_jump").setup({ set_keymap = true })
+require("users.mark_jump").setup({
+  wrap = true,
+  set_keymap = true,
+  enabled_filetypes = {
+    "python", "rust", "cpp", "c",
+    "lua", "shell",
+    "markdown",
+    "codecompanion",
+  },
+})
 require("users.alignment").setup({
   min_spaces = 2,      -- 代码与注释之间至少保留的空格数
   search_range = 10,   -- 上下搜索的行数范围
@@ -68,6 +77,24 @@ require("users.terminal").setup({
   set_keys = true,
 })
 require("users.qfix").setup({})
+require("users.hlmark").setup()
+require("users.markdown_heading_numbers").setup({
+  enabled_filetypes = {
+    "markdown", "quarto", "pandoc", "rmd", "markdown.mdx",
+    "codecompanion",
+  },
+  separator = ".",
+  zero_pad = true,
+  min_level = 2,
+  max_level = 6,
+  setext = true,
+  format = function(mdh)
+    if mdh.number then
+      return mdh.number .. " "
+    end
+    return nil
+  end
+})
 require("users.colorscheme_switch").setup({
   transparent_enabled = true,
 })

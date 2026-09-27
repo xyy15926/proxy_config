@@ -2,7 +2,7 @@
 -- File    : colorscheme_switch.lua
 -- Author  : xyy15926
 -- Created : 2026-08-28 10:51:21
--- Updated : 2026-09-04 09:22:22
+-- Updated : 2026-09-27 12:45:57
 -- Desc    : Switch colorscheme.
 -- ==========================================================================
 
@@ -78,8 +78,9 @@ local function set_other_hls()
   -- 设置 vim-slime Cells 分割线
   -- vim.api.nvim_set_hl(0, "CellBoundary", { underline = true, sp = "#E8A043" })
   -- 设置 user.utils.flashhl 高亮
-  require("users.utils.flashhl").setup_highlight()
-  require("users.mark_jump").setup_highlight()
+  -- require("users.utils.flashhl").setup_highlight()
+  -- require("users.mark_jump").setup_highlight()
+  require("users.hlmark").setup_predef_hls()
 end
 
 --- 切换透明背景

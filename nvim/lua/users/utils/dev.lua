@@ -2,7 +2,7 @@
 -- File    : dev.lua
 -- Author  : xyy15926
 -- Created : 2026-09-07 22:00:20
--- Updated : 2026-09-18 14:38:19
+-- Updated : 2026-09-24 19:27:12
 -- Desc    : Dev tools.
 -- ==========================================================================
 
@@ -12,8 +12,11 @@ M.opts = vim.deepcopy(M.defaults)
 
 
 -- %% =======================================================================
---  按键模拟
+--  简单封装
 -- ==========================================================================
+
+--- 模拟按键输入
+--- @param keys string 表示按键的字符串
 function M.feedkeys(keys)
   vim.api.nvim_feedkeys(
     vim.api.nvim_replace_termcodes(keys, true, false, true),
@@ -26,6 +29,7 @@ end
 -- %% =======================================================================
 --  Lua 值格式化打印
 -- ==========================================================================
+
 --- 递归格式化 Lua 值为逐行展开的字符串表示
 --- @param v      any        要格式化的值
 --- @param depth? number     当前缩进深度，首次调用可省略
@@ -111,36 +115,36 @@ end
 
 
 -- %% =======================================================================
---  文件、内容读取
+--  字符串格式化
 -- ==========================================================================
---- 获取指定文件内容字符串或 buffer 号
---- @param filepath string
-function M.read_source(filepath)
-  -- 当前 buffer，优先级最高，直接返回 buffer number
-  if vim.fn.expand("%:p") == vim.fn.fnamemodify(filepath, ":p") then
-    return 0
-  end
-  -- 文件在其他窗口/标签页的 buffer 里，也返回 buffer number
-  local buf = vim.fn.bufnr(filepath)
-  if buf ~= -1 and vim.api.nvim_buf_is_loaded(buf) then
-    return buf
-  end
-  -- 否则，从磁盘读取，返回文件内容字符串
-  return table.concat(vim.fn.readfile(filepath), "\n")
-end
 
+-- 允许的格式指令：%[flags][width][.precision][type]
+local SPEC_PATTERN = "^:[-+ #0]*%d*%.?%d*[diouxXeEfgGacsq]$"
 
---- 获取当前行或 visual 选区中多行
---- @param keep_mode boolean?
---- @return string | string[]
-function M.get_content(keep_mode)
-  local sp = vim.fn.getpos(".")
-  local ep = vim.fn.getpos("v")
-  local content = sp[2] == ep[2] and sp[3] == ep[3]
-    and vim.api.nvim_get_current_line()
-    or vim.fn.getregion(sp, ep, { type = vim.fn.mode() })
-  if not keep_mode then M.feedkeys("<Esc>") end
-  return content
+--- 具名格式化
+--- 事实上 `string:gsub` 可直接接受 table 作为第二参数，在 table 中查不到
+--- 名称时原样保留
+--- @param tpl string 模板，占位符为 %{key} 或 %{key:%.2f}
+--- @param vars table<string, any> 键值表
+--- @param strict? boolean true 时缺 key 报错；false/缺省 时占位符原样保留
+--- @return string
+function M.named_fmt(tpl, vars, strict)
+  return (tpl:gsub("%%{([%w_]+)(:?[^}]*)}", function(key, spec)
+    local v = vars[key]
+    if v == nil then
+      if strict then
+        error(("missing key: %%{%s}"):format(key), 2)
+      end
+      return "%{" .. key .. spec .. "}"   -- 原样保留（含 spec）
+    end
+    if spec == "" then
+      return tostring(v)
+    end
+    if not spec:find(SPEC_PATTERN) then
+      error(("bad spec: %%{%s%s}"):format(key, spec), 2)
+    end
+    return spec:sub(2):format(v)
+  end))
 end
 
 
